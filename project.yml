@@ -1,0 +1,86 @@
+name: Voicy
+options:
+  bundleIdPrefix: de.dreamit.voicy
+  deploymentTarget:
+    macOS: "14.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+    DEAD_CODE_STRIPPING: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
+    GENERATE_INFOPLIST_FILE: NO
+    INFOPLIST_KEY_LSUIElement: YES
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: NO
+packages:
+  WhisperKit:
+    url: https://github.com/argmaxinc/WhisperKit
+    minVersion: "0.9.0"
+  # Sparkle is added in the Distribution phase. Re-enable when wiring auto-updates:
+  # Sparkle:
+  #   url: https://github.com/sparkle-project/Sparkle
+  #   minVersion: "2.6.0"
+targets:
+  Voicy:
+    type: application
+    platform: macOS
+    sources:
+      - path: Voicy
+      - path: Modules
+    resources:
+      - path: Voicy/Resources/Prompts
+      - path: Voicy/Resources/Assets.xcassets
+        optional: true
+    info:
+      path: Voicy/Resources/Info.plist
+      properties:
+        CFBundleName: Voicy
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSUIElement: true
+        LSMinimumSystemVersion: "14.0"
+        NSMicrophoneUsageDescription: "Voicy nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht."
+        NSAppleEventsUsageDescription: "Voicy fügt transkribierten Text in das aktive Eingabefeld ein."
+        SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
+        SUEnableAutomaticChecks: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.dreamit.voicy
+        CODE_SIGN_ENTITLEMENTS: Voicy/Resources/Voicy.entitlements
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_APP_SANDBOX: NO
+    dependencies:
+      - package: WhisperKit
+      # - package: Sparkle
+  VoicyTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: Voicy
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Voicy.app/Contents/MacOS/Voicy"
+schemes:
+  Voicy:
+    build:
+      targets:
+        Voicy: all
+        VoicyTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - VoicyTests
+    archive:
+      config: Release
