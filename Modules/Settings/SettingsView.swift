@@ -159,7 +159,7 @@ private struct RewriteSettingsView: View {
     }
 
     private func loadCustom() {
-        if let custom = coordinator.styleStore.styles.first(where: { $0.id == .customSlotID }) {
+        if let custom = coordinator.styleStore.styles.first(where: { $0.id == RewriteStyle.customSlotID }) {
             customName = custom.name
             customPrompt = custom.systemPrompt
         }

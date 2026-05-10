@@ -35,7 +35,7 @@ public final class RewriteStyleStore: ObservableObject {
 
     /// Updates the editable Custom style. Throws if the caller targets a built-in style.
     public func updateCustom(name: String, systemPrompt: String) throws {
-        guard let index = styles.firstIndex(where: { $0.id == .customSlotID }) else {
+        guard let index = styles.firstIndex(where: { $0.id == RewriteStyle.customSlotID }) else {
             throw RewriteStyleStoreError.styleNotFound
         }
         guard styles[index].kind == .custom else {
@@ -47,7 +47,7 @@ public final class RewriteStyleStore: ObservableObject {
     }
 
     public func resetCustom() {
-        guard let index = styles.firstIndex(where: { $0.id == .customSlotID }) else { return }
+        guard let index = styles.firstIndex(where: { $0.id == RewriteStyle.customSlotID }) else { return }
         styles[index] = .defaultCustomSlot()
         persist()
     }
@@ -65,7 +65,7 @@ public final class RewriteStyleStore: ObservableObject {
         guard let data = try? Data(contentsOf: storeURL),
               let persisted = try? JSONDecoder().decode(Persisted.self, from: data) else {
             self.styles = defaults
-            self.activeStyleID = .friendlyID
+            self.activeStyleID = RewriteStyle.friendlyID
             persist()
             return
         }
@@ -73,18 +73,18 @@ public final class RewriteStyleStore: ObservableObject {
         // Always keep the built-in Friendly prompt in sync with the bundled file
         // (we never let users overwrite it on disk).
         var merged = persisted.styles
-        if let i = merged.firstIndex(where: { $0.id == .friendlyID }) {
+        if let i = merged.firstIndex(where: { $0.id == RewriteStyle.friendlyID }) {
             merged[i] = RewriteStyle.defaultFriendly(prompt: builtinFriendlyPrompt)
         } else {
             merged.insert(.defaultFriendly(prompt: builtinFriendlyPrompt), at: 0)
         }
-        if !merged.contains(where: { $0.id == .customSlotID }) {
+        if !merged.contains(where: { $0.id == RewriteStyle.customSlotID }) {
             merged.append(.defaultCustomSlot())
         }
         self.styles = merged
         self.activeStyleID = merged.contains(where: { $0.id == persisted.activeStyleID })
             ? persisted.activeStyleID
-            : .friendlyID
+            : RewriteStyle.friendlyID
     }
 
     private func persist() {

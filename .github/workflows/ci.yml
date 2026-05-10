@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: macos-14
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Run SwiftLint
+        run: swiftlint lint --reporter github-actions-logging
+
+  plist-validate:
+    name: Validate plist + entitlements
+    runs-on: macos-14
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint plists
+        run: |
+          set -e
+          plutil -lint Voicy/Resources/Info.plist
+          plutil -lint Voicy/Resources/Voicy.entitlements
+      - name: Verify hardened runtime + sandbox-off in entitlements
+        run: |
+          /usr/libexec/PlistBuddy -c "Print :com.apple.security.app-sandbox" Voicy/Resources/Voicy.entitlements | grep -q false
+          /usr/libexec/PlistBuddy -c "Print :com.apple.security.device.audio-input" Voicy/Resources/Voicy.entitlements | grep -q true
+
+  build-test:
+    name: Build + Test (macOS 14, arm64)
+    runs-on: macos-14
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # XcodeGen 2.45 emits objectVersion 77, which only Xcode 16+ can open.
+      # macos-14 runners ship Xcode 16.2 alongside 15.x.
+      DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        id: install_xcodegen
+        run: brew install xcodegen 2>&1 | tee logs-install.txt
+
+      - name: Show toolchain
+        id: toolchain
+        run: |
+          { xcode-select -p; xcodebuild -version; swift --version; xcodegen --version; ls /Applications | grep -i Xcode; } 2>&1 | tee logs-toolchain.txt
+
+      - name: Generate Xcode project
+        id: xcodegen
+        run: xcodegen generate 2>&1 | tee logs-xcodegen.txt
+
+      - name: Resolve packages
+        id: resolve
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Voicy.xcodeproj \
+            -scheme Voicy \
+            -resolvePackageDependencies 2>&1 | tee logs-resolve.txt
+
+      - name: Build
+        id: build
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Voicy.xcodeproj \
+            -scheme Voicy \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            -derivedDataPath build \
+            build 2>&1 | tee logs-build.txt
+
+      - name: Test
+        id: test
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Voicy.xcodeproj \
+            -scheme Voicy \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            -derivedDataPath build \
+            -enableCodeCoverage YES \
+            -resultBundlePath build/TestResults.xcresult \
+            test 2>&1 | tee logs-test.txt
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: build/TestResults.xcresult
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BuildLogs
+          path: logs-*.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Post failure log to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Build + Test failure"
+            echo
+            echo "Errors/warnings extracted from each step. Full logs are in the"
+            echo "**BuildLogs** artifact on this run."
+            for f in logs-install.txt logs-toolchain.txt logs-xcodegen.txt logs-resolve.txt logs-build.txt logs-test.txt; do
+              if [ -f "$f" ]; then
+                echo
+                echo "<details><summary><code>$f</code> — errors & warnings</summary>"
+                echo
+                echo '```'
+                grep -E "error:|warning:|FAILED|fatal error|note:|cannot find|ambiguous|undefined symbol|Linker command failed|Testing failed" "$f" \
+                  | grep -v "swift-frontend " \
+                  | head -n 60 | head -c 20000 \
+                  || echo "(no error/warning lines matched in $f)"
+                echo '```'
+                echo
+                echo '<details><summary>Last 30 lines of raw log</summary>'
+                echo
+                echo '```'
+                tail -n 30 "$f" | head -c 8000
+                echo '```'
+                echo '</details>'
+                echo "</details>"
+              fi
+            done
+          } > comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file comment.md
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          LATEST=$(curl -sSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | jq -r .tag_name)
+          VERSION=${LATEST#v}
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/${LATEST}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /tmp gitleaks
+          sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Run gitleaks
+        run: gitleaks detect --source . --no-banner --redact --verbose --exit-code 1

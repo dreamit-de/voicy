@@ -107,7 +107,7 @@ public final class HotkeyEngine: HotkeyEngineProtocol {
         guard type == .flagsChanged else { return }
 
         let flags = event.flags
-        let rightOptionDown = flags.contains(.maskAlternate) && hasRightSideBit(flags, mask: NX_DEVICERALTKEYMASK)
+        let rightOptionDown = flags.contains(.maskAlternate) && hasRightSideBit(flags, mask: nxDeviceRAltKeyMask)
         let controlDown = flags.contains(.maskControl)
 
         let newMode: HotkeyMode? = {
@@ -137,6 +137,5 @@ public enum HotkeyEngineError: Error, Sendable {
     case tapCreationFailed
 }
 
-// IOKit constants. NX_DEVICERALTKEYMASK is part of `<IOKit/hidsystem/IOLLEvent.h>`
-// but is not bridged into Swift as a constant; we redefine it here.
-private let NX_DEVICERALTKEYMASK: UInt = 0x040000
+/// `NX_DEVICERALTKEYMASK` from `<IOKit/hidsystem/IOLLEvent.h>` — not bridged into Swift, so we redefine it.
+private let nxDeviceRAltKeyMask: UInt = 0x040000

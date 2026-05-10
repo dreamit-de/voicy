@@ -1,5 +1,5 @@
 import Foundation
-import WhisperKit
+@preconcurrency import WhisperKit
 import os
 
 public protocol TranscriptionService: AnyObject {

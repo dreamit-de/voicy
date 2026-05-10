@@ -29,7 +29,7 @@ public extension RewriteStyle {
 
     static func defaultFriendly(prompt: String) -> RewriteStyle {
         RewriteStyle(
-            id: .friendlyID,
+            id: Self.friendlyID,
             name: "Friendly",
             systemPrompt: prompt,
             kind: .builtin
@@ -38,7 +38,7 @@ public extension RewriteStyle {
 
     static func defaultCustomSlot() -> RewriteStyle {
         RewriteStyle(
-            id: .customSlotID,
+            id: Self.customSlotID,
             name: "Custom",
             systemPrompt: "",
             kind: .custom
