@@ -44,7 +44,7 @@ jobs:
             -project Voicy.xcodeproj \
             -scheme Voicy \
             -configuration Debug \
-            -destination 'platform=macOS,name=Any Mac' \
+            -destination 'generic/platform=macOS' \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
