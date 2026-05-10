@@ -20,11 +20,11 @@ settings:
 packages:
   WhisperKit:
     url: https://github.com/argmaxinc/WhisperKit
-    minVersion: "0.9.0"
+    from: "0.9.0"
   # Sparkle is added in the Distribution phase. Re-enable when wiring auto-updates:
   # Sparkle:
   #   url: https://github.com/sparkle-project/Sparkle
-  #   minVersion: "2.6.0"
+  #   from: "2.6.0"
 targets:
   Voicy:
     type: application
