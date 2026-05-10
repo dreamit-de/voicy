@@ -45,39 +45,36 @@ jobs:
     name: Build + Test (macOS 14, arm64)
     runs-on: macos-14
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Install xcodegen
-        run: brew install xcodegen
+        id: install_xcodegen
+        run: brew install xcodegen 2>&1 | tee logs-install.txt
 
       - name: Show toolchain
+        id: toolchain
         run: |
-          xcode-select -p
-          xcodebuild -version
-          swift --version
-          xcodegen --version
+          { xcode-select -p; xcodebuild -version; swift --version; xcodegen --version; ls /Applications | grep -i Xcode; } 2>&1 | tee logs-toolchain.txt
 
       - name: Generate Xcode project
-        run: xcodegen generate
-
-      - name: Cache SwiftPM artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages
-            ~/Library/Caches/org.swift.swiftpm
-          key: spm-${{ runner.os }}-${{ hashFiles('project.yml') }}
-          restore-keys: spm-${{ runner.os }}-
+        id: xcodegen
+        run: xcodegen generate 2>&1 | tee logs-xcodegen.txt
 
       - name: Resolve packages
+        id: resolve
         run: |
+          set -o pipefail
           xcodebuild \
             -project Voicy.xcodeproj \
             -scheme Voicy \
-            -resolvePackageDependencies
+            -resolvePackageDependencies 2>&1 | tee logs-resolve.txt
 
       - name: Build
+        id: build
         run: |
           set -o pipefail
           xcodebuild \
@@ -89,9 +86,10 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             -derivedDataPath build \
-            build
+            build 2>&1 | tee logs-build.txt
 
       - name: Test
+        id: test
         run: |
           set -o pipefail
           xcodebuild \
@@ -105,7 +103,7 @@ jobs:
             -derivedDataPath build \
             -enableCodeCoverage YES \
             -resultBundlePath build/TestResults.xcresult \
-            test
+            test 2>&1 | tee logs-test.txt
 
       - name: Upload test results
         if: always()
@@ -114,6 +112,40 @@ jobs:
           name: TestResults
           path: build/TestResults.xcresult
           retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BuildLogs
+          path: logs-*.txt
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Post failure log to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Build + Test failure — last 80 lines per step"
+            for f in logs-install.txt logs-toolchain.txt logs-xcodegen.txt logs-resolve.txt logs-build.txt logs-test.txt; do
+              if [ -f "$f" ]; then
+                echo
+                echo "<details><summary><code>$f</code></summary>"
+                echo
+                echo '```'
+                tail -n 80 "$f" | head -c 30000
+                echo '```'
+                echo "</details>"
+              fi
+            done
+          } > comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file comment.md
 
   secret-scan:
     name: Secret scan (gitleaks)

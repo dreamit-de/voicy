@@ -15,8 +15,6 @@ settings:
     DEAD_CODE_STRIPPING: YES
     SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
-    GENERATE_INFOPLIST_FILE: NO
-    INFOPLIST_KEY_LSUIElement: YES
     ARCHS: arm64
     ONLY_ACTIVE_ARCH: NO
 packages:
@@ -36,8 +34,6 @@ targets:
       - path: Modules
     resources:
       - path: Voicy/Resources/Prompts
-      - path: Voicy/Resources/Assets.xcassets
-        optional: true
     info:
       path: Voicy/Resources/Info.plist
       properties:
