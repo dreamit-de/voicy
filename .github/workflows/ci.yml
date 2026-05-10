@@ -134,15 +134,28 @@ jobs:
         run: |
           set -euo pipefail
           {
-            echo "## Build + Test failure — last 80 lines per step"
+            echo "## Build + Test failure"
+            echo
+            echo "Errors/warnings extracted from each step. Full logs are in the"
+            echo "**BuildLogs** artifact on this run."
             for f in logs-install.txt logs-toolchain.txt logs-xcodegen.txt logs-resolve.txt logs-build.txt logs-test.txt; do
               if [ -f "$f" ]; then
                 echo
-                echo "<details><summary><code>$f</code></summary>"
+                echo "<details><summary><code>$f</code> — errors & warnings</summary>"
                 echo
                 echo '```'
-                tail -n 80 "$f" | head -c 30000
+                grep -E "error:|warning:|FAILED|fatal error|note:|cannot find|ambiguous|undefined symbol|Linker command failed|Testing failed" "$f" \
+                  | grep -v "swift-frontend " \
+                  | head -n 60 | head -c 20000 \
+                  || echo "(no error/warning lines matched in $f)"
                 echo '```'
+                echo
+                echo '<details><summary>Last 30 lines of raw log</summary>'
+                echo
+                echo '```'
+                tail -n 30 "$f" | head -c 8000
+                echo '```'
+                echo '</details>'
                 echo "</details>"
               fi
             done
