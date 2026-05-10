@@ -3,7 +3,7 @@ import CoreGraphics
 import Foundation
 import os
 
-public protocol TextInserter: AnyObject {
+public protocol TextInserter: AnyObject, Sendable {
     func insert(_ text: String) async
 }
 

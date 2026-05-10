@@ -1,7 +1,7 @@
 import Foundation
 import os
 
-public protocol RewriteService: AnyObject {
+public protocol RewriteService: AnyObject, Sendable {
     func availableModels() async throws -> [String]
     func isReachable() async -> Bool
     func rewrite(_ text: String, using style: RewriteStyle, model: String) async throws -> String
