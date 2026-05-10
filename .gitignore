@@ -34,7 +34,8 @@ Package.resolved
 *.mobileprovision
 .env
 .env.local
-ExportOptions.plist
+/ExportOptions.plist
+!.github/ExportOptions.plist
 notarytool-credentials.txt
 
 ## Distribution artifacts

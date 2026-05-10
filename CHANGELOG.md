@@ -15,6 +15,13 @@
 - Manual end-to-end test plan in `docs/manual-tests.md`.
 - Unit tests for `RewriteStyleStore` persistence and `AppSettings` round-tripping.
 
+### CI / CD
+- GitHub Actions `CI` workflow: SwiftLint, plist + entitlements validation, build & XCTest on macOS 14 / arm64, gitleaks secret scan.
+- GitHub Actions `CodeQL` workflow for Swift static analysis (PR + weekly schedule).
+- GitHub Actions `Release` workflow (workflow_dispatch): archive → Developer ID export → notarize + staple → DMG → draft GitHub Release.
+- Dependabot for GitHub Actions and SwiftPM weekly.
+- `CODEOWNERS`, PR template, `SECURITY.md`, `.swiftlint.yml`.
+
 ### Modes
 - **Normal** — held Right-Option: dictation only.
 - **Friendly** — held Right-Option + Control with Friendly active: built-in friendly rewrite via Ollama.

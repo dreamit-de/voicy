@@ -1,0 +1,8 @@
+# Default owners for everything in the repo.
+# Replace with concrete usernames or team handles when ready.
+*           @dreamit-de/maintainers
+
+# Highly sensitive areas — always need a second pair of eyes.
+/.github/                       @dreamit-de/maintainers
+/Voicy/Resources/Voicy.entitlements @dreamit-de/maintainers
+/.github/workflows/release.yml      @dreamit-de/maintainers
