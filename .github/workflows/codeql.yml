@@ -20,6 +20,13 @@ jobs:
     name: Analyze (Swift)
     runs-on: macos-14
     timeout-minutes: 60
+    # CodeQL on org-owned repos uploads SARIF results to the GitHub Security tab,
+    # which requires GitHub Advanced Security (GHAS). Until GHAS is enabled on
+    # dreamit-de/voicy, the upload step fails the job, so we mark this check
+    # non-blocking and store findings as an artifact instead. Flip
+    # continue-on-error to false (and set `upload: always` below) once GHAS is
+    # turned on in repo Settings → Security → Code security and analysis.
+    continue-on-error: true
     env:
       DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
     steps:
@@ -52,9 +59,23 @@ jobs:
             build 2>&1 | tee logs-build.txt
 
       - name: Perform CodeQL analysis
+        id: codeql_analyze
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:swift"
+          # Don't push SARIF to the Security tab — that requires GitHub Advanced
+          # Security on org repos. Findings land in the SarifResults artifact.
+          upload: never
+          output: codeql-results
+
+      - name: Upload SARIF as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SarifResults
+          path: codeql-results
+          retention-days: 14
+          if-no-files-found: ignore
 
       - name: Upload CodeQL logs
         if: always()
