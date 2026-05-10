@@ -26,7 +26,7 @@ public final class AudioRecorder: AudioRecorderProtocol, @unchecked Sendable {
     private var converter: AVAudioConverter?
     private var buffer: [Float] = []
     private let bufferLock = NSLock()
-    private(set) public var isRecording = false
+    public private(set) var isRecording = false
 
     public init() {}
 

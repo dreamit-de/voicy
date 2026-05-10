@@ -1,4 +1,8 @@
 version: 2
+# SwiftPM packages are declared in `project.yml` (XcodeGen) instead of a
+# top-level `Package.swift`, so the `swift` ecosystem is intentionally omitted —
+# Dependabot would fail to find a manifest. Bump WhisperKit/Sparkle by hand in
+# project.yml when needed.
 updates:
   - package-ecosystem: github-actions
     directory: /
@@ -9,12 +13,3 @@ updates:
     labels:
       - dependencies
       - github-actions
-  - package-ecosystem: swift
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    labels:
-      - dependencies
-      - swift

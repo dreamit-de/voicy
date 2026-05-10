@@ -97,11 +97,13 @@ public final class Permissions: ObservableObject {
     }
 
     private func currentInputMonitoringStatus() -> PermissionStatus {
+        // IOHIDAccessType bridges into Swift as a typed enum on macOS, but the exact
+        // case names depend on SDK version. Compare via raw UInt32 to stay portable:
+        // 0 = granted, 1 = denied, 2 = unknown.
         let access = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
-        switch access {
-        case kIOHIDAccessTypeGranted: return .granted
-        case kIOHIDAccessTypeDenied: return .denied
-        case kIOHIDAccessTypeUnknown: return .notDetermined
+        switch access.rawValue {
+        case 0: return .granted
+        case 1: return .denied
         default: return .notDetermined
         }
     }
