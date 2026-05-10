@@ -104,7 +104,7 @@ jobs:
           spctl --assess --type install --verbose "build/Voicy-${{ inputs.version }}.dmg" || true
 
       - name: Create GitHub Release (draft)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ inputs.version }}
           name: Voicy v${{ inputs.version }}
