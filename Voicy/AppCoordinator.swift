@@ -90,9 +90,11 @@ public final class AppCoordinator: ObservableObject {
         do {
             try await recorder.start()
             statusModel.state = .recording(mode)
+            SoundFeedback.play(.startRecording, when: settings.soundFeedback)
         } catch {
             statusModel.state = .error(error.localizedDescription)
             statusModel.lastError = error.localizedDescription
+            SoundFeedback.play(.error, when: settings.soundFeedback)
         }
     }
 
@@ -107,6 +109,7 @@ public final class AppCoordinator: ObservableObject {
         } catch {
             statusModel.state = .error(error.localizedDescription)
             await notify("Transkription fehlgeschlagen", body: error.localizedDescription)
+            SoundFeedback.play(.error, when: settings.soundFeedback)
             statusModel.state = .idle
             return
         }
@@ -126,6 +129,7 @@ public final class AppCoordinator: ObservableObject {
         }
 
         await inserter.insert(outputText)
+        SoundFeedback.play(.stopRecording, when: settings.soundFeedback)
         statusModel.state = .idle
     }
 
