@@ -1,8 +1,9 @@
 import AVFoundation
 import Foundation
 import os
+import os.lock
 
-public protocol AudioRecorderProtocol: AnyObject {
+public protocol AudioRecorderProtocol: AnyObject, Sendable {
     func start() async throws
     func stop() async -> [Float]
     var isRecording: Bool { get }
@@ -24,8 +25,11 @@ public final class AudioRecorder: AudioRecorderProtocol, @unchecked Sendable {
     }()
 
     private var converter: AVAudioConverter?
-    private var buffer: [Float] = []
-    private let bufferLock = NSLock()
+
+    /// Captured PCM samples, guarded by an unfair lock that — unlike `NSLock` —
+    /// is callable from `async` contexts without tripping Swift 6 strict
+    /// concurrency. The lock owns the array; mutations happen inside `withLock`.
+    private let buffer = OSAllocatedUnfairLock<[Float]>(initialState: [])
     public private(set) var isRecording = false
 
     public init() {}
@@ -45,9 +49,7 @@ public final class AudioRecorder: AudioRecorderProtocol, @unchecked Sendable {
         }
         self.converter = converter
 
-        bufferLock.lock()
-        buffer.removeAll(keepingCapacity: true)
-        bufferLock.unlock()
+        buffer.withLock { $0.removeAll(keepingCapacity: true) }
 
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] pcm, _ in
@@ -66,10 +68,11 @@ public final class AudioRecorder: AudioRecorderProtocol, @unchecked Sendable {
         engine.stop()
         isRecording = false
 
-        bufferLock.lock()
-        let samples = buffer
-        buffer.removeAll(keepingCapacity: false)
-        bufferLock.unlock()
+        let samples = buffer.withLock { (state: inout [Float]) -> [Float] in
+            let snapshot = state
+            state.removeAll(keepingCapacity: false)
+            return snapshot
+        }
         log.info("AudioRecorder stopped; captured \(samples.count, privacy: .public) samples (\(Double(samples.count) / 16000.0, privacy: .public)s)")
         return samples
     }
@@ -104,9 +107,9 @@ public final class AudioRecorder: AudioRecorderProtocol, @unchecked Sendable {
         let frames = Int(outputBuffer.frameLength)
         if frames == 0 { return }
 
-        bufferLock.lock()
-        buffer.append(contentsOf: UnsafeBufferPointer(start: channel, count: frames))
-        bufferLock.unlock()
+        buffer.withLock { state in
+            state.append(contentsOf: UnsafeBufferPointer(start: channel, count: frames))
+        }
     }
 }
 
