@@ -35,18 +35,6 @@ private struct GeneralSettingsView: View {
                     LaunchAtLogin.set(enabled: newValue)
                 }
             ))
-            HStack {
-                Text("Insertion-Delay")
-                Slider(
-                    value: Binding(
-                        get: { Double(coordinator.settings.insertionDelayMs) },
-                        set: { v in coordinator.settings.insertionDelayMs = Int(v); coordinator.settings.save() }
-                    ),
-                    in: 50...500,
-                    step: 25
-                )
-                Text("\(coordinator.settings.insertionDelayMs) ms").monospacedDigit().frame(width: 70, alignment: .trailing)
-            }
         }
         .padding()
     }
