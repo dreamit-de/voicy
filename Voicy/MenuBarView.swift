@@ -7,92 +7,191 @@ struct MenuBarView: View {
     @ObservedObject var permissions: Permissions
 
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.openSettings) private var openSettings
+    @State private var showingSettings = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
             Divider()
-            permissionsSection
-            Divider()
-            styleSection
-            Divider()
-            actions
+            if showingSettings {
+                SettingsView(coordinator: coordinator)
+                    .frame(maxHeight: 480)
+            } else {
+                mainContent
+            }
         }
-        .frame(width: 280)
+        .frame(width: 340)
     }
 
+    // MARK: - Header (title + status pill + cog toggle)
+
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(status.statusHeadline).font(.headline)
-            HStack(spacing: 12) {
-                statusDot(label: "Whisper", on: status.whisperReady)
-                statusDot(label: "Ollama", on: status.ollamaReachable)
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text("Voicy").font(.title3.bold())
+                    Text("by dreamIT")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                statusPill
             }
-            .font(.caption)
+            Spacer()
+            Button {
+                showingSettings.toggle()
+            } label: {
+                Image(systemName: showingSettings ? "chevron.left" : "gearshape")
+                    .imageScale(.large)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(showingSettings ? "Zurück" : "Einstellungen")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
     }
 
-    private var permissionsSection: some View {
-        Group {
-            if !permissions.allGranted {
-                VStack(alignment: .leading, spacing: 4) {
+    private var statusPill: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(statusColor)
+                .frame(width: 8, height: 8)
+            Text(statusLabel)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - Main content
+
+    private var mainContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            permissionsBanner
+            VStack(alignment: .leading, spacing: 8) {
+                modeCard(
+                    .normal,
+                    icon: "mic",
+                    title: "Normal",
+                    description: "Sprache rein. Text raus."
+                )
+                modeCard(
+                    .friendlyRewrite,
+                    icon: "sparkles",
+                    title: "Friendly",
+                    description: "Höflich formuliert."
+                )
+                modeCard(
+                    .customRewrite,
+                    icon: "wand.and.stars",
+                    title: "Custom: \(customStyleName)",
+                    description: "Eigene Vorgabe."
+                )
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            Divider()
+            footer
+        }
+    }
+
+    @ViewBuilder
+    private var permissionsBanner: some View {
+        if !permissions.allGranted {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
                     Text("Berechtigungen unvollständig")
                         .font(.caption.bold())
-                        .foregroundStyle(.red)
-                    Button("Onboarding öffnen…") {
-                        openWindow(id: "onboarding")
-                    }
-                    .buttonStyle(.link)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
+                Button("Setup abschließen") {
+                    openWindow(id: "onboarding")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.orange.opacity(0.1))
+        }
+    }
+
+    @ViewBuilder
+    private func modeCard(
+        _ mode: ModeRow,
+        icon: String,
+        title: String,
+        description: String
+    ) -> some View {
+        let isActiveStyle = isActive(mode)
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .frame(width: 32, height: 32)
+                .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.headline)
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            modeTrailing(mode, isActiveStyle: isActiveStyle)
+        }
+        .padding(10)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            select(mode)
+        }
+    }
+
+    @ViewBuilder
+    private func modeTrailing(_ mode: ModeRow, isActiveStyle: Bool) -> some View {
+        switch mode {
+        case .normal:
+            Text("⌥")
+                .font(.callout.monospaced())
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(.tertiary.opacity(0.25))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+        case .friendlyRewrite, .customRewrite:
+            HStack(spacing: 6) {
+                if isActiveStyle {
+                    Text("⌥⌃")
+                        .font(.callout.monospaced())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.tertiary.opacity(0.25))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+                Image(systemName: isActiveStyle ? "checkmark.circle.fill" : "circle")
+                    .imageScale(.large)
+                    .foregroundStyle(isActiveStyle ? .green : .secondary)
             }
         }
     }
 
-    private var styleSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Aktiver Rewrite-Stil").font(.caption).foregroundStyle(.secondary)
-            ForEach(styleStore.styles) { style in
-                Button {
-                    coordinator.setActiveStyle(style.id)
-                } label: {
-                    HStack {
-                        Image(systemName: styleStore.activeStyleID == style.id ? "checkmark.circle.fill" : "circle")
-                        Text(style.name)
-                        Spacer()
-                        if style.kind == .builtin {
-                            Text("built-in").font(.caption2).foregroundStyle(.tertiary)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-    }
+    // MARK: - Footer (status dots + quit)
 
-    private var actions: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Button("Settings…") { openSettings() }
-                .keyboardShortcut(",", modifiers: .command)
-                .buttonStyle(.plain)
-            Button("Custom-Stil bearbeiten…") {
-                openSettings()
-                // Settings opens to the Rewrite tab via deep-link in real life;
-                // for the MVP we just open Settings and let the user navigate.
-            }
-            .buttonStyle(.plain)
+    private var footer: some View {
+        HStack(spacing: 14) {
+            statusDot(label: "Setup", on: permissions.allGranted)
+            statusDot(label: "Whisper", on: status.whisperReady)
+            statusDot(label: "Ollama", on: status.ollamaReachable)
+            Spacer()
             Button("Beenden") { NSApplication.shared.terminate(nil) }
-                .keyboardShortcut("q", modifiers: .command)
                 .buttonStyle(.plain)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 6)
+        .padding(.vertical, 8)
     }
 
     @ViewBuilder
@@ -101,7 +200,61 @@ struct MenuBarView: View {
             Circle()
                 .fill(on ? Color.green : Color.gray.opacity(0.5))
                 .frame(width: 7, height: 7)
-            Text(label).foregroundStyle(.secondary)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: - Mode model
+
+    private enum ModeRow {
+        case normal
+        case friendlyRewrite
+        case customRewrite
+    }
+
+    private func isActive(_ mode: ModeRow) -> Bool {
+        switch mode {
+        case .normal:           return false
+        case .friendlyRewrite:  return styleStore.activeStyleID == RewriteStyle.friendlyID
+        case .customRewrite:    return styleStore.activeStyleID == RewriteStyle.customSlotID
+        }
+    }
+
+    private func select(_ mode: ModeRow) {
+        switch mode {
+        case .normal: break
+        case .friendlyRewrite: coordinator.setActiveStyle(RewriteStyle.friendlyID)
+        case .customRewrite:   coordinator.setActiveStyle(RewriteStyle.customSlotID)
+        }
+    }
+
+    private var customStyleName: String {
+        styleStore.styles
+            .first(where: { $0.id == RewriteStyle.customSlotID })?.name ?? "Custom"
+    }
+
+    // MARK: - Status presentation
+
+    private var statusColor: Color {
+        switch status.state {
+        case .recording:    return .red
+        case .transcribing: return .blue
+        case .rewriting:    return .purple
+        case .error:        return .orange
+        case .idle:         return status.whisperReady ? .green : .gray
+        }
+    }
+
+    private var statusLabel: String {
+        switch status.state {
+        case .recording(.normal):  return "Aufnahme — Normal"
+        case .recording(.rewrite): return "Aufnahme — Rewrite"
+        case .transcribing:        return "Transkribiere…"
+        case .rewriting:           return "Rewrite läuft…"
+        case .error(let message):  return message
+        case .idle:                return status.whisperReady ? "Bereit" : "Whisper lädt…"
         }
     }
 }
