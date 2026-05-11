@@ -1,10 +1,11 @@
 name: CodeQL
 
+# CodeQL on macos-14 with the full WhisperKit build takes 25–35 minutes
+# per invocation. To keep GitHub Actions minutes spend under control we
+# keep this workflow off the PR/push hot path and rely on the weekly cron
+# plus manual dispatch for coverage. Re-add `pull_request: { branches: [main] }`
+# once GHAS is enabled and PR-time findings are genuinely actionable.
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   schedule:
     - cron: '23 4 * * 2'
   workflow_dispatch:

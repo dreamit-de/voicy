@@ -1,10 +1,17 @@
 name: CI
 
+# Only run on pull_request — the same commit gets squash-merged to main
+# and a `push` trigger would just re-run the identical checks for nothing.
+# Re-add `push: { branches: [main] }` if we ever need post-merge guard
+# rails (e.g. main-only deploy jobs).
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -16,12 +23,18 @@ permissions:
 jobs:
   lint:
     name: SwiftLint
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Install SwiftLint
-        run: brew install swiftlint
+        run: |
+          set -euo pipefail
+          LATEST=$(curl -sSL https://api.github.com/repos/realm/SwiftLint/releases/latest | jq -r .tag_name)
+          curl -sSL -o swiftlint.zip "https://github.com/realm/SwiftLint/releases/download/${LATEST}/swiftlint_linux.zip"
+          unzip -q swiftlint.zip -d /tmp/swiftlint
+          sudo mv /tmp/swiftlint/swiftlint /usr/local/bin/swiftlint
+          swiftlint --version
       - name: Run SwiftLint
         run: swiftlint lint --reporter github-actions-logging
 
