@@ -1,14 +1,11 @@
 name: CI
 
+# Only run on pull_request — the same commit gets squash-merged to main
+# and a `push` trigger would just re-run the identical checks for nothing.
+# Re-add `push: { branches: [main] }` if we ever need post-merge guard
+# rails (e.g. main-only deploy jobs).
 on:
   pull_request:
-    branches: [main]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
-  push:
     branches: [main]
     paths-ignore:
       - '**/*.md'
