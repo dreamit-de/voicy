@@ -35,10 +35,6 @@ private struct GeneralSettingsView: View {
                     LaunchAtLogin.set(enabled: newValue)
                 }
             ))
-            Toggle("Sound-Feedback", isOn: Binding(
-                get: { coordinator.settings.soundFeedback },
-                set: { v in coordinator.settings.soundFeedback = v; coordinator.settings.save() }
-            ))
             HStack {
                 Text("Insertion-Delay")
                 Slider(

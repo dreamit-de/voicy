@@ -5,7 +5,6 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var whisperVariant: String       // e.g. "openai_whisper-small"
     public var ollamaModel: String          // e.g. "llama3.2:3b"
     public var insertionDelayMs: Int        // pasteboard restore delay
-    public var soundFeedback: Bool
     public var autoLaunchAtLogin: Bool
 
     public static let `default` = AppSettings(
@@ -13,7 +12,6 @@ public struct AppSettings: Codable, Equatable, Sendable {
         whisperVariant: WhisperEngine.defaultModel,
         ollamaModel: "",
         insertionDelayMs: 150,
-        soundFeedback: false,
         autoLaunchAtLogin: false
     )
 
