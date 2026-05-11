@@ -8,6 +8,7 @@ struct MenuBarView: View {
 
     @Environment(\.openWindow) private var openWindow
     @State private var showingSettings = false
+    @State private var didAutoOpenOnboarding = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -21,6 +22,21 @@ struct MenuBarView: View {
             }
         }
         .frame(width: 340)
+        .task(autoOpenSetupIfNeeded)
+    }
+
+    /// Opens the Setup window once per launch when permissions are still
+    /// incomplete. Subsequent dismissals are respected — we don't keep
+    /// re-popping the window every time the menu is opened.
+    @Sendable private func autoOpenSetupIfNeeded() async {
+        guard !didAutoOpenOnboarding else { return }
+        didAutoOpenOnboarding = true
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        await MainActor.run {
+            if !permissions.allGranted {
+                openWindow(id: "onboarding")
+            }
+        }
     }
 
     // MARK: - Header (title + status pill + cog toggle)

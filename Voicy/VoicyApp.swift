@@ -23,7 +23,10 @@ struct VoicyApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        WindowGroup(id: "onboarding") {
+        // Single-instance window — `Window` (vs `WindowGroup`) prevents
+        // duplicate Setup windows when the user clicks the banner again
+        // or the auto-open trigger fires twice.
+        Window("Voicy Setup", id: "onboarding") {
             OnboardingView(coordinator: coordinator)
                 .frame(minWidth: 520, minHeight: 420)
         }
