@@ -23,10 +23,6 @@ struct VoicyApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Settings {
-            SettingsView(coordinator: coordinator)
-        }
-
         WindowGroup(id: "onboarding") {
             OnboardingView(coordinator: coordinator)
                 .frame(minWidth: 520, minHeight: 420)
