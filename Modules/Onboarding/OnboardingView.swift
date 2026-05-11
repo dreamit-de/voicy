@@ -71,27 +71,40 @@ public struct OnboardingView: View {
                 Text("Status:")
                 Text(label(for: coordinator.permissions.microphone))
             }
-            Button("Mikrofon erlauben") {
+            Button("Erneut anfragen") {
                 Task { _ = await coordinator.permissions.requestMicrophone() }
             }
             .disabled(coordinator.permissions.microphone == .granted)
+        }
+        .onAppear {
+            // Trigger the system prompt the moment the user lands on this step.
+            // requestMicrophone() is idempotent: no-op if already granted.
+            Task { _ = await coordinator.permissions.requestMicrophone() }
         }
     }
 
     private var system: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Accessibility & Input Monitoring").font(.title2.bold())
-            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann.")
+            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann. Wenn die Voicy.app in der System-Settings-Liste nicht erscheint, klicke „Erneut anfragen" — das registriert die App.")
             HStack {
                 Text("Accessibility:"); Text(label(for: coordinator.permissions.accessibility))
-                Button("Anfragen") { coordinator.permissions.requestAccessibility() }
+                Button("Erneut anfragen") { coordinator.permissions.requestAccessibility() }
                 Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .accessibility) }
             }
             HStack {
                 Text("Input Monitoring:"); Text(label(for: coordinator.permissions.inputMonitoring))
-                Button("Anfragen") { coordinator.permissions.requestInputMonitoring() }
+                Button("Erneut anfragen") { coordinator.permissions.requestInputMonitoring() }
                 Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
             }
+        }
+        .onAppear {
+            // Auto-trigger BOTH prompts on first appearance. Required so the
+            // Voicy.app entry actually shows up in System Settings → Privacy →
+            // Input Monitoring; otherwise the user can't add it manually via
+            // the '+' button (smoke-test finding #6). Both calls are idempotent.
+            coordinator.permissions.requestAccessibility()
+            coordinator.permissions.requestInputMonitoring()
         }
     }
 
