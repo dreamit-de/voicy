@@ -28,12 +28,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install SwiftLint
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          LATEST=$(curl -sSL https://api.github.com/repos/realm/SwiftLint/releases/latest | jq -r .tag_name)
-          curl -sSL -o swiftlint.zip "https://github.com/realm/SwiftLint/releases/download/${LATEST}/swiftlint_linux.zip"
+          RELEASE=$(curl -sSL --fail \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/repos/realm/SwiftLint/releases/latest)
+          ASSET_URL=$(echo "$RELEASE" \
+            | jq -r '.assets[] | select(.name | test("linux"; "i")) | .browser_download_url' \
+            | head -1)
+          echo "SwiftLint asset: $ASSET_URL"
+          curl -sSL --fail -L -o swiftlint.zip "$ASSET_URL"
           unzip -q swiftlint.zip -d /tmp/swiftlint
-          sudo mv /tmp/swiftlint/swiftlint /usr/local/bin/swiftlint
+          sudo find /tmp/swiftlint -name swiftlint -type f -exec mv {} /usr/local/bin/swiftlint \;
           swiftlint --version
       - name: Run SwiftLint
         run: swiftlint lint --reporter github-actions-logging

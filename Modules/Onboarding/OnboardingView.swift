@@ -86,7 +86,7 @@ public struct OnboardingView: View {
     private var system: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Accessibility & Input Monitoring").font(.title2.bold())
-            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann. Wenn die Voicy.app in der System-Settings-Liste nicht erscheint, klicke „Erneut anfragen" — das registriert die App.")
+            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann. Wenn die Voicy.app in der System-Settings-Liste nicht erscheint, klicke \u{201E}Erneut anfragen\u{201D} \u{2014} das registriert die App.")
             HStack {
                 Text("Accessibility:"); Text(label(for: coordinator.permissions.accessibility))
                 Button("Erneut anfragen") { coordinator.permissions.requestAccessibility() }
