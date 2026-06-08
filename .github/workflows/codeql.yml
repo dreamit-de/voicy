@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload SARIF as artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SarifResults
           path: codeql-results
@@ -80,7 +80,7 @@ jobs:
 
       - name: Upload CodeQL logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CodeQLLogs
           path: logs-*.txt
