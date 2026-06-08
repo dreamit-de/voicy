@@ -2,7 +2,7 @@ import Foundation
 @preconcurrency import WhisperKit
 import os
 
-public protocol TranscriptionService: AnyObject {
+public protocol TranscriptionService: AnyObject, Sendable {
     func transcribe(_ pcm: [Float], language: String?) async throws -> String
     var isReady: Bool { get }
 }

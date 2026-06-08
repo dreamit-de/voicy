@@ -13,7 +13,7 @@ public enum HotkeyEvent: Equatable, Sendable {
     case released(HotkeyMode)
 }
 
-public protocol HotkeyEngineProtocol: AnyObject {
+public protocol HotkeyEngineProtocol: AnyObject, Sendable {
     var events: AsyncStream<HotkeyEvent> { get }
     func start() throws
     func stop()
@@ -23,7 +23,7 @@ public protocol HotkeyEngineProtocol: AnyObject {
 ///
 /// Why a tap and not `NSEvent.addGlobalMonitor`? Global monitors do not see modifier-only
 /// `flagsChanged` events when no other key is pressed; a session event tap does.
-public final class HotkeyEngine: HotkeyEngineProtocol {
+public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
     public let events: AsyncStream<HotkeyEvent>
     private let continuation: AsyncStream<HotkeyEvent>.Continuation
 

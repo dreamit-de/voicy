@@ -3,7 +3,7 @@ import CoreGraphics
 import Foundation
 import os
 
-public protocol TextInserter: AnyObject {
+public protocol TextInserter: AnyObject, Sendable {
     func insert(_ text: String) async
 }
 
@@ -13,13 +13,21 @@ public protocol TextInserter: AnyObject {
 /// restore the snapshot after a short delay. This is the only insertion method that
 /// works in all major Mac UIs (browsers, Slack, Electron, Notion, VS Code).
 public actor Inserter: TextInserter {
+    /// Pasteboard-restore delay in milliseconds. 80 ms is the empirically smallest
+    /// value at which Electron/Chromium-based apps (Slack, VS Code, browsers)
+    /// reliably pick up the synthesized ⌘V before we restore the previous
+    /// pasteboard contents on Apple Silicon. Going lower risks the target app
+    /// pasting the *restored* content instead of our text. Going higher just
+    /// adds perceptible latency for no benefit.
+    private static let restoreDelayMs: Int = 80
+
     private let pasteboard: NSPasteboard
     private let restoreDelay: UInt64
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "Inserter")
 
-    public init(pasteboard: NSPasteboard = .general, restoreDelayMs: Int = 150) {
+    public init(pasteboard: NSPasteboard = .general) {
         self.pasteboard = pasteboard
-        self.restoreDelay = UInt64(restoreDelayMs) * 1_000_000
+        self.restoreDelay = UInt64(Self.restoreDelayMs) * 1_000_000
     }
 
     public func insert(_ text: String) async {

@@ -1,0 +1,138 @@
+name: Internal Release
+
+# Internes Build für dreamIT-Mitarbeiter — ad-hoc signiert, ohne Apple-Notarisierung.
+# Für den offiziellen, notarisierten Release: release.yml verwenden.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Marketing-Version (z. B. 0.1.0)'
+        required: true
+        default: '0.1.0'
+      build_number:
+        description: 'Build-Nummer (CFBundleVersion)'
+        required: true
+        default: '1'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build + Package (ad-hoc, kein Zertifikat)
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install tools
+        run: brew install xcodegen create-dmg
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve Swift packages
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Voicy.xcodeproj \
+            -scheme Voicy \
+            -resolvePackageDependencies 2>&1 | tail -5
+
+      - name: Build Release
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Voicy.xcodeproj \
+            -scheme Voicy \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            MARKETING_VERSION=${{ inputs.version }} \
+            CURRENT_PROJECT_VERSION=${{ inputs.build_number }} \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ENABLE_HARDENED_RUNTIME=NO \
+            -derivedDataPath build \
+            build 2>&1 | tee logs-build.txt
+
+      - name: Ad-hoc sign + embed entitlements
+        run: |
+          set -e
+          APP_PATH=$(find build -name "Voicy.app" -maxdepth 10 -type d | head -1)
+          echo "Signing: $APP_PATH"
+          codesign --force --deep --sign - \
+            --entitlements Voicy/Resources/Voicy.entitlements \
+            "$APP_PATH"
+          codesign --verify --verbose "$APP_PATH"
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
+      - name: Create DMG
+        run: |
+          DMG_NAME="Voicy-${{ inputs.version }}-internal.dmg"
+          create-dmg \
+            --volname "Voicy ${{ inputs.version }}" \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --app-drop-link 450 185 \
+            "build/$DMG_NAME" \
+            "$APP_PATH"
+          echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+
+      - name: Upload DMG as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Voicy-${{ inputs.version }}-internal
+          path: build/${{ env.DMG_NAME }}
+          retention-days: 30
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ inputs.version }}-internal
+          name: "Voicy v${{ inputs.version }} — Internes Build"
+          prerelease: true
+          draft: false
+          files: build/${{ env.DMG_NAME }}
+          body: |
+            ## Voicy v${{ inputs.version }} — Internes Build für dreamIT-Mitarbeiter
+
+            > **Nur für interne Nutzung.** Dieses Build ist nicht notarisiert (kein Apple Developer-Zertifikat). Ausschließlich für dreamIT-Mitarbeiter bestimmt.
+
+            ### Systemvoraussetzungen
+            - macOS 14 (Sonoma) oder neuer
+            - Apple Silicon (M1 / M2 / M3 / M4)
+
+            ### Installation
+
+            1. `Voicy-${{ inputs.version }}-internal.dmg` herunterladen
+            2. DMG öffnen → Voicy in den **Programme**-Ordner ziehen
+
+            **Gatekeeper-Hinweis beim ersten Start** — da das Build nicht notarisiert ist, gibt macOS eine Warnung. Zwei Möglichkeiten:
+
+            **Option A — Terminal (empfohlen):**
+            ```bash
+            xattr -rd com.apple.quarantine /Applications/Voicy.app
+            ```
+            Danach Voicy normal aus dem Programme-Ordner starten.
+
+            **Option B — Finder:**
+            Rechtsklick auf `Voicy.app` → **Öffnen** → Im Dialog auf **Öffnen** klicken.
+
+            ### Berechtigungen beim ersten Start
+            Voicy benötigt folgende Berechtigungen — macOS fragt bei Bedarf automatisch:
+            - **Mikrofon** → für Sprachaufnahme
+            - **Eingabehilfe** (Accessibility) → für globales Tastaturkürzel: *Systemeinstellungen → Datenschutz & Sicherheit → Eingabehilfe → Voicy aktivieren*
+            - **Eingabeüberwachung** (Input Monitoring) → für globalen Hotkey (ebenfalls in Systemeinstellungen)
+
+            ### Benutzung
+            - **Rechte ⌥ (Option) gedrückt halten** → Spracheingabe → bei Loslassen: Transkription + Einfügen
+            - **Rechte ⌥ + Control** → Mit aktivem Friendly/Custom-Modus: Umschreibung via Ollama
+            - Whisper-Modell wird beim ersten Start automatisch heruntergeladen (~150 MB)
+
+            ### Feedback
+            Bugs und Rückmeldungen bitte als [GitHub Issue](../../issues/new) melden.
