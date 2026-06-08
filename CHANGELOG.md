@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-06-08
+
 ### Added
 - Initial macOS menu bar app scaffold (`Voicy.app`).
 - `HotkeyEngine`: global Right-Option / Right-Option+Control tracking via `CGEventTap`, with auto-recovery from system tap timeouts.
