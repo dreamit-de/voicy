@@ -2,6 +2,7 @@ import AVFoundation
 import AppKit
 import ApplicationServices
 import Combine
+import CoreGraphics
 import Foundation
 import IOKit.hid
 import os
@@ -20,6 +21,7 @@ public final class Permissions: ObservableObject {
 
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "Permissions")
     nonisolated(unsafe) private var pollTask: Task<Void, Never>?
+    private var hasPromptedAccessibility = false
 
     public init() {
         refresh()
@@ -48,9 +50,8 @@ public final class Permissions: ObservableObject {
         return status
     }
 
-    /// Triggers the system AX prompt. The actual grant happens out-of-process; the
-    /// caller should poll `accessibility` afterwards.
     public func requestAccessibility() {
+        hasPromptedAccessibility = true
         let prompt = "AXTrustedCheckOptionPrompt" as CFString
         let options = [prompt: true] as CFDictionary
         _ = AXIsProcessTrustedWithOptions(options)
@@ -58,8 +59,25 @@ public final class Permissions: ObservableObject {
     }
 
     public func requestInputMonitoring() {
-        let access = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-        inputMonitoring = access ? .granted : currentInputMonitoringStatus()
+        // Attempting CGEventTap creation is the most reliable TCC trigger for Input
+        // Monitoring — it causes macOS to add the app to the System Settings list.
+        // IOHIDRequestAccess alone does not reliably do this on macOS 14+.
+        let mask: CGEventMask = (1 << CGEventType.flagsChanged.rawValue)
+        let tap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .listenOnly,
+            eventsOfInterest: mask,
+            callback: { _, _, event, _ in Unmanaged.passUnretained(event) },
+            userInfo: nil
+        )
+        if let tap {
+            CGEvent.tapEnable(tap: tap, enable: false)
+            inputMonitoring = .granted
+        } else {
+            _ = IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+            inputMonitoring = currentInputMonitoringStatus()
+        }
     }
 
     public func openSystemSettings(for permission: Permission) {
@@ -93,7 +111,8 @@ public final class Permissions: ObservableObject {
     }
 
     private func currentAccessibilityStatus() -> PermissionStatus {
-        AXIsProcessTrusted() ? .granted : .denied
+        if AXIsProcessTrusted() { return .granted }
+        return hasPromptedAccessibility ? .denied : .notDetermined
     }
 
     private func currentInputMonitoringStatus() -> PermissionStatus {
@@ -109,11 +128,9 @@ public final class Permissions: ObservableObject {
     }
 
     private func startPolling() {
-        // System grants happen out-of-process (Settings.app). Poll lightly so the
-        // UI flips green without requiring an app restart.
         pollTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                try? await Task.sleep(nanoseconds: 500_000_000)
                 await MainActor.run { self?.refresh() }
             }
         }

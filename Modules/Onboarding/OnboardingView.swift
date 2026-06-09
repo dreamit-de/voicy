@@ -100,23 +100,105 @@ public struct OnboardingView: View {
     }
 
     private var system: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Accessibility & Input Monitoring").font(.title2.bold())
-            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann. Wenn die Voicy.app in der System-Settings-Liste nicht erscheint, klicke \u{201E}Erneut anfragen\u{201D} \u{2014} das registriert die App.")
-            HStack {
-                Text("Accessibility:"); Text(label(for: coordinator.permissions.accessibility))
-                Button("Erneut anfragen") { coordinator.permissions.requestAccessibility() }
-                Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .accessibility) }
-            }
-            HStack {
-                Text("Input Monitoring:"); Text(label(for: coordinator.permissions.inputMonitoring))
-                Button("Erneut anfragen") { coordinator.permissions.requestInputMonitoring()  }
-                Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Systemberechtigungen").font(.title2.bold())
+            Text("Voicy braucht zwei macOS-Berechtigungen. Klicke auf „Anfragen", erlaube den Zugriff im erscheinenden Dialog, und kehre dann hierher zurück.")
+                .fixedSize(horizontal: false, vertical: true)
+
+            systemPermissionCard(
+                title: "Accessibility",
+                subtitle: "Erlaubt Voicy, Text in aktive Felder einzufügen.",
+                icon: "lock.shield",
+                status: coordinator.permissions.accessibility,
+                onRequest: { coordinator.permissions.requestAccessibility() },
+                onSettings: { coordinator.permissions.openSystemSettings(for: .accessibility) }
+            )
+
+            systemPermissionCard(
+                title: "Input Monitoring",
+                subtitle: "Erlaubt Voicy, den globalen Hotkey zu erkennen.",
+                icon: "keyboard",
+                status: coordinator.permissions.inputMonitoring,
+                onRequest: { coordinator.permissions.requestInputMonitoring() },
+                onSettings: { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
+            )
+
+            if coordinator.permissions.accessibility == .granted &&
+               coordinator.permissions.inputMonitoring == .granted {
+                Label("Alle Berechtigungen erteilt", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            } else {
+                Text("Der Status aktualisiert sich automatisch nach dem Erteilen. Falls er sich nicht ändert, starte Voicy neu.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .onAppear {
-            coordinator.permissions.requestAccessibility()
-            coordinator.permissions.requestInputMonitoring()
+        .onAppear { coordinator.permissions.refresh() }
+    }
+
+    @ViewBuilder
+    private func systemPermissionCard(
+        title: String,
+        subtitle: String,
+        icon: String,
+        status: PermissionStatus,
+        onRequest: @escaping () -> Void,
+        onSettings: @escaping () -> Void
+    ) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(permissionTint(status))
+                .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(title).font(.headline)
+                    Spacer()
+                    permissionBadge(status)
+                }
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if status != .granted {
+                    HStack(spacing: 8) {
+                        Button("Anfragen", action: onRequest)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        Button("Einstellungen öffnen", action: onSettings)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                    }
+                    .padding(.top, 4)
+                }
+            }
+        }
+        .padding(12)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func permissionBadge(_ status: PermissionStatus) -> some View {
+        switch status {
+        case .granted:
+            Label("Erlaubt", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green).font(.caption)
+        case .denied:
+            Label("Verweigert", systemImage: "xmark.circle.fill")
+                .foregroundStyle(.red).font(.caption)
+        case .notDetermined:
+            Label("Ausstehend", systemImage: "clock")
+                .foregroundStyle(.secondary).font(.caption)
+        }
+    }
+
+    private func permissionTint(_ status: PermissionStatus) -> Color {
+        switch status {
+        case .granted: return .green
+        case .denied: return .red
+        case .notDetermined: return .secondary
         }
     }
 

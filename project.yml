@@ -44,6 +44,7 @@ targets:
         LSMinimumSystemVersion: "14.0"
         NSMicrophoneUsageDescription: "Voicy nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht."
         NSAppleEventsUsageDescription: "Voicy fügt transkribierten Text in das aktive Eingabefeld ein."
+        NSInputMonitoringUsageDescription: "Voicy überwacht Tastaturbefehle, um den globalen Aufnahme-Hotkey zu erkennen. Eingaben werden nicht gespeichert oder weitergeleitet."
         SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
         SUEnableAutomaticChecks: true
     settings:
