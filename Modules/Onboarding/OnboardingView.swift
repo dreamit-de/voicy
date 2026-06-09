@@ -102,7 +102,7 @@ public struct OnboardingView: View {
     private var system: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Systemberechtigungen").font(.title2.bold())
-            Text("Voicy braucht zwei macOS-Berechtigungen. Klicke auf „Anfragen", erlaube den Zugriff im erscheinenden Dialog, und kehre dann hierher zurück.")
+            Text("Voicy braucht zwei macOS-Berechtigungen. Klicke auf \u{201E}Anfragen\u{201C}, erlaube den Zugriff im erscheinenden Dialog, und kehre dann hierher zurück.")
                 .fixedSize(horizontal: false, vertical: true)
 
             systemPermissionCard(
