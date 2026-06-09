@@ -4,6 +4,7 @@ import UserNotifications
 @main
 struct VoicyApp: App {
     @StateObject private var coordinator = AppCoordinator()
+    @StateObject private var updater = UpdaterService()
 
     init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
@@ -15,7 +16,8 @@ struct VoicyApp: App {
                 coordinator: coordinator,
                 status: coordinator.statusModel,
                 styleStore: coordinator.styleStore,
-                permissions: coordinator.permissions
+                permissions: coordinator.permissions,
+                updater: updater
             )
             .onAppear { coordinator.start() }
         } label: {

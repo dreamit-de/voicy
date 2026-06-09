@@ -12,20 +12,37 @@ public struct OnboardingView: View {
 
     enum Step: Int, CaseIterable {
         case welcome, microphone, system, model, done
+
+        /// Human-readable step number for the middle steps (1, 2, 3).
+        /// Returns nil for welcome and done screens.
+        var displayNumber: Int? {
+            switch self {
+            case .welcome, .done: return nil
+            default: return rawValue // microphone=1, system=2, model=3
+            }
+        }
     }
 
     public var body: some View {
         VStack(spacing: 24) {
-            ProgressView(value: Double(step.rawValue), total: Double(Step.allCases.count - 1))
-                .progressViewStyle(.linear)
+            HStack(alignment: .center, spacing: 12) {
+                ProgressView(value: Double(step.rawValue), total: Double(Step.allCases.count - 1))
+                    .progressViewStyle(.linear)
+                if let n = step.displayNumber {
+                    Text("\(n) / 3")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .frame(width: 36, alignment: .trailing)
+                }
+            }
 
             Group {
                 switch step {
-                case .welcome: welcome
+                case .welcome:    welcome
                 case .microphone: microphone
-                case .system: system
-                case .model: model
-                case .done: done
+                case .system:     system
+                case .model:      model
+                case .done:       done
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -40,16 +57,17 @@ public struct OnboardingView: View {
                         step = Step(rawValue: step.rawValue + 1) ?? .done
                     }
                     .keyboardShortcut(.defaultAction)
+                    .disabled(step == .model && downloadProgress < 1)
                 } else {
-                    Button("Schließen") {
-                        NSApp.keyWindow?.close()
-                    }
-                    .keyboardShortcut(.defaultAction)
+                    Button("Schließen") { NSApp.keyWindow?.close() }
+                        .keyboardShortcut(.defaultAction)
                 }
             }
         }
         .padding(28)
     }
+
+    // MARK: - Steps
 
     private var welcome: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -77,49 +95,145 @@ public struct OnboardingView: View {
             .disabled(coordinator.permissions.microphone == .granted)
         }
         .onAppear {
-            // Trigger the system prompt the moment the user lands on this step.
-            // requestMicrophone() is idempotent: no-op if already granted.
             Task { _ = await coordinator.permissions.requestMicrophone() }
         }
     }
 
     private var system: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Accessibility & Input Monitoring").font(.title2.bold())
-            Text("Diese beiden System-Berechtigungen sind nötig, damit Voicy global auf den Hotkey reagieren und Text einfügen kann. Wenn die Voicy.app in der System-Settings-Liste nicht erscheint, klicke \u{201E}Erneut anfragen\u{201D} \u{2014} das registriert die App.")
-            HStack {
-                Text("Accessibility:"); Text(label(for: coordinator.permissions.accessibility))
-                Button("Erneut anfragen") { coordinator.permissions.requestAccessibility() }
-                Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .accessibility) }
-            }
-            HStack {
-                Text("Input Monitoring:"); Text(label(for: coordinator.permissions.inputMonitoring))
-                Button("Erneut anfragen") { coordinator.permissions.requestInputMonitoring() }
-                Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Systemberechtigungen").font(.title2.bold())
+            Text("Voicy braucht zwei macOS-Berechtigungen. Klicke auf \u{201E}Anfragen\u{201C}, erlaube den Zugriff im erscheinenden Dialog, und kehre dann hierher zurück.")
+                .fixedSize(horizontal: false, vertical: true)
+
+            systemPermissionCard(
+                title: "Accessibility",
+                subtitle: "Erlaubt Voicy, Text in aktive Felder einzufügen.",
+                icon: "lock.shield",
+                status: coordinator.permissions.accessibility,
+                onRequest: { coordinator.permissions.requestAccessibility() },
+                onSettings: { coordinator.permissions.openSystemSettings(for: .accessibility) }
+            )
+
+            systemPermissionCard(
+                title: "Input Monitoring",
+                subtitle: "Erlaubt Voicy, den globalen Hotkey zu erkennen.",
+                icon: "keyboard",
+                status: coordinator.permissions.inputMonitoring,
+                onRequest: { coordinator.permissions.requestInputMonitoring() },
+                onSettings: { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
+            )
+
+            if coordinator.permissions.accessibility == .granted &&
+               coordinator.permissions.inputMonitoring == .granted {
+                Label("Alle Berechtigungen erteilt", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            } else {
+                Text("Der Status aktualisiert sich automatisch nach dem Erteilen. Falls er sich nicht ändert, starte Voicy neu.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .onAppear {
-            // Auto-trigger BOTH prompts on first appearance. Required so the
-            // Voicy.app entry actually shows up in System Settings → Privacy →
-            // Input Monitoring; otherwise the user can't add it manually via
-            // the '+' button (smoke-test finding #6). Both calls are idempotent.
-            coordinator.permissions.requestAccessibility()
-            coordinator.permissions.requestInputMonitoring()
+        .onAppear { coordinator.permissions.refresh() }
+    }
+
+    @ViewBuilder
+    private func systemPermissionCard(
+        title: String,
+        subtitle: String,
+        icon: String,
+        status: PermissionStatus,
+        onRequest: @escaping () -> Void,
+        onSettings: @escaping () -> Void
+    ) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(permissionTint(status))
+                .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(title).font(.headline)
+                    Spacer()
+                    permissionBadge(status)
+                }
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if status != .granted {
+                    HStack(spacing: 8) {
+                        Button("Anfragen", action: onRequest)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        Button("Einstellungen öffnen", action: onSettings)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                    }
+                    .padding(.top, 4)
+                }
+            }
+        }
+        .padding(12)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func permissionBadge(_ status: PermissionStatus) -> some View {
+        switch status {
+        case .granted:
+            Label("Erlaubt", systemImage: "checkmark.circle.fill")
+                .foregroundStyle(.green).font(.caption)
+        case .denied:
+            Label("Verweigert", systemImage: "xmark.circle.fill")
+                .foregroundStyle(.red).font(.caption)
+        case .notDetermined:
+            Label("Ausstehend", systemImage: "clock")
+                .foregroundStyle(.secondary).font(.caption)
+        }
+    }
+
+    private func permissionTint(_ status: PermissionStatus) -> Color {
+        switch status {
+        case .granted: return .green
+        case .denied: return .red
+        case .notDetermined: return .secondary
         }
     }
 
     private var model: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Whisper-Modell").font(.title2.bold())
             Text("Lade das multilinguale `\(coordinator.settings.whisperVariant)` Modell (~470 MB). Es bleibt lokal und wird auf der Apple Neural Engine ausgeführt.")
+                .fixedSize(horizontal: false, vertical: true)
+
             ProgressView(value: downloadProgress)
-            HStack {
-                Button("Download starten") { startDownload() }
-                    .disabled(downloadProgress > 0 && downloadProgress < 1)
-                if let downloadError {
-                    Text(downloadError).foregroundStyle(.red).font(.caption)
+
+            Group {
+                if downloadProgress == 1 {
+                    Label("Modell erfolgreich heruntergeladen", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                } else if downloadProgress > 0 {
+                    Text("Lädt herunter…")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                } else if downloadError != nil {
+                    Button("Erneut versuchen") { startDownload() }
                 }
             }
+
+            if let downloadError {
+                Text(downloadError)
+                    .foregroundStyle(.red)
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onAppear {
+            // Auto-start download when reaching this step — no extra button click needed.
+            // ensureModel() is a no-op if the model is already on disk.
+            if downloadProgress == 0 { startDownload() }
         }
     }
 
@@ -132,6 +246,8 @@ public struct OnboardingView: View {
                 .foregroundStyle(.secondary)
         }
     }
+
+    // MARK: - Download
 
     private func startDownload() {
         downloadError = nil
@@ -159,8 +275,8 @@ public struct OnboardingView: View {
 
     private func label(for status: PermissionStatus) -> String {
         switch status {
-        case .granted: return "✓ erlaubt"
-        case .denied: return "✗ verweigert"
+        case .granted:       return "✓ erlaubt"
+        case .denied:        return "✗ verweigert"
         case .notDetermined: return "offen"
         }
     }

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct MenuBarView: View {
@@ -5,6 +6,7 @@ struct MenuBarView: View {
     @ObservedObject var status: StatusModel
     @ObservedObject var styleStore: RewriteStyleStore
     @ObservedObject var permissions: Permissions
+    @ObservedObject var updater: UpdaterService
 
     @Environment(\.openWindow) private var openWindow
     @State private var showingSettings = false
@@ -121,7 +123,13 @@ struct MenuBarView: View {
                         .font(.caption.bold())
                 }
                 Button("Setup abschließen") {
-                    openWindow(id: "onboarding")
+                    Task {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        await MainActor.run {
+                            NSApp.activate(ignoringOtherApps: true)
+                            openWindow(id: "onboarding")
+                        }
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
@@ -201,6 +209,11 @@ struct MenuBarView: View {
             statusDot(label: "Whisper", on: status.whisperReady)
             statusDot(label: "Ollama", on: status.ollamaReachable)
             Spacer()
+            Button("Updates") { updater.checkForUpdates() }
+                .buttonStyle(.plain)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .disabled(!updater.canCheckForUpdates)
             Button("Beenden") { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.plain)
                 .font(.caption)
