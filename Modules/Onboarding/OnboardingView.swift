@@ -12,20 +12,37 @@ public struct OnboardingView: View {
 
     enum Step: Int, CaseIterable {
         case welcome, microphone, system, model, done
+
+        /// Human-readable step number for the middle steps (1, 2, 3).
+        /// Returns nil for welcome and done screens.
+        var displayNumber: Int? {
+            switch self {
+            case .welcome, .done: return nil
+            default: return rawValue // microphone=1, system=2, model=3
+            }
+        }
     }
 
     public var body: some View {
         VStack(spacing: 24) {
-            ProgressView(value: Double(step.rawValue), total: Double(Step.allCases.count - 1))
-                .progressViewStyle(.linear)
+            HStack(alignment: .center, spacing: 12) {
+                ProgressView(value: Double(step.rawValue), total: Double(Step.allCases.count - 1))
+                    .progressViewStyle(.linear)
+                if let n = step.displayNumber {
+                    Text("\(n) / 3")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .frame(width: 36, alignment: .trailing)
+                }
+            }
 
             Group {
                 switch step {
-                case .welcome: welcome
+                case .welcome:    welcome
                 case .microphone: microphone
-                case .system: system
-                case .model: model
-                case .done: done
+                case .system:     system
+                case .model:      model
+                case .done:       done
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -40,16 +57,17 @@ public struct OnboardingView: View {
                         step = Step(rawValue: step.rawValue + 1) ?? .done
                     }
                     .keyboardShortcut(.defaultAction)
+                    .disabled(step == .model && downloadProgress < 1)
                 } else {
-                    Button("Schließen") {
-                        NSApp.keyWindow?.close()
-                    }
-                    .keyboardShortcut(.defaultAction)
+                    Button("Schließen") { NSApp.keyWindow?.close() }
+                        .keyboardShortcut(.defaultAction)
                 }
             }
         }
         .padding(28)
     }
+
+    // MARK: - Steps
 
     private var welcome: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -77,8 +95,6 @@ public struct OnboardingView: View {
             .disabled(coordinator.permissions.microphone == .granted)
         }
         .onAppear {
-            // Trigger the system prompt the moment the user lands on this step.
-            // requestMicrophone() is idempotent: no-op if already granted.
             Task { _ = await coordinator.permissions.requestMicrophone() }
         }
     }
@@ -94,32 +110,48 @@ public struct OnboardingView: View {
             }
             HStack {
                 Text("Input Monitoring:"); Text(label(for: coordinator.permissions.inputMonitoring))
-                Button("Erneut anfragen") { coordinator.permissions.requestInputMonitoring() }
+                Button("Erneut anfragen") { coordinator.permissions.requestInputMonitoring()  }
                 Button("Settings öffnen") { coordinator.permissions.openSystemSettings(for: .inputMonitoring) }
             }
         }
         .onAppear {
-            // Auto-trigger BOTH prompts on first appearance. Required so the
-            // Voicy.app entry actually shows up in System Settings → Privacy →
-            // Input Monitoring; otherwise the user can't add it manually via
-            // the '+' button (smoke-test finding #6). Both calls are idempotent.
             coordinator.permissions.requestAccessibility()
             coordinator.permissions.requestInputMonitoring()
         }
     }
 
     private var model: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Whisper-Modell").font(.title2.bold())
             Text("Lade das multilinguale `\(coordinator.settings.whisperVariant)` Modell (~470 MB). Es bleibt lokal und wird auf der Apple Neural Engine ausgeführt.")
+                .fixedSize(horizontal: false, vertical: true)
+
             ProgressView(value: downloadProgress)
-            HStack {
-                Button("Download starten") { startDownload() }
-                    .disabled(downloadProgress > 0 && downloadProgress < 1)
-                if let downloadError {
-                    Text(downloadError).foregroundStyle(.red).font(.caption)
+
+            Group {
+                if downloadProgress == 1 {
+                    Label("Modell erfolgreich heruntergeladen", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                } else if downloadProgress > 0 {
+                    Text("Lädt herunter…")
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                } else if downloadError != nil {
+                    Button("Erneut versuchen") { startDownload() }
                 }
             }
+
+            if let downloadError {
+                Text(downloadError)
+                    .foregroundStyle(.red)
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onAppear {
+            // Auto-start download when reaching this step — no extra button click needed.
+            // ensureModel() is a no-op if the model is already on disk.
+            if downloadProgress == 0 { startDownload() }
         }
     }
 
@@ -132,6 +164,8 @@ public struct OnboardingView: View {
                 .foregroundStyle(.secondary)
         }
     }
+
+    // MARK: - Download
 
     private func startDownload() {
         downloadError = nil
@@ -159,8 +193,8 @@ public struct OnboardingView: View {
 
     private func label(for status: PermissionStatus) -> String {
         switch status {
-        case .granted: return "✓ erlaubt"
-        case .denied: return "✗ verweigert"
+        case .granted:       return "✓ erlaubt"
+        case .denied:        return "✗ verweigert"
         case .notDetermined: return "offen"
         }
     }
