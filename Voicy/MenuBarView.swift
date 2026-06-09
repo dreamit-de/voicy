@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct MenuBarView: View {
@@ -121,7 +122,13 @@ struct MenuBarView: View {
                         .font(.caption.bold())
                 }
                 Button("Setup abschließen") {
-                    openWindow(id: "onboarding")
+                    Task {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        await MainActor.run {
+                            NSApp.activate(ignoringOtherApps: true)
+                            openWindow(id: "onboarding")
+                        }
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
