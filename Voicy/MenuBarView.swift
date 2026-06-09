@@ -6,6 +6,7 @@ struct MenuBarView: View {
     @ObservedObject var status: StatusModel
     @ObservedObject var styleStore: RewriteStyleStore
     @ObservedObject var permissions: Permissions
+    @ObservedObject var updater: UpdaterService
 
     @Environment(\.openWindow) private var openWindow
     @State private var showingSettings = false
@@ -208,6 +209,11 @@ struct MenuBarView: View {
             statusDot(label: "Whisper", on: status.whisperReady)
             statusDot(label: "Ollama", on: status.ollamaReachable)
             Spacer()
+            Button("Updates") { updater.checkForUpdates() }
+                .buttonStyle(.plain)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .disabled(!updater.canCheckForUpdates)
             Button("Beenden") { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.plain)
                 .font(.caption)

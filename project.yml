@@ -21,10 +21,9 @@ packages:
   WhisperKit:
     url: https://github.com/argmaxinc/WhisperKit
     from: "0.9.0"
-  # Sparkle is added in the Distribution phase. Re-enable when wiring auto-updates:
-  # Sparkle:
-  #   url: https://github.com/sparkle-project/Sparkle
-  #   from: "2.6.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
 targets:
   Voicy:
     type: application
@@ -34,6 +33,7 @@ targets:
       - path: Modules
     resources:
       - path: Voicy/Resources/Prompts
+      - path: Voicy/Resources/Assets.xcassets
     info:
       path: Voicy/Resources/Info.plist
       properties:
@@ -47,15 +47,17 @@ targets:
         NSInputMonitoringUsageDescription: "Voicy überwacht Tastaturbefehle, um den globalen Aufnahme-Hotkey zu erkennen. Eingaben werden nicht gespeichert oder weitergeleitet."
         SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
         SUEnableAutomaticChecks: true
+        CFBundleIconName: AppIcon
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.dreamit.voicy
         CODE_SIGN_ENTITLEMENTS: Voicy/Resources/Voicy.entitlements
         CODE_SIGN_STYLE: Automatic
         ENABLE_APP_SANDBOX: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - package: WhisperKit
-      # - package: Sparkle
+      - package: Sparkle
   VoicyTests:
     type: bundle.unit-test
     platform: macOS
