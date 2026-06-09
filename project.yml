@@ -47,6 +47,7 @@ targets:
         NSInputMonitoringUsageDescription: "Voicy überwacht Tastaturbefehle, um den globalen Aufnahme-Hotkey zu erkennen. Eingaben werden nicht gespeichert oder weitergeleitet."
         SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
         SUEnableAutomaticChecks: true
+        SUPublicEDKey: "65NW/PvJWO3MM3DzSS95YVX80yXnn+G5IMFes84614w="
         CFBundleIconName: AppIcon
     settings:
       base:
