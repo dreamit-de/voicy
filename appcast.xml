@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Voicy</title>
+    <item>
+      <title>Version 0.2.0</title>
+      <pubDate>Thu, 11 Jun 2026 09:28:35 +0000</pubDate>
+      <sparkle:version>10</sparkle:version>
+      <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[
+        <h2>Voicy 0.2.0</h2>
+        <p>Überarbeitetes Setup mit klaren, geführten Schritten und besserer Fehlerbehandlung. Neu: Voicy aktualisiert sich ab jetzt automatisch — ein Update-Hinweis erscheint direkt in der Menüleiste.</p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.0-internal">Alle Details in den Release Notes auf GitHub</a></p>
+      ]]></description>
+      <enclosure
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.0-internal/Voicy-0.2.0-internal.dmg"
+        length="2706785"
+        type="application/x-apple-diskimage"
+        sparkle:edSignature="gZKq34wB69YaoSS/K6EWExKcoJieY5UAbp/InUa9UaptzgS+50Aea54Ida3Hp9HiE84s6WTodJHy4Shj4ivMBQ==" />
+    </item>
+  </channel>
+</rss>
