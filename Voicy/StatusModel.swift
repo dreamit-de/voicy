@@ -17,10 +17,18 @@ public enum AppState: Equatable, Sendable {
     }
 }
 
+public enum WhisperStatus: Equatable, Sendable {
+    case loading
+    case ready
+    case failed(String)
+}
+
 @MainActor
 public final class StatusModel: ObservableObject {
     @Published public var state: AppState = .idle
-    @Published public var whisperReady: Bool = false
+    @Published public var whisper: WhisperStatus = .loading
+
+    public var whisperReady: Bool { whisper == .ready }
     @Published public var ollamaReachable: Bool = false
     @Published public var ollamaModels: [String] = []
     @Published public var selectedOllamaModel: String = ""
@@ -46,7 +54,11 @@ public final class StatusModel: ObservableObject {
     public var statusHeadline: String {
         switch state {
         case .idle:
-            return whisperReady ? "Bereit" : "Whisper-Modell wird vorbereitet…"
+            switch whisper {
+            case .ready: return "Bereit"
+            case .loading: return "Whisper-Modell wird vorbereitet…"
+            case .failed: return "Whisper nicht verfügbar"
+            }
         case .recording(.normal):
             return "Aufnahme (Normal)"
         case .recording(.rewrite):

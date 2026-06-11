@@ -108,6 +108,9 @@ public final class AppCoordinator: ObservableObject {
         let text: String
         do {
             text = try await transcription.transcribe(pcm, language: settings.language)
+            // transcribe() prepares the engine on demand — if that succeeded
+            // while the launch-time preparation had failed, reflect it here.
+            statusModel.whisper = .ready
         } catch {
             statusModel.state = .error(error.localizedDescription)
             await notify("Transkription fehlgeschlagen", body: error.localizedDescription)
@@ -168,19 +171,37 @@ public final class AppCoordinator: ObservableObject {
         }
     }
 
+    /// Cancels a running preparation attempt and starts over. Used by the
+    /// menu's "Erneut versuchen" button and by onboarding after the model
+    /// download finishes, so the engine actually loads (incl. tokenizer).
+    public func retryWhisperPreparation() {
+        modelPrepTask?.cancel()
+        statusModel.whisper = .loading
+        prepareWhisperIfPossible()
+    }
+
     private func prepareWhisperIfPossible() {
         modelPrepTask = Task { [weak self] in
-            guard let self else { return }
-            // We try to prepare immediately; first-launch will block on download via the
-            // Onboarding window which hosts its own progress UI. After that, prepare is fast.
-            do {
-                if let actor = self.transcription as? WhisperEngine {
-                    try await actor.prepare()
+            // First-launch blocks on the model download via the Onboarding
+            // window which hosts its own progress UI; after that, prepare is
+            // fast. Preparation can still fail transiently (e.g. the tokenizer
+            // fetch needs huggingface.co once), so retry with backoff instead
+            // of leaving the app stuck on "lädt…" until the next restart.
+            var delay: Duration = .seconds(2)
+            while !Task.isCancelled {
+                guard let self else { return }
+                do {
+                    if let actor = self.transcription as? WhisperEngine {
+                        try await actor.prepare()
+                    }
+                    await MainActor.run { self.statusModel.whisper = .ready }
+                    return
+                } catch {
+                    self.log.error("Whisper preparation failed: \(error.localizedDescription, privacy: .public)")
+                    await MainActor.run { self.statusModel.whisper = .failed(error.localizedDescription) }
+                    try? await Task.sleep(for: delay)
+                    delay = min(delay * 2, .seconds(60))
                 }
-                await MainActor.run { self.statusModel.whisperReady = true }
-            } catch {
-                self.log.error("Whisper preparation failed: \(error.localizedDescription, privacy: .public)")
-                await MainActor.run { self.statusModel.whisperReady = false }
             }
         }
     }

@@ -88,6 +88,7 @@ struct MenuBarView: View {
         VStack(alignment: .leading, spacing: 0) {
             updateBanner
             permissionsBanner
+            whisperBanner
             VStack(alignment: .leading, spacing: 8) {
                 modeCard(
                     .normal,
@@ -141,6 +142,34 @@ struct MenuBarView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.blue.opacity(0.1))
+        }
+    }
+
+    /// Shown when Whisper preparation has given up for now (it auto-retries
+    /// with backoff, but the user can force an immediate attempt).
+    @ViewBuilder
+    private var whisperBanner: some View {
+        if case .failed(let message) = status.whisper {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "xmark.octagon.fill")
+                        .foregroundStyle(.red)
+                    Text("Whisper konnte nicht geladen werden")
+                        .font(.caption.bold())
+                }
+                Text(message)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                Button("Erneut versuchen") {
+                    coordinator.retryWhisperPreparation()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.red.opacity(0.1))
         }
     }
 
@@ -243,9 +272,9 @@ struct MenuBarView: View {
                     .disabled(!updater.canCheckForUpdates)
             }
             HStack(spacing: 14) {
-                statusDot(label: "Setup", on: permissions.allGranted)
-                statusDot(label: "Whisper", on: status.whisperReady)
-                statusDot(label: "Ollama", on: status.ollamaReachable)
+                statusDot(label: "Setup", color: permissions.allGranted ? .green : .gray.opacity(0.5))
+                statusDot(label: "Whisper", color: whisperDotColor)
+                statusDot(label: "Ollama", color: status.ollamaReachable ? .green : .gray.opacity(0.5))
                 Spacer()
                 Button("Beenden") { NSApplication.shared.terminate(nil) }
                     .buttonStyle(.plain)
@@ -261,11 +290,19 @@ struct MenuBarView: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     }
 
+    private var whisperDotColor: Color {
+        switch status.whisper {
+        case .ready: return .green
+        case .loading: return .gray.opacity(0.5)
+        case .failed: return .red
+        }
+    }
+
     @ViewBuilder
-    private func statusDot(label: String, on: Bool) -> some View {
+    private func statusDot(label: String, color: Color) -> some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(on ? Color.green : Color.gray.opacity(0.5))
+                .fill(color)
                 .frame(width: 7, height: 7)
             Text(label)
                 .font(.caption)
@@ -310,7 +347,12 @@ struct MenuBarView: View {
         case .transcribing: return .blue
         case .rewriting:    return .purple
         case .error:        return .orange
-        case .idle:         return status.whisperReady ? .green : .gray
+        case .idle:
+            switch status.whisper {
+            case .ready: return .green
+            case .loading: return .gray
+            case .failed: return .red
+            }
         }
     }
 
@@ -321,7 +363,12 @@ struct MenuBarView: View {
         case .transcribing:        return "Transkribiere…"
         case .rewriting:           return "Rewrite läuft…"
         case .error(let message):  return message
-        case .idle:                return status.whisperReady ? "Bereit" : "Whisper lädt…"
+        case .idle:
+            switch status.whisper {
+            case .ready: return "Bereit"
+            case .loading: return "Whisper lädt…"
+            case .failed: return "Whisper nicht verfügbar"
+            }
         }
     }
 }

@@ -29,7 +29,20 @@ public actor WhisperEngine: TranscriptionService {
     /// Loads the model. Must be called once before `transcribe`. Idempotent.
     public func prepare() async throws {
         if whisperKit != nil { return }
+        do {
+            try await ensureAndLoad()
+        } catch {
+            // A model that is on disk but fails to load is almost always a
+            // corrupt/incomplete download (e.g. a single missing file inside
+            // an .mlmodelc). Wipe the variant and re-download once instead of
+            // failing forever on the same broken files.
+            log.warning("Model load failed, wiping and re-downloading \(self.modelVariant, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            try modelStore.remove(variant: modelVariant)
+            try await ensureAndLoad()
+        }
+    }
 
+    private func ensureAndLoad() async throws {
         let modelFolder = try await modelStore.ensureModel(
             variant: modelVariant,
             progress: nil
@@ -38,6 +51,7 @@ public actor WhisperEngine: TranscriptionService {
         let config = WhisperKitConfig(
             model: modelVariant,
             modelFolder: modelFolder.path,
+            tokenizerFolder: modelStore.tokenizersRoot,
             verbose: false,
             logLevel: .error,
             prewarm: true,

@@ -462,7 +462,9 @@ public struct OnboardingView: View {
                     }
                 )
                 modelState = .installed
-                coordinator.statusModel.whisperReady = true
+                // Download ≠ loaded engine: kick off preparation so the
+                // tokenizer is fetched and the model actually loads now.
+                coordinator.retryWhisperPreparation()
             } catch {
                 modelState = .failed(error.localizedDescription)
             }

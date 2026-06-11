@@ -35,6 +35,16 @@ public final class ModelStore: @unchecked Sendable {
         return base
     }
 
+    /// Persistent home for tokenizer files (WhisperKit lays them out in a
+    /// HF-hub structure below this root). Passing this as `tokenizerFolder`
+    /// makes WhisperKit cache the tokenizer here on first load, so later
+    /// launches work without reaching huggingface.co.
+    public var tokenizersRoot: URL {
+        let base = modelsRoot.appendingPathComponent("Tokenizers", isDirectory: true)
+        try? fileManager.createDirectory(at: base, withIntermediateDirectories: true)
+        return base
+    }
+
     public func modelFolder(variant: String) -> URL {
         modelsRoot.appendingPathComponent(variant, isDirectory: true)
     }
