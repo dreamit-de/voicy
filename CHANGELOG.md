@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-06-11
+
+### Added
+- App icon (dreamIT microphone logo); generator pipeline in `scripts/compose-app-icon.swift`, master at `docs/assets/voicy-logo-master.png`.
+
+### Fixed
+- Right-Option hotkey never triggered the normal dictation mode: the right-alt device mask was mistakenly `NX_CONTROLMASK`, so dictation only worked as Ctrl+Option rewrite. Mode derivation is now a tested pure function.
+- Whisper preparation no longer hangs forever on "Whisper lädt…": corrupt model downloads self-heal (wipe + re-download once), preparation retries with exponential backoff, and load failures surface in the menu with an error banner and retry button.
+- Tokenizer files are persisted under `Models/Tokenizers`, so launches after the first successful load no longer need huggingface.co.
+- Onboarding starts real engine preparation after the model download instead of only flipping the status flag.
+
 ## [0.2.0] — 2026-06-11
 
 ### Added
