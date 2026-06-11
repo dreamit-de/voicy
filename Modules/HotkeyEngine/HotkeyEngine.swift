@@ -106,14 +106,7 @@ public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
         }
         guard type == .flagsChanged else { return }
 
-        let flags = event.flags
-        let rightOptionDown = flags.contains(.maskAlternate) && hasRightSideBit(flags, mask: nxDeviceRAltKeyMask)
-        let controlDown = flags.contains(.maskControl)
-
-        let newMode: HotkeyMode? = {
-            guard rightOptionDown else { return nil }
-            return controlDown ? .rewrite : .normal
-        }()
+        let newMode = HotkeyEngine.mode(for: event.flags)
 
         if newMode == currentMode { return }
 
@@ -126,10 +119,16 @@ public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
         currentMode = newMode
     }
 
-    /// CGEventFlags carries device-specific side bits in addition to the public masks.
-    /// `NX_DEVICERALTKEYMASK` (0x040000) marks Right-Option specifically.
-    private func hasRightSideBit(_ flags: CGEventFlags, mask: UInt) -> Bool {
-        (flags.rawValue & UInt64(mask)) != 0
+    /// Derives the hotkey mode from modifier flags. Right-Option held alone is
+    /// `.normal`, Right-Option + Control is `.rewrite`, anything else is nil.
+    ///
+    /// CGEventFlags carries device-specific side bits in addition to the public
+    /// masks; the right-alt bit distinguishes Right- from Left-Option.
+    static func mode(for flags: CGEventFlags) -> HotkeyMode? {
+        let rightOptionDown = flags.contains(.maskAlternate)
+            && (flags.rawValue & UInt64(nxDeviceRAltKeyMask)) != 0
+        guard rightOptionDown else { return nil }
+        return flags.contains(.maskControl) ? .rewrite : .normal
     }
 }
 
@@ -137,5 +136,8 @@ public enum HotkeyEngineError: Error, Sendable {
     case tapCreationFailed
 }
 
-/// `NX_DEVICERALTKEYMASK` from `<IOKit/hidsystem/IOLLEvent.h>` — not bridged into Swift, so we redefine it.
-private let nxDeviceRAltKeyMask: UInt = 0x040000
+/// `NX_DEVICERALTKEYMASK` from `<IOKit/hidsystem/IOLLEvent.h>` — not bridged
+/// into Swift, so we redefine it. NOT to be confused with `NX_CONTROLMASK`
+/// (0x040000): using that value here silently turns the Right-Option check
+/// into a Control check, making the normal mode unreachable.
+private let nxDeviceRAltKeyMask: UInt = 0x40
