@@ -1,7 +1,18 @@
 name: Internal Release
 
-# Internes Build für dreamIT-Mitarbeiter — ad-hoc signiert, ohne Apple-Notarisierung.
+# Internes Build für dreamIT-Mitarbeiter — signiert mit dem selbstsignierten
+# CI-Zertifikat (Secrets MACOS_CERT_P12_*), ohne Apple-Notarisierung.
 # Für den offiziellen, notarisierten Release: release.yml verwenden.
+#
+# Warum ein echtes Zertifikat statt ad-hoc: TCC bindet erteilte Berechtigungen
+# (Bedienungshilfen, Eingabeüberwachung, Mikrofon) bei Ad-hoc-Signaturen an den
+# exakten Binary-Hash — jedes Update verwarf alle Grants und zwang Nutzer
+# erneut durchs Setup. Mit Zertifikat ist das Designated Requirement
+# ("identifier + certificate root") über alle Builds stabil, Grants überleben
+# Updates. Die Secret-Namen sind identisch mit release.yml: ein Wechsel auf
+# ein Developer-ID-Zertifikat ist nur ein Austausch der Secret-Werte.
+# NIEMALS das Zertifikat rotieren ohne Migrationsplan — neue Signatur =
+# alle Nutzer verlieren einmalig ihre TCC-Berechtigungen.
 
 on:
   workflow_dispatch:
@@ -72,6 +83,28 @@ jobs:
       - name: Install tools
         run: brew install xcodegen create-dmg
 
+      # Same keychain setup as release.yml; the imported identity is the
+      # self-signed "dreamIT Voicy Internal Signing" certificate.
+      - name: Set up signing keychain
+        env:
+          CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          CERT_P12_PASSWORD: ${{ secrets.MACOS_CERT_P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        run: |
+          set -e
+          if [ -z "$CERT_P12_BASE64" ]; then
+            echo "::error::Secret MACOS_CERT_P12_BASE64 is not set — cannot sign"
+            exit 1
+          fi
+          echo "$CERT_P12_BASE64" | base64 --decode > cert.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import cert.p12 -k build.keychain -P "$CERT_P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          rm cert.p12
+
       - name: Generate Xcode project
         run: xcodegen generate
 
@@ -117,14 +150,23 @@ jobs:
           echo "SUPublicEDKey present and valid"
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
-      - name: Ad-hoc sign + embed entitlements
+      - name: Sign + embed entitlements
         run: |
           set -e
           echo "Signing: $APP_PATH"
-          codesign --force --deep --sign - \
+          codesign --force --deep --sign "dreamIT Voicy Internal Signing" \
             --entitlements Voicy/Resources/Voicy.entitlements \
             "$APP_PATH"
           codesign --verify --verbose "$APP_PATH"
+          # The certificate-based designated requirement is what keeps TCC
+          # grants stable across updates — fail loudly if we ever regress
+          # to an ad-hoc cdhash requirement.
+          DR="$(codesign -dr - "$APP_PATH" 2>&1 | grep '^designated')"
+          echo "$DR"
+          case "$DR" in
+            *"certificate root"*) echo "Designated requirement is certificate-based — OK" ;;
+            *) echo "::error::Designated requirement is not certificate-based: ${DR}"; exit 1 ;;
+          esac
 
       - name: Create DMG
         run: |
