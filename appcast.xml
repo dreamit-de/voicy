@@ -3,23 +3,22 @@
   <channel>
     <title>Voicy</title>
     <item>
-      <title>Version 0.2.1</title>
-      <pubDate>Thu, 11 Jun 2026 18:46:50 +0000</pubDate>
-      <sparkle:version>11</sparkle:version>
-      <sparkle:shortVersionString>0.2.1</sparkle:shortVersionString>
+      <title>Version 0.2.2</title>
+      <pubDate>Thu, 11 Jun 2026 19:12:28 +0000</pubDate>
+      <sparkle:version>12</sparkle:version>
+      <sparkle:shortVersionString>0.2.2</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <description><![CDATA[
-        <h2>Voicy 0.2.1</h2>
-        <p><h2>Voicy 0.2.1</h2><p><b>Neues App-Icon</b> und zwei wichtige Fixes: Der
-  Diktier-Hotkey (rechte ⌥-Taste allein) funktioniert jetzt — bisher reagierte nur Ctrl+⌥. Außerdem repariert sich ein defekter Whisper-Modell-Download ab sofort selbst; bei Ladeproblemen zeigt das Menü eine
-  Fehlermeldung mit „Erneut versuchen" statt dauerhaft „Whisper lädt…".</p></p>
-        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.1-internal">Alle Details in den Release Notes auf GitHub</a></p>
+        <h2>Voicy 0.2.2</h2>
+        <p><h2>Voicy 0.2.2</h2><p>Interne Builds sind jetzt stabil signiert: Nach diesem
+  Update bleiben die macOS-Berechtigungen bei künftigen Updates dauerhaft erhalten — das wiederholte Setup entfällt. Einmalig müssen die Berechtigungen nach diesem Update noch neu erteilt werden.</p></p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.2-internal">Alle Details in den Release Notes auf GitHub</a></p>
       ]]></description>
       <enclosure
-        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.1-internal/Voicy-0.2.1-internal.dmg"
-        length="3820027"
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.2-internal/Voicy-0.2.2-internal.dmg"
+        length="3833899"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="86wIyPwBuALSc7bJMSWmn4Qn5igvfjICNFdUDE4N+MVzjIOA3MtnE9GSv4Njxkc1kpO1625OqPtdNJRYmqNtBA==" />
+        sparkle:edSignature="QVOAHow2u25LCMMsmUWlHBBHvUSzWlstiO7M2i/JUlSLh5NZwIaSnfq1o4EmL6fTwCVPIA3GTip4FozA6RhjDg==" />
     </item>
   </channel>
 </rss>
