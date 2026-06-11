@@ -71,6 +71,7 @@ public struct OnboardingView: View {
             if inputMonitoringGrantedAtLaunch == nil {
                 inputMonitoringGrantedAtLaunch =
                     coordinator.permissions.inputMonitoring == .granted
+                resumeAtFirstOpenStep()
             }
         }
     }
@@ -237,6 +238,23 @@ public struct OnboardingView: View {
         coordinator.settings.hasCompletedOnboarding = true
         coordinator.settings.save()
         dismiss()
+    }
+
+    /// Granting Input Monitoring makes macOS force-quit and reopen the app,
+    /// killing the assistant mid-run — so a successful setup could never
+    /// reach the done step. On (re)open, resume at the first unfulfilled
+    /// step instead of walking the user through Willkommen again; with
+    /// everything already set up that is the done step, one click from
+    /// finishing. A completely untouched setup still starts at Willkommen.
+    private func resumeAtFirstOpenStep() {
+        if ModelStore.shared.isModelInstalled(variant: coordinator.settings.whisperVariant) {
+            modelState = .installed
+        }
+        let firstOpen = [Step.microphone, .accessibility, .inputMonitoring, .model]
+            .first { !isFulfilled($0) }
+        guard firstOpen != .microphone else { return }
+        step = firstOpen ?? .done
+        maxVisitedStep = step
     }
 
     // MARK: - Step 0: Welcome

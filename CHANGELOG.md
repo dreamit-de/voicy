@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+- Setup assistant resumes at the first unfulfilled step when reopened. Granting Input Monitoring makes macOS force-quit and reopen the app mid-assistant, so a successful setup could never reach the final step — after the relaunch it now lands one click away from finishing instead of restarting at "Willkommen".
+- Internal builds are signed with a stable CI certificate instead of ad-hoc, so TCC permission grants (Microphone, Accessibility, Input Monitoring) survive updates and the setup no longer has to be repeated after every update.
+
 ## [0.2.1] — 2026-06-11
 
 ### Added
