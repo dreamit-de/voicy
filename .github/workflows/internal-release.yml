@@ -35,7 +35,7 @@ permissions:
 
 jobs:
   build:
-    name: Build + Package (ad-hoc, kein Zertifikat)
+    name: Build + Package (CI-Zertifikat, ohne Notarisierung)
     runs-on: macos-14
     timeout-minutes: 60
     env:
