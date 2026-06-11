@@ -103,6 +103,11 @@ jobs:
           xcrun stapler validate "build/Voicy-${{ inputs.version }}.dmg"
           spctl --assess --type install --verbose "build/Voicy-${{ inputs.version }}.dmg" || true
 
+      # TODO(Sparkle): When this notarized release path goes live, replicate the
+      # appcast steps from internal-release.yml: download the Sparkle 2.9.3 tools,
+      # sign the DMG with sign_update (secret SPARKLE_PRIVATE_KEY), generate
+      # appcast.xml (sparkle:version = build_number), and push it to gh-pages
+      # AFTER the release is published (feed must never point to a 404 asset).
       - name: Create GitHub Release (draft)
         uses: softprops/action-gh-release@v3
         with:

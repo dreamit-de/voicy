@@ -55,7 +55,25 @@ Jede Komponente ist Protokoll-First entworfen, um Mocks und Unit-Tests zu erlaub
 
 ## Distribution
 
-Release-Pipeline (Manuell, GitHub-Actions später):
+### Interne Releases (GitHub Actions)
+
+Der Workflow **Internal Release** (`.github/workflows/internal-release.yml`, `workflow_dispatch` mit `version` / `build_number` / optional `release_notes`) baut ein ad-hoc-signiertes DMG, veröffentlicht es als GitHub-Prerelease `v{version}-internal` und publiziert anschließend den Sparkle-Appcast. Die `build_number` (CFBundleVersion = `sparkle:version`) muss streng monoton steigen — der Workflow bricht früh ab, wenn sie nicht größer ist als die zuletzt auf `gh-pages` publizierte `sparkle:version`, da Sparkle ausschließlich diese Nummer vergleicht.
+
+### Auto-Update via Sparkle
+
+- Installierte Voicy-Versionen aktualisieren sich automatisch über [Sparkle 2](https://sparkle-project.org).
+- **Feed-URL** (`SUFeedURL`): `https://dreamit-de.github.io/voicy/appcast.xml` — gehostet auf GitHub Pages (Branch `gh-pages`).
+- Der Appcast enthält immer nur das neueste Release; das DMG-Asset liegt weiterhin auf GitHub Releases.
+- Reihenfolge in der Pipeline: erst GitHub-Release mit DMG publizieren, dann `appcast.xml` nach `gh-pages` pushen — der Feed zeigt also nie auf ein nicht existierendes Asset.
+
+**Key-Handling (EdDSA / Ed25519):**
+
+- **Public Key** (`SUPublicEDKey`): steht im Klartext in `project.yml` (Public Keys sind nicht geheim) und landet via XcodeGen in der `Info.plist`. Der Internal-Release-Workflow verifiziert vor dem Signieren, dass die gebaute App einen gültigen 32-Byte-Ed25519-Key trägt. **Achtung:** Key niemals rotieren ohne Migrationsplan — installierte Apps lehnen Updates ab, die mit einem anderen Key signiert sind.
+- **Private Key**: liegt ausschließlich als Repo-Secret `SPARKLE_PRIVATE_KEY` (base64-codierter 32-Byte-Ed25519-Seed, Format von `generate_keys -x`). Der Workflow schreibt ihn nur in eine temporäre Datei (`chmod 600`) für `sign_update -f` und löscht sie sofort danach. Der Key darf niemals committet oder geloggt werden.
+
+### Notarisierter Release (später)
+
+Der Workflow `release.yml` (Developer-ID-Signatur + Notarisierung) ist vorbereitet, aber noch ohne Appcast-Publishing — siehe TODO-Kommentar im Workflow:
 
 ```bash
 xcodebuild -scheme Voicy -configuration Release archive -archivePath build/Voicy.xcarchive
@@ -64,8 +82,6 @@ create-dmg --volname Voicy --app-drop-link 600 185 build/Voicy.dmg build/Voicy/V
 xcrun notarytool submit build/Voicy.dmg --keychain-profile "voicy-notary" --wait
 xcrun stapler staple build/Voicy.dmg
 ```
-
-Sparkle-Updates: `appcast.xml` wird über `generate_appcast` befüllt und auf GitHub Releases gehostet.
 
 ## Lizenz
 

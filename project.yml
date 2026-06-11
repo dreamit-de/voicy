@@ -21,10 +21,9 @@ packages:
   WhisperKit:
     url: https://github.com/argmaxinc/WhisperKit
     from: "0.9.0"
-  # Sparkle is added in the Distribution phase. Re-enable when wiring auto-updates:
-  # Sparkle:
-  #   url: https://github.com/sparkle-project/Sparkle
-  #   from: "2.6.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
 targets:
   Voicy:
     type: application
@@ -46,6 +45,12 @@ targets:
         NSAppleEventsUsageDescription: "Voicy fügt transkribierten Text in das aktive Eingabefeld ein."
         SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
         SUEnableAutomaticChecks: true
+        # EdDSA public key for Sparkle update verification — counterpart of
+        # the repo secret SPARKLE_PRIVATE_KEY (rotated 2026-06-11), which
+        # internal-release.yml uses to sign update DMGs. Public keys are not
+        # secret. Never rotate without a client migration plan: installed
+        # apps reject updates signed with a different key.
+        SUPublicEDKey: "a/hF7gPPLDjaScuCBzorGg6O9qxWheOU8NbzK/vU0D8="
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.dreamit.voicy
@@ -54,7 +59,7 @@ targets:
         ENABLE_APP_SANDBOX: NO
     dependencies:
       - package: WhisperKit
-      # - package: Sparkle
+      - package: Sparkle
   VoicyTests:
     type: bundle.unit-test
     platform: macOS
@@ -64,6 +69,7 @@ targets:
       - target: Voicy
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Voicy.app/Contents/MacOS/Voicy"
 schemes:

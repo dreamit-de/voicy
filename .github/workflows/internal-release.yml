@@ -14,6 +14,10 @@ on:
         description: 'Build-Nummer (CFBundleVersion)'
         required: true
         default: '1'
+      release_notes:
+        description: 'Wichtigste Änderungen für den Sparkle-Update-Dialog (optional, einfacher Text oder HTML)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -28,6 +32,42 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      # Fail fast: Sparkle compares ONLY sparkle:version (the build number).
+      # A build number that does not increase past the one already published
+      # on gh-pages would produce a green pipeline whose update no installed
+      # client is ever offered.
+      - name: Verify build number is greater than the published appcast
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          case "$BUILD_NUMBER" in
+            ''|*[!0-9]*)
+              echo "::error::build_number must be a positive integer (got '${BUILD_NUMBER}')"
+              exit 1 ;;
+          esac
+          if ! git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            echo "No gh-pages branch yet — first release, skipping monotonicity check"
+            exit 0
+          fi
+          git fetch --depth 1 origin gh-pages
+          if ! git cat-file -e FETCH_HEAD:appcast.xml 2>/dev/null; then
+            echo "No appcast.xml published yet — skipping monotonicity check"
+            exit 0
+          fi
+          PUBLISHED="$(git show FETCH_HEAD:appcast.xml \
+            | xmllint --xpath 'string(//*[local-name()="version"])' -)"
+          case "$PUBLISHED" in
+            ''|*[!0-9]*)
+              echo "::warning::Published sparkle:version ('${PUBLISHED}') is not numeric — skipping comparison"
+              exit 0 ;;
+          esac
+          if [ "$BUILD_NUMBER" -le "$PUBLISHED" ]; then
+            echo "::error::build_number (${BUILD_NUMBER}) must be greater than the published sparkle:version (${PUBLISHED}) — installed clients would never be offered this update"
+            exit 1
+          fi
+          echo "build_number ${BUILD_NUMBER} > published ${PUBLISHED} — OK"
 
       - name: Install tools
         run: brew install xcodegen create-dmg
@@ -60,19 +100,35 @@ jobs:
             -derivedDataPath build \
             build 2>&1 | tee logs-build.txt
 
+      # The EdDSA public key ships hardcoded in project.yml (SUPublicEDKey).
+      # Verify the built app actually carries a valid 32-byte key — without
+      # it, shipped builds could never verify the appcast's edSignature and
+      # every update install would fail.
+      - name: Verify Sparkle public key in built app
+        run: |
+          set -euo pipefail
+          APP_PATH=$(find build -name "Voicy.app" -maxdepth 10 -type d | head -1)
+          EMBEDDED="$(plutil -extract SUPublicEDKey raw "$APP_PATH/Contents/Info.plist")"
+          KEY_BYTES="$(printf '%s' "$EMBEDDED" | base64 -d 2>/dev/null | wc -c | tr -d ' ' || true)"
+          if [ "$KEY_BYTES" != "32" ]; then
+            echo "::error::SUPublicEDKey in the built Info.plist ('${EMBEDDED}') is not a valid base64-encoded 32-byte Ed25519 public key"
+            exit 1
+          fi
+          echo "SUPublicEDKey present and valid"
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
       - name: Ad-hoc sign + embed entitlements
         run: |
           set -e
-          APP_PATH=$(find build -name "Voicy.app" -maxdepth 10 -type d | head -1)
           echo "Signing: $APP_PATH"
           codesign --force --deep --sign - \
             --entitlements Voicy/Resources/Voicy.entitlements \
             "$APP_PATH"
           codesign --verify --verbose "$APP_PATH"
-          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
       - name: Create DMG
         run: |
+          set -euo pipefail
           DMG_NAME="Voicy-${{ inputs.version }}-internal.dmg"
           create-dmg \
             --volname "Voicy ${{ inputs.version }}" \
@@ -82,6 +138,93 @@ jobs:
             "build/$DMG_NAME" \
             "$APP_PATH"
           echo "DMG_NAME=$DMG_NAME" >> "$GITHUB_ENV"
+
+      # --- Sparkle auto-update pipeline -------------------------------------
+      # Order matters: sign DMG + generate appcast first, then publish the
+      # GitHub Release (with the DMG asset), and only AFTER that push the
+      # appcast to gh-pages — otherwise the feed would briefly point to a 404.
+
+      - name: Download Sparkle tools (2.9.3)
+        run: |
+          set -euo pipefail
+          SPARKLE_DIR="$(mktemp -d)"
+          curl -fsSL --retry 3 -o "$SPARKLE_DIR/Sparkle.tar.xz" \
+            "https://github.com/sparkle-project/Sparkle/releases/download/2.9.3/Sparkle-2.9.3.tar.xz"
+          tar -xJf "$SPARKLE_DIR/Sparkle.tar.xz" -C "$SPARKLE_DIR"
+          test -x "$SPARKLE_DIR/bin/sign_update" || { echo "::error::sign_update not found in Sparkle tarball"; exit 1; }
+          echo "SPARKLE_DIR=$SPARKLE_DIR" >> "$GITHUB_ENV"
+
+      - name: Sign DMG with Sparkle EdDSA key
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SPARKLE_PRIVATE_KEY:-}" ]; then
+            echo "::error::Repo secret SPARKLE_PRIVATE_KEY is not set"
+            exit 1
+          fi
+          # Write the base64-encoded 32-byte Ed25519 seed to a throwaway key
+          # file (sign_update -f expects exactly this format). Never log it.
+          KEY_FILE="$(mktemp)"
+          chmod 600 "$KEY_FILE"
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
+          SIGN_OUTPUT="$("$SPARKLE_DIR/bin/sign_update" -f "$KEY_FILE" "build/$DMG_NAME")"
+          rm -f "$KEY_FILE"
+          # sign_update prints: sparkle:edSignature="..." length="..."
+          ED_SIGNATURE="$(printf '%s' "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')"
+          DMG_LENGTH="$(printf '%s' "$SIGN_OUTPUT" | sed -n 's/.*length="\([^"]*\)".*/\1/p')"
+          if [ -z "$ED_SIGNATURE" ] || [ -z "$DMG_LENGTH" ]; then
+            echo "::error::sign_update did not return an EdDSA signature/length"
+            exit 1
+          fi
+          echo "ED_SIGNATURE=$ED_SIGNATURE" >> "$GITHUB_ENV"
+          echo "DMG_LENGTH=$DMG_LENGTH" >> "$GITHUB_ENV"
+          echo "Signed $DMG_NAME ($DMG_LENGTH bytes)"
+
+      - name: Generate appcast.xml
+        env:
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+        run: |
+          set -euo pipefail
+          PUB_DATE="$(LC_ALL=C date -u '+%a, %d %b %Y %H:%M:%S +0000')"
+          DOWNLOAD_URL="https://github.com/dreamit-de/voicy/releases/download/v${VERSION}-internal/${DMG_NAME}"
+          RELEASE_URL="https://github.com/dreamit-de/voicy/releases/tag/v${VERSION}-internal"
+          if [ -n "${RELEASE_NOTES:-}" ]; then
+            SUMMARY="<p>${RELEASE_NOTES}</p>"
+          else
+            SUMMARY="<p>Dieses Update enthält Verbesserungen und Fehlerbehebungen.</p>"
+          fi
+          # Only the newest item is published — Sparkle clients only need the
+          # latest version, not the full history.
+          cat > build/appcast.xml <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>Voicy</title>
+              <item>
+                <title>Version ${VERSION}</title>
+                <pubDate>${PUB_DATE}</pubDate>
+                <sparkle:version>${BUILD_NUMBER}</sparkle:version>
+                <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <description><![CDATA[
+                  <h2>Voicy ${VERSION}</h2>
+                  ${SUMMARY}
+                  <p><a href="${RELEASE_URL}">Alle Details in den Release Notes auf GitHub</a></p>
+                ]]></description>
+                <enclosure
+                  url="${DOWNLOAD_URL}"
+                  length="${DMG_LENGTH}"
+                  type="application/x-apple-diskimage"
+                  sparkle:edSignature="${ED_SIGNATURE}" />
+              </item>
+            </channel>
+          </rss>
+          EOF
+          xmllint --noout build/appcast.xml
+          echo "appcast.xml generated and validated"
 
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v7
@@ -102,6 +245,10 @@ jobs:
             ## Voicy v${{ inputs.version }} — Internes Build für dreamIT-Mitarbeiter
 
             > **Nur für interne Nutzung.** Dieses Build ist nicht notarisiert (kein Apple Developer-Zertifikat). Ausschließlich für dreamIT-Mitarbeiter bestimmt.
+
+            ### Automatische Updates (Sparkle)
+            Ab v${{ inputs.version }} aktualisiert sich Voicy automatisch über Sparkle — zukünftige Versionen musst du nicht mehr manuell herunterladen.
+            **Wichtig für Nutzer älterer Versionen (≤ 0.1.1):** Bitte EINMALIG dieses DMG manuell installieren (alte Versionen kennen den Update-Feed noch nicht). Danach kommen alle Updates automatisch.
 
             ### Systemvoraussetzungen
             - macOS 14 (Sonoma) oder neuer
@@ -136,3 +283,29 @@ jobs:
 
             ### Feedback
             Bugs und Rückmeldungen bitte als [GitHub Issue](../../issues/new) melden.
+
+      # Publish the appcast only AFTER the release (and its DMG asset) exists,
+      # so the feed never points to a 404 enclosure URL.
+      - name: Checkout gh-pages
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Publish appcast.xml to gh-pages
+        env:
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          cp build/appcast.xml gh-pages/appcast.xml
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          if git diff --cached --quiet; then
+            echo "appcast.xml unchanged — nothing to publish"
+            exit 0
+          fi
+          git commit -m "appcast: Voicy ${VERSION} (build ${BUILD_NUMBER})"
+          git push origin gh-pages

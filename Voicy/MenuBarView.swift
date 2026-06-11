@@ -5,6 +5,7 @@ struct MenuBarView: View {
     @ObservedObject var status: StatusModel
     @ObservedObject var styleStore: RewriteStyleStore
     @ObservedObject var permissions: Permissions
+    @ObservedObject var updater: UpdaterService
 
     @Environment(\.openWindow) private var openWindow
     @State private var showingSettings = false
@@ -15,7 +16,7 @@ struct MenuBarView: View {
             header
             Divider()
             if showingSettings {
-                SettingsView(coordinator: coordinator)
+                SettingsView(coordinator: coordinator, updater: updater)
                     .frame(maxHeight: 480)
             } else {
                 mainContent
@@ -25,15 +26,18 @@ struct MenuBarView: View {
         .task(autoOpenSetupIfNeeded)
     }
 
-    /// Opens the Setup window once per launch when permissions are still
-    /// incomplete. Subsequent dismissals are respected — we don't keep
-    /// re-popping the window every time the menu is opened.
+    /// Opens the Setup window once per launch as long as the user has not
+    /// finished the setup assistant. Deliberately NOT bound to
+    /// `permissions.allGranted`: once setup was completed, revoked permissions
+    /// only show the orange banner below — no auto-popup. Subsequent
+    /// dismissals are respected — we don't keep re-popping the window every
+    /// time the menu is opened.
     @Sendable private func autoOpenSetupIfNeeded() async {
         guard !didAutoOpenOnboarding else { return }
         didAutoOpenOnboarding = true
         try? await Task.sleep(nanoseconds: 200_000_000)
         await MainActor.run {
-            if !permissions.allGranted {
+            if !coordinator.settings.hasCompletedOnboarding {
                 openWindow(id: "onboarding")
             }
         }
@@ -82,6 +86,7 @@ struct MenuBarView: View {
 
     private var mainContent: some View {
         VStack(alignment: .leading, spacing: 0) {
+            updateBanner
             permissionsBanner
             VStack(alignment: .leading, spacing: 8) {
                 modeCard(
@@ -107,6 +112,35 @@ struct MenuBarView: View {
             .padding(.vertical, 10)
             Divider()
             footer
+        }
+    }
+
+    /// Blue counterpart to the orange permissions banner: shown while a
+    /// scheduled Sparkle check found an update the user hasn't acted on yet.
+    @ViewBuilder
+    private var updateBanner: some View {
+        if let version = updater.updateAvailable {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .foregroundStyle(.blue)
+                    Text("Update verfügbar: v\(version)")
+                        .font(.caption.bold())
+                }
+                // Ellipsis on purpose: this opens Sparkle's standard dialog
+                // (where the user confirms the install) rather than
+                // installing directly.
+                Button("Update anzeigen…") {
+                    // User-initiated check resumes the pending update and
+                    // brings Sparkle's dialog to the front.
+                    updater.checkForUpdates()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.blue.opacity(0.1))
         }
     }
 
@@ -193,21 +227,38 @@ struct MenuBarView: View {
         }
     }
 
-    // MARK: - Footer (status dots + quit)
+    // MARK: - Footer (version + updates, status dots + quit)
 
     private var footer: some View {
-        HStack(spacing: 14) {
-            statusDot(label: "Setup", on: permissions.allGranted)
-            statusDot(label: "Whisper", on: status.whisperReady)
-            statusDot(label: "Ollama", on: status.ollamaReachable)
-            Spacer()
-            Button("Beenden") { NSApplication.shared.terminate(nil) }
-                .buttonStyle(.plain)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Voicy v\(appVersion)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Nach Updates suchen…") { updater.checkForUpdates() }
+                    .buttonStyle(.plain)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .disabled(!updater.canCheckForUpdates)
+            }
+            HStack(spacing: 14) {
+                statusDot(label: "Setup", on: permissions.allGranted)
+                statusDot(label: "Whisper", on: status.whisperReady)
+                statusDot(label: "Ollama", on: status.ollamaReachable)
+                Spacer()
+                Button("Beenden") { NSApplication.shared.terminate(nil) }
+                    .buttonStyle(.plain)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
+    }
+
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
     }
 
     @ViewBuilder

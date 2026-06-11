@@ -3,6 +3,7 @@ import SwiftUI
 /// Single-page inline settings shown inside the menu bar popover (cog toggle).
 public struct SettingsView: View {
     @ObservedObject var coordinator: AppCoordinator
+    @ObservedObject var updater: UpdaterService
 
     @State private var languageSelection: String = "auto"
     @State private var customName: String = "Custom"
@@ -10,8 +11,9 @@ public struct SettingsView: View {
     @State private var customExamplePrefilled = false
     @State private var saveError: String?
 
-    public init(coordinator: AppCoordinator) {
+    public init(coordinator: AppCoordinator, updater: UpdaterService) {
         self.coordinator = coordinator
+        self.updater = updater
     }
 
     public var body: some View {
@@ -43,6 +45,12 @@ public struct SettingsView: View {
                     coordinator.settings.save()
                     LaunchAtLogin.set(enabled: newValue)
                 }
+            ))
+            .toggleStyle(.switch)
+            // Backed directly by Sparkle (persisted in user defaults).
+            Toggle("Automatisch nach Updates suchen", isOn: Binding(
+                get: { updater.automaticallyChecksForUpdates },
+                set: { updater.automaticallyChecksForUpdates = $0 }
             ))
             .toggleStyle(.switch)
         }

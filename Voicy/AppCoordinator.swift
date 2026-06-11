@@ -21,6 +21,7 @@ public final class AppCoordinator: ObservableObject {
     private var hotkeyTask: Task<Void, Never>?
     private var ollamaPollTask: Task<Void, Never>?
     private var modelPrepTask: Task<Void, Never>?
+    private var started = false
 
     public init(
         permissions: Permissions = Permissions(),
@@ -42,8 +43,11 @@ public final class AppCoordinator: ObservableObject {
         self.statusModel.selectedOllamaModel = settings.ollamaModel
     }
 
-    /// Called once after `VoicyApp` appears on screen.
+    /// Called once from the launch hook in `VoicyApp`. Idempotent — the menu
+    /// bar label can re-appear, so guard against starting the loops twice.
     public func start() {
+        guard !started else { return }
+        started = true
         startHotkeyLoop()
         startOllamaPolling()
         prepareWhisperIfPossible()

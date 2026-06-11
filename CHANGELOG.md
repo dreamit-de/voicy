@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-06-11
+
+### Added
+- Reworked onboarding wizard with per-step validation and explicit error handling (including recovery paths when a permission is denied).
+- Sparkle auto-update (feed: `https://dreamit-de.github.io/voicy/appcast.xml`) with a visible update hint in the menu bar for the background app (gentle reminders).
+
+### CI / CD
+- `Internal Release` workflow now signs the DMG with Sparkle's EdDSA key (`sign_update`, repo secret `SPARKLE_PRIVATE_KEY`), generates a validated `appcast.xml`, and publishes it to GitHub Pages (`gh-pages`) after the GitHub Release — so existing installs update automatically.
+
 ## [0.1.0] — 2026-06-08
 
 ### Added

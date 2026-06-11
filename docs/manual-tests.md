@@ -59,6 +59,20 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
     - DMG auf einem zweiten, nicht-entwickler Mac öffnen → Voicy in /Applications ziehen → starten.
     - **Erwartet**: Gatekeeper akzeptiert ohne "unidentified developer"-Warnung.
 
+11. **Onboarding — Happy Path mit Schritt-Validierung**
+    - Frische Installation simulieren: `defaults delete de.dreamit.voicy` (bzw. App-Container leeren), Voicy in Systemeinstellungen → Datenschutz aus Mikrofon/Eingabehilfe/Eingabeüberwachung entfernen, App starten.
+    - Onboarding Schritt für Schritt durchlaufen und jede Berechtigung gewähren.
+    - **Erwartet**: Jeder Schritt validiert seinen Status live (Haken erscheint erst nach tatsächlich erteilter Berechtigung, ohne App-Neustart); "Weiter" ist erst aktiv, wenn der Schritt erfüllt ist; nach dem letzten Schritt ist Voicy sofort per Hotkey nutzbar.
+
+12. **Onboarding — Verweigern-Pfade**
+    - Onboarding erneut frisch starten, diesmal: (a) Mikrofon im Systemdialog verweigern, (b) Eingabehilfe-Schritt überspringen/Systemeinstellungen ohne Aktivierung schließen, (c) Eingabeüberwachung verweigern.
+    - **Erwartet**: Pro Schritt erscheint eine verständliche deutsche Fehlermeldung mit Hinweis, wie die Berechtigung in den Systemeinstellungen nachträglich erteilt wird (inkl. Button dorthin); das Onboarding crasht nicht, hängt nicht und lässt sich nach Erteilen der Berechtigung ohne App-Neustart fortsetzen. Wird das Onboarding mit fehlenden Berechtigungen beendet, zeigt das Menü das rote Banner "Berechtigungen unvollständig".
+
+13. **Sparkle-Update-Flow (alte Version → Auto-Update)**
+    - Eine ältere internal-DMG (niedrigere Build-Nummer) installieren und starten; sicherstellen, dass `https://dreamit-de.github.io/voicy/appcast.xml` bereits die neuere Version listet.
+    - Auf den automatischen Update-Check warten oder "Nach Updates suchen…" im Menü auslösen.
+    - **Erwartet**: Ein sichtbarer Update-Hinweis erscheint (Menübar-Hinweis bzw. Update-Dialog im Vordergrund — kein versteckter Hintergrund-Alert, obwohl Voicy eine LSUIElement-App ist). Nach Klick auf "Installieren" lädt Sparkle das Update, installiert es und startet die neue Version — ohne dass der Nutzer das DMG manuell herunterladen oder die Quarantäne entfernen muss. Versionsnummer im "Über"-Bereich entspricht danach dem neuen Release; die Release Notes im Dialog sind deutsch.
+
 ## Performance-Ziele (M1)
 
 - Hotkey-Down → erstes Audio-Sample: < 100 ms.

@@ -5,13 +5,57 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var whisperVariant: String       // e.g. "openai_whisper-small"
     public var ollamaModel: String          // e.g. "llama3.2:3b"
     public var autoLaunchAtLogin: Bool
+    public var hasCompletedOnboarding: Bool
+
+    public init(
+        language: String?,
+        whisperVariant: String,
+        ollamaModel: String,
+        autoLaunchAtLogin: Bool,
+        hasCompletedOnboarding: Bool = false
+    ) {
+        self.language = language
+        self.whisperVariant = whisperVariant
+        self.ollamaModel = ollamaModel
+        self.autoLaunchAtLogin = autoLaunchAtLogin
+        self.hasCompletedOnboarding = hasCompletedOnboarding
+    }
 
     public static let `default` = AppSettings(
         language: nil,
         whisperVariant: WhisperEngine.defaultModel,
         ollamaModel: "",
-        autoLaunchAtLogin: false
+        autoLaunchAtLogin: false,
+        hasCompletedOnboarding: false
     )
+
+    private enum CodingKeys: String, CodingKey {
+        case language
+        case whisperVariant
+        case ollamaModel
+        case autoLaunchAtLogin
+        case hasCompletedOnboarding
+    }
+
+    /// Custom decoding keeps existing users' settings intact: `hasCompletedOnboarding`
+    /// was added after the first release, and strictly decoding the new non-optional
+    /// field would make `load()` fail for previously persisted payloads — silently
+    /// resetting ALL settings to `.default`.
+    ///
+    /// A payload without the key was written by a pre-onboarding release, i.e.
+    /// by an existing, fully set-up user — default to `true` so the setup
+    /// assistant is not forced upon them after the update (the launch hook
+    /// would otherwise open it above all apps on every start). Fresh installs
+    /// have no payload at all, fall back to `.default`, and keep the flag
+    /// `false` so they DO get the wizard.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        language = try container.decodeIfPresent(String.self, forKey: .language)
+        whisperVariant = try container.decode(String.self, forKey: .whisperVariant)
+        ollamaModel = try container.decode(String.self, forKey: .ollamaModel)
+        autoLaunchAtLogin = try container.decode(Bool.self, forKey: .autoLaunchAtLogin)
+        hasCompletedOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedOnboarding) ?? true
+    }
 
     private static let storeKey = "de.dreamit.voicy.settings.v1"
 
