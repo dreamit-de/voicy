@@ -96,25 +96,32 @@ struct MenuBarView: View {
             permissionsBanner
             whisperBanner
             rewriteBanner
-            VStack(alignment: .leading, spacing: 10) {
-                modeCard(
-                    .normal,
-                    icon: "mic",
-                    title: "Normal",
-                    description: "Sprache rein. Text raus."
-                )
-                modeCard(
-                    .friendlyRewrite,
-                    icon: "sparkles",
-                    title: "Friendly",
-                    description: "Höflich formuliert."
-                )
-                modeCard(
-                    .customRewrite,
-                    icon: "wand.and.stars",
-                    title: "Custom: \(customStyleName)",
-                    description: "Eigene Vorgabe."
-                )
+            VStack(alignment: .leading, spacing: 14) {
+                // Normal is always available, nothing to choose — render it as
+                // a plain info row, not as a card that begs to be clicked.
+                VStack(alignment: .leading, spacing: 6) {
+                    shortcutHeader(keys: ["⌥"], label: "Rechte Option-Taste halten und sprechen")
+                    normalRow
+                }
+                // The rewrite styles ARE a choice — selectable cards in their
+                // own set-off container.
+                VStack(alignment: .leading, spacing: 6) {
+                    shortcutHeader(keys: ["⌥", "⌃"], label: "Zusätzlich Control — wähle den Stil:")
+                    styleCard(
+                        .friendlyRewrite,
+                        icon: "sparkles",
+                        title: "Friendly",
+                        description: "Höflich formuliert."
+                    )
+                    styleCard(
+                        .customRewrite,
+                        icon: "wand.and.stars",
+                        title: "Custom: \(customStyleName)",
+                        description: "Eigene Vorgabe."
+                    )
+                }
+                .padding(10)
+                .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
@@ -233,8 +240,29 @@ struct MenuBarView: View {
         }
     }
 
+    /// The always-available dictation mode: informational, not clickable.
+    private var normalRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "mic")
+                .font(.title2)
+                .frame(width: 32, height: 32)
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Normal").font(.headline)
+                Text("Sprache rein. Text raus.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+    }
+
+    /// A selectable rewrite style. The active one is tinted and stroked in
+    /// the accent color so the radio choice is obvious at a glance.
     @ViewBuilder
-    private func modeCard(
+    private func styleCard(
         _ mode: ModeRow,
         icon: String,
         title: String,
@@ -245,7 +273,7 @@ struct MenuBarView: View {
             Image(systemName: icon)
                 .font(.title2)
                 .frame(width: 32, height: 32)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isActiveStyle ? Color.accentColor : .secondary)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
@@ -256,42 +284,44 @@ struct MenuBarView: View {
 
             Spacer()
 
-            modeTrailing(mode, isActiveStyle: isActiveStyle)
+            Image(systemName: isActiveStyle ? "checkmark.circle.fill" : "circle")
+                .imageScale(.large)
+                .foregroundStyle(isActiveStyle ? Color.accentColor : .secondary)
         }
         .padding(12)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .background(
+            isActiveStyle ? AnyShapeStyle(Color.accentColor.opacity(0.12)) : AnyShapeStyle(.regularMaterial),
+            in: RoundedRectangle(cornerRadius: 8)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(isActiveStyle ? Color.accentColor.opacity(0.5) : .clear, lineWidth: 1)
+        )
         .contentShape(Rectangle())
         .onTapGesture {
             select(mode)
         }
     }
 
-    @ViewBuilder
-    private func modeTrailing(_ mode: ModeRow, isActiveStyle: Bool) -> some View {
-        switch mode {
-        case .normal:
-            Text("⌥")
-                .font(.callout.monospaced())
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(.tertiary.opacity(0.25))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
-        case .friendlyRewrite, .customRewrite:
-            HStack(spacing: 6) {
-                if isActiveStyle {
-                    Text("⌥⌃")
-                        .font(.callout.monospaced())
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(.tertiary.opacity(0.25))
+    /// Group headline: keycaps + short explanation of what holding them does.
+    /// Carries the shortcut so the cards below stay free of badges.
+    private func shortcutHeader(keys: [String], label: String) -> some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 3) {
+                ForEach(keys, id: \.self) { key in
+                    Text(key)
+                        .font(.footnote.monospaced().weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.tertiary.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
-                Image(systemName: isActiveStyle ? "checkmark.circle.fill" : "circle")
-                    .imageScale(.large)
-                    .foregroundStyle(isActiveStyle ? .green : .secondary)
             }
+            Text(label)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
         }
+        .padding(.leading, 2)
     }
 
     // MARK: - Footer (version + updates, status dots + quit)

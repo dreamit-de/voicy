@@ -5,6 +5,7 @@
 ### Added
 - Whisper model picker in Settings → Transkription: curated choice of Tiny/Base/Small/Large-v3-Turbo with honest size, speed, and quality expectations per model; switching downloads the model with live progress (also shown in the menu status) and reloads the engine through the usual retry/error path. Settings also state expected rewrite latency depending on the Ollama model.
 - Menu polish: transparent logo in the header (extracted motif, `docs/assets/voicy-logo-transparent.png`), more generous spacing, and crisper typography — banner titles and buttons moved up from 10 pt bold/small controls, which rendered blurry.
+- Menu regrouped by shortcut: a "⌥ halten" headline over the always-available Normal row (now a plain info row, not a clickable-looking card) and a set-off "⌥ ⌃ — wähle den Stil" group where the two rewrite styles are accent-tinted selectable cards.
 - Visible rewrite failure handling: when a rewrite fails (Voicy silently inserts the unmodified transcript as fallback), the menu now shows an orange banner with the error and a "Verbindung testen" button. The connection test runs a real minimal generate against the selected Ollama model — catching models that are listed by `/api/tags` but can no longer load (e.g. an outdated GGUF format after an Ollama update). The Ollama status dot turns orange in that state instead of pretending everything is fine.
 
 ### Fixed
