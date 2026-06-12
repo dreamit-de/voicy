@@ -1,7 +1,9 @@
+import AppKit
 import SwiftUI
 
 /// Installer-style setup assistant: step indicator sidebar on the left,
-/// step content + footer button row on the right. Fixed 560 × 440 pt.
+/// step content + footer button row on the right. Fixed 680 × 560 pt —
+/// sized so no step needs scrolling.
 @MainActor
 public struct OnboardingView: View {
     @ObservedObject var coordinator: AppCoordinator
@@ -84,7 +86,7 @@ public struct OnboardingView: View {
             Divider()
             contentColumn
         }
-        .frame(width: 560, height: 440)
+        .frame(width: 680, height: 560)
         .onAppear {
             if inputMonitoringGrantedAtLaunch == nil {
                 inputMonitoringGrantedAtLaunch =
@@ -599,6 +601,11 @@ public struct OnboardingView: View {
         .onChange(of: modelState) { _, newState in
             if newState == .installed { startOllamaPullIfNeeded() }
         }
+        // Ollama installed while the assistant is open (the polling flips
+        // reachability within seconds) — start the model pull right away.
+        .onChange(of: status.ollamaReachable) { _, reachable in
+            if reachable, modelState == .installed { startOllamaPullIfNeeded() }
+        }
     }
 
     /// Optional rewrite model: pulled via the local Ollama server. Missing
@@ -611,8 +618,13 @@ public struct OnboardingView: View {
             if !status.ollamaReachable {
                 OnboardingNoticeBox(
                     style: .info,
-                    text: "Für Rewrite braucht Voicy die kostenlose App „Ollama“ (ollama.com) — sie wurde nicht gefunden. Du kannst das Rewrite-Modell später jederzeit in den Einstellungen laden."
-                )
+                    text: "Für Rewrite braucht Voicy die kostenlose App „Ollama“ — sie wurde nicht gefunden. Sobald Ollama läuft, lädt Voicy das Rewrite-Modell automatisch; das Menü erinnert dich auch später daran.",
+                    buttonTitle: "ollama.com öffnen"
+                ) {
+                    if let url = URL(string: "https://ollama.com/download") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
             } else if status.ollamaModels.contains(tag) {
                 OnboardingStatusCard(title: "Rewrite: \(tag)", badge: .installed)
             } else if status.ollamaPullModel == tag {

@@ -4,6 +4,8 @@
 
 ### Added
 - Setup assistant asks for the primary dictation language (German and English first-class, more selectable) and recommends models accordingly: Large v3 Turbo for transcription plus — optionally — Qwen3 4B Instruct for rewrite. Both download in the model step with progress; a missing Ollama is a notice, not a blocker.
+- Missing-Ollama guidance: the setup notice links straight to ollama.com/download, Settings show the same link while Ollama is unreachable, and once Ollama appears (even later) the menu offers a one-click "Modell laden" banner with download progress — the assistant also auto-pulls if Ollama shows up while it is open.
+- Setup window enlarged to 680×560 so no step needs scrolling.
 - Rewrite is opt-in: disabled via the onboarding toggle or the new "Kein Rewrite" option in Settings → Rewrite. When off, ⌥⌃ inserts the plain transcript, no model is auto-selected in the background, and the Ollama status dot is neutral gray.
 - Curated Ollama model catalog in Settings → Rewrite: three vetted near-realtime models (Qwen3 4B Instruct, Llama 3.2 3B, Gemma 3 4B) with size and expectation notes. Selecting an uninstalled one downloads it through the Ollama API with live progress; the menu's Ollama dot shows orange while downloading and green when ready. Manually installed models remain selectable with a generic latency rule of thumb.
 - Ollama model is selectable in Settings → Rewrite (was display-only). Rewrites keep the model loaded via `keep_alive: 60m`, eliminating multi-second cold starts after pauses. With a small instruct model (e.g. `qwen3:4b-instruct`, ~1 s warm) rewriting feels near-realtime; reasoning models like `gpt-oss:20b` take 10–30 s per rewrite.

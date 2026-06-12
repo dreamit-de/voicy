@@ -30,7 +30,7 @@ struct VoicyApp: App {
         // or the auto-open trigger fires twice.
         Window("Voicy Setup", id: "onboarding") {
             OnboardingView(coordinator: coordinator)
-                .frame(width: 560, height: 440)
+                .frame(width: 680, height: 560)
         }
         .windowResizability(.contentSize)
     }

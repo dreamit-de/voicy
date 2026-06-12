@@ -95,6 +95,7 @@ struct MenuBarView: View {
             updateBanner
             permissionsBanner
             whisperBanner
+            ollamaSetupBanner
             rewriteBanner
             VStack(alignment: .leading, spacing: 14) {
                 // Normal is always available, nothing to choose — render it as
@@ -194,6 +195,63 @@ struct MenuBarView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.red.opacity(0.1))
         }
+    }
+
+    /// Rewrite is wanted and Ollama is running, but the chosen model is not
+    /// installed yet — typically because Ollama was installed after setup.
+    /// One click pulls the model, with inline progress while it downloads.
+    @ViewBuilder
+    private var ollamaSetupBanner: some View {
+        if let tag = pendingOllamaSetupTag {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .foregroundStyle(.blue)
+                    Text(status.ollamaPullModel == nil
+                        ? "Ollama gefunden — Rewrite-Modell fehlt noch"
+                        : "Rewrite-Modell wird geladen…")
+                        .font(.callout.weight(.semibold))
+                }
+                if status.ollamaPullModel != nil {
+                    if let progress = status.ollamaPullProgress {
+                        ProgressView(value: progress)
+                        Text("\(tag) … \(Int(progress * 100)) %")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                } else {
+                    Button(pullButtonTitle(for: tag)) {
+                        coordinator.downloadOllamaModel(tag)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.blue.opacity(0.1))
+        }
+    }
+
+    /// The configured rewrite model when it still needs to be pulled.
+    /// nil hides the banner; an active failure defers to the error banner.
+    private var pendingOllamaSetupTag: String? {
+        guard coordinator.settings.rewriteEnabled,
+              status.rewriteError == nil,
+              status.ollamaReachable else { return nil }
+        let tag = coordinator.settings.ollamaModel
+        guard !tag.isEmpty, !status.ollamaModels.contains(tag) else { return nil }
+        return tag
+    }
+
+    private func pullButtonTitle(for tag: String) -> String {
+        if let option = OllamaModelCatalog.option(for: tag) {
+            return "\(option.displayName) laden (\(option.downloadSize))"
+        }
+        return "\(tag) laden"
     }
 
     /// Shown after a rewrite (or connection test) failed. Dictation still

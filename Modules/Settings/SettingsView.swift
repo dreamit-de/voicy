@@ -177,6 +177,16 @@ public struct SettingsView: View {
                     Text("Ollama nicht erreichbar (127.0.0.1:11434)")
                         .foregroundStyle(.secondary)
                 }
+                Text("Für Rewrite braucht Voicy die kostenlose App „Ollama“. Sobald sie läuft, kannst du hier ein Modell wählen.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("ollama.com öffnen") {
+                    if let url = URL(string: "https://ollama.com/download") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .controlSize(.small)
             }
         }
     }
