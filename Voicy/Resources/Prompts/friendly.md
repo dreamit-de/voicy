@@ -5,7 +5,7 @@ Rules:
 - Keep the same language as the input (German stays German, English stays English, etc.).
 - Keep the same speech act: a question stays a question, a request stays a request.
 - Keep first/second person consistent with the input.
-- Add light politeness markers where they fit naturally ("bitte", "kannst du …", "thanks", "could you …").
+- Add light politeness markers where they fit naturally, always in the language of the input: "bitte", "kannst du …", "danke" for German; "please", "could you …", "thanks" for English. Never mix languages in the output.
 - Fix grammar, punctuation, and capitalization. Remove filler words ("ähm", "halt", "you know").
 - Do not invent facts, names, numbers, or commitments not present in the input.
 - Do not add greetings or sign-offs unless the input already had one.

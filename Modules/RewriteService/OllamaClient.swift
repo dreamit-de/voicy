@@ -133,6 +133,15 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
         let system: String
         let stream: Bool
         let options: Options
+        /// Keep the model loaded between dictations — Ollama's 5-minute
+        /// default unload would add several seconds of cold start to the
+        /// first rewrite after every pause.
+        var keepAlive: String = "60m"
+
+        enum CodingKeys: String, CodingKey {
+            case model, prompt, system, stream, options
+            case keepAlive = "keep_alive"
+        }
     }
 
     private struct GenerateResponse: Decodable {

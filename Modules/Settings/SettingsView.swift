@@ -127,14 +127,24 @@ public struct SettingsView: View {
 
     private var rewriteSection: some View {
         section(title: "Rewrite") {
-            LabeledContent("Ollama-Modell") {
-                if coordinator.statusModel.ollamaReachable {
-                    Text(coordinator.statusModel.selectedOllamaModel.isEmpty
-                        ? coordinator.statusModel.ollamaModels.first ?? "—"
-                        : coordinator.statusModel.selectedOllamaModel)
-                        .monospaced()
-                        .foregroundStyle(.secondary)
-                } else {
+            if status.ollamaReachable, !status.ollamaModels.isEmpty {
+                Picker("Ollama-Modell", selection: Binding(
+                    get: { status.selectedOllamaModel },
+                    set: { coordinator.setOllamaModel($0) }
+                )) {
+                    ForEach(status.ollamaModels, id: \.self) { model in
+                        Text(model).tag(model)
+                    }
+                    // Persisted selection may no longer be installed — keep it
+                    // visible instead of showing an empty picker.
+                    if !status.selectedOllamaModel.isEmpty,
+                       !status.ollamaModels.contains(status.selectedOllamaModel) {
+                        Text("\(status.selectedOllamaModel) (nicht installiert)")
+                            .tag(status.selectedOllamaModel)
+                    }
+                }
+            } else {
+                LabeledContent("Ollama-Modell") {
                     Text("Ollama nicht erreichbar (127.0.0.1:11434)")
                         .foregroundStyle(.secondary)
                 }
