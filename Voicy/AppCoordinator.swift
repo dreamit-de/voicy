@@ -53,6 +53,16 @@ public final class AppCoordinator: ObservableObject {
         prepareWhisperIfPossible()
     }
 
+    /// Switches the Whisper model: persists the choice, unloads the current
+    /// engine and drives download + load through the usual preparation path
+    /// (including its retry/backoff and the visible error state).
+    public func setWhisperModel(_ variant: String) {
+        guard variant != settings.whisperVariant else { return }
+        settings.whisperVariant = variant
+        settings.save()
+        retryWhisperPreparation()
+    }
+
     public func setOllamaModel(_ model: String) {
         statusModel.selectedOllamaModel = model
         // A stale failure from the previous model should not stick to the new one.
@@ -223,13 +233,26 @@ public final class AppCoordinator: ObservableObject {
                 guard let self else { return }
                 do {
                     if let actor = self.transcription as? WhisperEngine {
-                        try await actor.prepare()
+                        // Align the engine with the persisted variant — the
+                        // settings picker may have changed it. No-op when equal.
+                        await actor.switchModel(to: self.settings.whisperVariant)
+                        try await actor.prepare(progress: { fraction in
+                            Task { @MainActor [weak self] in
+                                self?.statusModel.whisperProgress = fraction
+                            }
+                        })
                     }
-                    await MainActor.run { self.statusModel.whisper = .ready }
+                    await MainActor.run {
+                        self.statusModel.whisperProgress = nil
+                        self.statusModel.whisper = .ready
+                    }
                     return
                 } catch {
                     self.log.error("Whisper preparation failed: \(error.localizedDescription, privacy: .public)")
-                    await MainActor.run { self.statusModel.whisper = .failed(error.localizedDescription) }
+                    await MainActor.run {
+                        self.statusModel.whisperProgress = nil
+                        self.statusModel.whisper = .failed(error.localizedDescription)
+                    }
                     try? await Task.sleep(for: delay)
                     delay = min(delay * 2, .seconds(60))
                 }

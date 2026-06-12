@@ -4,13 +4,12 @@ import os
 
 public protocol TranscriptionService: AnyObject, Sendable {
     func transcribe(_ pcm: [Float], language: String?) async throws -> String
-    var isReady: Bool { get }
 }
 
 public actor WhisperEngine: TranscriptionService {
     public static let defaultModel = "openai_whisper-small"
 
-    private let modelVariant: String
+    private var modelVariant: String
     private let modelStore: ModelStore
     private var whisperKit: WhisperKit?
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "WhisperEngine")
@@ -20,17 +19,22 @@ public actor WhisperEngine: TranscriptionService {
         self.modelStore = modelStore
     }
 
-    nonisolated public var isReady: Bool {
-        // The actor's `whisperKit` is isolated, so this is a best-effort cached flag
-        // updated by `prepare`. It's used only for the menu UI dot.
-        modelStore.isModelInstalled(variant: modelVariant)
+    /// Switches to another model variant. The current model is unloaded;
+    /// the next `prepare` (or `transcribe`) downloads/loads the new one.
+    public func switchModel(to variant: String) {
+        guard variant != modelVariant else { return }
+        modelVariant = variant
+        whisperKit = nil
+        log.info("Switched model variant to \(variant, privacy: .public)")
     }
 
     /// Loads the model. Must be called once before `transcribe`. Idempotent.
-    public func prepare() async throws {
+    /// `progress` reports download progress in [0, 1] when the model is not
+    /// on disk yet; loading an installed model reports nothing.
+    public func prepare(progress: (@Sendable (Double) -> Void)? = nil) async throws {
         if whisperKit != nil { return }
         do {
-            try await ensureAndLoad()
+            try await ensureAndLoad(progress: progress)
         } catch {
             // A model that is on disk but fails to load is almost always a
             // corrupt/incomplete download (e.g. a single missing file inside
@@ -38,14 +42,14 @@ public actor WhisperEngine: TranscriptionService {
             // failing forever on the same broken files.
             log.warning("Model load failed, wiping and re-downloading \(self.modelVariant, privacy: .public): \(error.localizedDescription, privacy: .public)")
             try modelStore.remove(variant: modelVariant)
-            try await ensureAndLoad()
+            try await ensureAndLoad(progress: progress)
         }
     }
 
-    private func ensureAndLoad() async throws {
+    private func ensureAndLoad(progress: (@Sendable (Double) -> Void)?) async throws {
         let modelFolder = try await modelStore.ensureModel(
             variant: modelVariant,
-            progress: nil
+            progress: progress
         )
 
         let config = WhisperKitConfig(

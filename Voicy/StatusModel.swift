@@ -27,6 +27,9 @@ public enum WhisperStatus: Equatable, Sendable {
 public final class StatusModel: ObservableObject {
     @Published public var state: AppState = .idle
     @Published public var whisper: WhisperStatus = .loading
+    /// Download progress in [0, 1] while a model is being fetched; nil when
+    /// no download is running (loading an installed model reports nothing).
+    @Published public var whisperProgress: Double? = nil
 
     public var whisperReady: Bool { whisper == .ready }
     @Published public var ollamaReachable: Bool = false

@@ -4,6 +4,10 @@ import SwiftUI
 public struct SettingsView: View {
     @ObservedObject var coordinator: AppCoordinator
     @ObservedObject var updater: UpdaterService
+    /// Nested ObservableObjects do not propagate through `coordinator` —
+    /// observe the status model directly so model-load progress and the
+    /// Ollama state update live while settings are open.
+    @ObservedObject private var status: StatusModel
 
     @State private var languageSelection: String = "auto"
     @State private var customName: String = "Custom"
@@ -14,6 +18,7 @@ public struct SettingsView: View {
     public init(coordinator: AppCoordinator, updater: UpdaterService) {
         self.coordinator = coordinator
         self.updater = updater
+        self.status = coordinator.statusModel
     }
 
     public var body: some View {
@@ -70,9 +75,53 @@ public struct SettingsView: View {
                 coordinator.settings.save()
                 refreshCustomExampleIfUnedited()
             }
-            LabeledContent("Modell") {
-                Text(coordinator.settings.whisperVariant).monospaced().foregroundStyle(.secondary)
+            Picker("Modell", selection: Binding(
+                get: { coordinator.settings.whisperVariant },
+                set: { coordinator.setWhisperModel($0) }
+            )) {
+                ForEach(WhisperModelCatalog.options) { option in
+                    Text("\(option.displayName) · \(option.downloadSize)").tag(option.variant)
+                }
+                // Settings written by older builds may reference a variant
+                // outside the curated list — keep it selectable instead of
+                // showing an empty picker.
+                if WhisperModelCatalog.option(for: coordinator.settings.whisperVariant) == nil {
+                    Text(coordinator.settings.whisperVariant)
+                        .tag(coordinator.settings.whisperVariant)
+                }
             }
+            if let option = WhisperModelCatalog.option(for: coordinator.settings.whisperVariant) {
+                Text(option.expectation)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            whisperModelStatusRow
+        }
+    }
+
+    /// Live feedback while a model change downloads/loads, mirroring the
+    /// menu's whisper status so the user does not have to guess.
+    @ViewBuilder
+    private var whisperModelStatusRow: some View {
+        switch status.whisper {
+        case .ready:
+            EmptyView()
+        case .loading:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                if let progress = status.whisperProgress {
+                    Text("Modell wird geladen… \(Int(progress * 100)) %")
+                } else {
+                    Text("Modell wird geladen…")
+                }
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        case .failed(let message):
+            Label(message, systemImage: "exclamationmark.triangle.fill")
+                .font(.footnote)
+                .foregroundStyle(.orange)
         }
     }
 
@@ -90,6 +139,10 @@ public struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            Text("Die Rewrite-Dauer hängt vom Ollama-Modell ab: kleine Instruct-Modelle (z. B. qwen3:4b) antworten in 1–2 s, große Reasoning-Modelle wie gpt-oss:20b brauchen mehrere Sekunden — nach längerer Pause zusätzlich Ladezeit.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
