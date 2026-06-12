@@ -102,6 +102,17 @@ public final class AppCoordinator: ObservableObject {
         // A stale failure from the previous model should not stick to the new one.
         statusModel.rewriteError = nil
         settings.ollamaModel = model
+        settings.rewriteEnabled = !model.isEmpty
+        settings.save()
+    }
+
+    /// Turns the rewrite feature off: the ⌥⌃ hotkey inserts the plain
+    /// transcript and no model gets auto-selected.
+    public func disableRewrite() {
+        statusModel.selectedOllamaModel = ""
+        statusModel.rewriteError = nil
+        settings.ollamaModel = ""
+        settings.rewriteEnabled = false
         settings.save()
     }
 
@@ -173,6 +184,10 @@ public final class AppCoordinator: ObservableObject {
         switch mode {
         case .normal:
             outputText = text
+        case .rewrite where !settings.rewriteEnabled || settings.ollamaModel.isEmpty:
+            // Rewrite is opt-in; without a chosen model the hotkey degrades
+            // gracefully to plain dictation.
+            outputText = text
         case .rewrite:
             statusModel.state = .rewriting
             outputText = await rewrite(text)
@@ -235,7 +250,10 @@ public final class AppCoordinator: ObservableObject {
                 await MainActor.run {
                     self.statusModel.ollamaReachable = !models.isEmpty
                     self.statusModel.ollamaModels = models
-                    if self.statusModel.selectedOllamaModel.isEmpty, let first = models.first {
+                    // Auto-select only while rewrite is wanted — picking a
+                    // model behind the user's back would silently re-enable it.
+                    if self.settings.rewriteEnabled,
+                       self.statusModel.selectedOllamaModel.isEmpty, let first = models.first {
                         self.statusModel.selectedOllamaModel = first
                         self.settings.ollamaModel = first
                         self.settings.save()

@@ -129,9 +129,13 @@ public struct SettingsView: View {
         section(title: "Rewrite") {
             if status.ollamaReachable {
                 Picker("Ollama-Modell", selection: Binding(
-                    get: { status.ollamaPullModel ?? status.selectedOllamaModel },
+                    get: {
+                        guard coordinator.settings.rewriteEnabled else { return Self.rewriteOffTag }
+                        return status.ollamaPullModel ?? status.selectedOllamaModel
+                    },
                     set: { selectOrDownloadOllamaModel($0) }
                 )) {
+                    Text("Kein Rewrite (deaktiviert)").tag(Self.rewriteOffTag)
                     // Curated near-realtime models; missing ones download on selection.
                     ForEach(OllamaModelCatalog.options) { option in
                         let installed = status.ollamaModels.contains(option.tag)
@@ -151,7 +155,12 @@ public struct SettingsView: View {
                     }
                 }
                 .disabled(status.ollamaPullModel != nil)
-                if let option = OllamaModelCatalog.option(for: status.ollamaPullModel ?? status.selectedOllamaModel) {
+                if !coordinator.settings.rewriteEnabled {
+                    Text("⌥⌃ fügt den Text unverändert ein. Wähle ein Modell, um Rewrite zu aktivieren.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if let option = OllamaModelCatalog.option(for: status.ollamaPullModel ?? status.selectedOllamaModel) {
                     Text(option.expectation)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -172,10 +181,16 @@ public struct SettingsView: View {
         }
     }
 
+    /// Sentinel picker tag for the disabled-rewrite choice.
+    private static let rewriteOffTag = "__rewrite_off__"
+
     /// Curated models that are not installed yet are downloaded on selection;
-    /// everything already installed is selected directly.
+    /// everything already installed is selected directly. Choosing "Kein
+    /// Rewrite" switches the feature off entirely.
     private func selectOrDownloadOllamaModel(_ tag: String) {
-        if status.ollamaModels.contains(tag) {
+        if tag == Self.rewriteOffTag {
+            coordinator.disableRewrite()
+        } else if status.ollamaModels.contains(tag) {
             coordinator.setOllamaModel(tag)
         } else if OllamaModelCatalog.option(for: tag) != nil {
             coordinator.downloadOllamaModel(tag)

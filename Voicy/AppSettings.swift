@@ -4,6 +4,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var language: String?            // BCP-47 like "de" or "en"; nil = auto-detect
     public var whisperVariant: String       // e.g. "openai_whisper-small"
     public var ollamaModel: String          // e.g. "llama3.2:3b"
+    /// Rewrite is opt-in: false means the rewrite hotkey inserts the plain
+    /// transcript and no Ollama model is auto-selected.
+    public var rewriteEnabled: Bool
     public var autoLaunchAtLogin: Bool
     public var hasCompletedOnboarding: Bool
 
@@ -11,12 +14,14 @@ public struct AppSettings: Codable, Equatable, Sendable {
         language: String?,
         whisperVariant: String,
         ollamaModel: String,
+        rewriteEnabled: Bool = true,
         autoLaunchAtLogin: Bool,
         hasCompletedOnboarding: Bool = false
     ) {
         self.language = language
         self.whisperVariant = whisperVariant
         self.ollamaModel = ollamaModel
+        self.rewriteEnabled = rewriteEnabled
         self.autoLaunchAtLogin = autoLaunchAtLogin
         self.hasCompletedOnboarding = hasCompletedOnboarding
     }
@@ -33,6 +38,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case language
         case whisperVariant
         case ollamaModel
+        case rewriteEnabled
         case autoLaunchAtLogin
         case hasCompletedOnboarding
     }
@@ -53,6 +59,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         language = try container.decodeIfPresent(String.self, forKey: .language)
         whisperVariant = try container.decode(String.self, forKey: .whisperVariant)
         ollamaModel = try container.decode(String.self, forKey: .ollamaModel)
+        // Added after rewrite shipped always-on — existing users keep it on.
+        rewriteEnabled = try container.decodeIfPresent(Bool.self, forKey: .rewriteEnabled) ?? true
         autoLaunchAtLogin = try container.decode(Bool.self, forKey: .autoLaunchAtLogin)
         hasCompletedOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedOnboarding) ?? true
     }

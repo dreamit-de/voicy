@@ -41,6 +41,19 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(decoded.ollamaModel, "llama3.2:3b")
         XCTAssertTrue(decoded.autoLaunchAtLogin)
         XCTAssertTrue(decoded.hasCompletedOnboarding)
+        // Rewrite shipped always-on — payloads without the flag keep it on.
+        XCTAssertTrue(decoded.rewriteEnabled)
+    }
+
+    func test_rewriteDisabled_roundtrips() throws {
+        var s = AppSettings.default
+        s.rewriteEnabled = false
+        s.ollamaModel = ""
+
+        let data = try JSONEncoder().encode(s)
+        let decoded = try JSONDecoder().decode(AppSettings.self, from: data)
+        XCTAssertFalse(decoded.rewriteEnabled)
+        XCTAssertEqual(decoded.ollamaModel, "")
     }
 
     func test_encoding_includesOnboardingFlag() throws {

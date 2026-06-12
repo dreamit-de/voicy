@@ -5,9 +5,19 @@ import SwiftUI
 @MainActor
 public struct OnboardingView: View {
     @ObservedObject var coordinator: AppCoordinator
+    /// Nested ObservableObjects do not propagate through `coordinator` —
+    /// observe both directly so permission flips and model-download progress
+    /// re-render the assistant live.
+    @ObservedObject private var permissions: Permissions
+    @ObservedObject private var status: StatusModel
     @Environment(\.dismiss) private var dismiss
 
     @State private var step: Step = .welcome
+    /// Primary dictation language chosen in the language step.
+    @State private var languageChoice: String = "de"
+    /// Whether the user wants the optional rewrite feature.
+    @State private var rewriteWanted: Bool = true
+    @State private var didInitLanguageStep = false
     /// Highest step the user has reached; used to mark earlier steps as done.
     @State private var maxVisitedStep: Step = .welcome
     /// Steps skipped via "Später erledigen". Display-only, not persisted.
@@ -21,20 +31,27 @@ public struct OnboardingView: View {
 
     public init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
+        self.permissions = coordinator.permissions
+        self.status = coordinator.statusModel
     }
+
+    /// Recommended models for the supported primary languages (de/en).
+    static let recommendedWhisperVariant = "openai_whisper-large-v3-v20240930_626MB"
+    static let recommendedOllamaModel = "qwen3:4b-instruct"
 
     // MARK: - Steps
 
     enum Step: Int, CaseIterable {
-        case welcome, microphone, accessibility, inputMonitoring, model, done
+        case welcome, language, microphone, accessibility, inputMonitoring, model, done
 
         var sidebarTitle: String {
             switch self {
             case .welcome: return "Willkommen"
+            case .language: return "Sprache"
             case .microphone: return "Mikrofon"
             case .accessibility: return "Bedienungshilfen"
             case .inputMonitoring: return "Eingabeüberwachung"
-            case .model: return "Modell"
+            case .model: return "Modelle"
             case .done: return "Fertig"
             }
         }
@@ -42,6 +59,7 @@ public struct OnboardingView: View {
         var sidebarSymbol: String {
             switch self {
             case .welcome: return "hand.wave"
+            case .language: return "globe"
             case .microphone: return "mic"
             case .accessibility: return "accessibility"
             case .inputMonitoring: return "keyboard"
@@ -148,6 +166,7 @@ public struct OnboardingView: View {
     private var stepContent: some View {
         switch step {
         case .welcome: welcomeStep
+        case .language: languageStep
         case .microphone: microphoneStep
         case .accessibility: accessibilityStep
         case .inputMonitoring: inputMonitoringStep
@@ -198,6 +217,9 @@ public struct OnboardingView: View {
         switch item {
         case .welcome, .done:
             return true
+        case .language:
+            // A choice is always preselected; the step never blocks.
+            return true
         case .microphone:
             return coordinator.permissions.microphone == .granted
         case .accessibility:
@@ -205,7 +227,14 @@ public struct OnboardingView: View {
         case .inputMonitoring:
             return coordinator.permissions.inputMonitoring == .granted
         case .model:
-            return modelState == .installed
+            guard modelState == .installed else { return false }
+            // Rewrite is optional: only block while its model is genuinely
+            // on the way. Unreachable Ollama shows a notice instead.
+            guard coordinator.settings.rewriteEnabled,
+                  !coordinator.settings.ollamaModel.isEmpty,
+                  status.ollamaReachable else { return true }
+            return status.ollamaPullModel == nil
+                && status.ollamaModels.contains(coordinator.settings.ollamaModel)
         }
     }
 
@@ -264,12 +293,13 @@ public struct OnboardingView: View {
             Text("Willkommen bei Voicy")
                 .font(.largeTitle.bold())
             Text("Voicy verwandelt deine Sprache in Text — komplett lokal auf deinem Mac, ohne Cloud und ohne Account.")
-            Text("Dieser Assistent richtet Voicy in vier kurzen Schritten ein:")
+            Text("Dieser Assistent richtet Voicy in fünf kurzen Schritten ein:")
             VStack(alignment: .leading, spacing: 8) {
+                Label("Sprache — wir empfehlen dir die passenden Modelle", systemImage: "globe")
                 Label("Mikrofon — damit Voicy dich aufnehmen kann", systemImage: "mic")
                 Label("Bedienungshilfen — damit Voicy Text einfügen kann", systemImage: "accessibility")
                 Label("Eingabeüberwachung — damit der Hotkey überall funktioniert", systemImage: "keyboard")
-                Label("Spracherkennungsmodell — wird einmalig geladen (ca. 470 MB)", systemImage: "arrow.down.circle")
+                Label("Modelle — werden einmalig geladen und bleiben lokal", systemImage: "arrow.down.circle")
             }
             Text("Dauert etwa zwei Minuten. Jeden Schritt kannst du überspringen und später im Menü nachholen.")
                 .font(.footnote)
@@ -277,7 +307,120 @@ public struct OnboardingView: View {
         }
     }
 
-    // MARK: - Step 1: Microphone
+    // MARK: - Step 1: Language & recommendation
+
+    private var languageStep: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            stepHeader(icon: "globe", title: "Sprache")
+            Text("In welcher Sprache diktierst du hauptsächlich? Voicy wählt danach die passenden Modelle für dich aus.")
+
+            HStack(spacing: 10) {
+                languageCard("Deutsch", code: "de")
+                languageCard("English", code: "en")
+            }
+            Picker("Weitere Sprachen", selection: Binding(
+                get: { ["de", "en"].contains(languageChoice) ? "" : languageChoice },
+                set: { if !$0.isEmpty { selectLanguage($0) } }
+            )) {
+                Text("—").tag("")
+                Text("Français").tag("fr")
+                Text("Español").tag("es")
+                Text("Automatisch erkennen").tag("auto")
+            }
+
+            OnboardingNoticeBox(
+                style: .info,
+                text: transcriptionRecommendation
+            )
+
+            Toggle(isOn: Binding(
+                get: { rewriteWanted },
+                set: { rewriteWanted = $0; applyChoices() }
+            )) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Rewrite aktivieren (empfohlen)")
+                    Text("Formuliert Diktate auf Wunsch um, z. B. höflicher. Modell: Qwen3 4B Instruct (2,5 GB, ~1 s pro Rewrite) — benötigt Ollama. Ohne Rewrite fügt ⌥⌃ den Text unverändert ein; aktivierbar bleibt es jederzeit in den Einstellungen.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .toggleStyle(.switch)
+        }
+        .onAppear(perform: initLanguageStepIfNeeded)
+    }
+
+    private func languageCard(_ title: String, code: String) -> some View {
+        let isSelected = languageChoice == code
+        return Button {
+            selectLanguage(code)
+        } label: {
+            Text(title)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    isSelected ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.regularMaterial),
+                    in: RoundedRectangle(cornerRadius: 8)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 1.5)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var transcriptionRecommendation: String {
+        switch languageChoice {
+        case "de":
+            return "Empfehlung für Deutsch: Transkription mit „Large v3 Turbo“ (597 MB) — beste Erkennung, auch bei Namen und Fachbegriffen."
+        case "en":
+            return "Empfehlung für Englisch: Transkription mit „Large v3 Turbo“ (597 MB) — beste Erkennung, auch bei Namen und Fachbegriffen."
+        default:
+            return "Voicy startet mit dem mehrsprachigen Modell „Small“ (463 MB). In den Einstellungen kannst du jederzeit ein anderes Modell wählen."
+        }
+    }
+
+    /// Preselect from the system locale on a fresh install, then persist the
+    /// initial recommendation so skipping the rest of the assistant still
+    /// leaves consistent settings behind.
+    private func initLanguageStepIfNeeded() {
+        guard !didInitLanguageStep else { return }
+        didInitLanguageStep = true
+        if let saved = coordinator.settings.language, coordinator.settings.hasCompletedOnboarding {
+            // Re-opened assistant: reflect the existing configuration.
+            languageChoice = saved
+            rewriteWanted = coordinator.settings.rewriteEnabled
+            return
+        }
+        let system = Locale.current.language.languageCode?.identifier
+        languageChoice = system == "de" ? "de" : "en"
+        applyChoices()
+    }
+
+    private func selectLanguage(_ code: String) {
+        languageChoice = code
+        applyChoices()
+    }
+
+    private func applyChoices() {
+        coordinator.settings.language = languageChoice == "auto" ? nil : languageChoice
+        if ["de", "en"].contains(languageChoice) {
+            coordinator.settings.whisperVariant = Self.recommendedWhisperVariant
+        }
+        coordinator.settings.rewriteEnabled = rewriteWanted
+        coordinator.settings.ollamaModel = rewriteWanted ? Self.recommendedOllamaModel : ""
+        coordinator.statusModel.selectedOllamaModel = coordinator.settings.ollamaModel
+        coordinator.settings.save()
+        // The whisper variant may have changed — invalidate a previous check.
+        if modelState == .installed,
+           !ModelStore.shared.isModelInstalled(variant: coordinator.settings.whisperVariant) {
+            modelState = .idle
+        }
+    }
+
+    // MARK: - Step 2: Microphone
 
     private var microphoneStep: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -410,14 +553,19 @@ public struct OnboardingView: View {
 
     // MARK: - Step 4: Model download
 
+    private var whisperDisplayName: String {
+        WhisperModelCatalog.option(for: coordinator.settings.whisperVariant)?.displayName
+            ?? coordinator.settings.whisperVariant
+    }
+
     private var modelStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            stepHeader(icon: "arrow.down.circle", title: "Spracherkennungsmodell")
-            Text("Voicy erkennt deine Sprache mit dem Whisper-Modell „Small“ (mehrsprachig, ca. 470 MB). Es wird einmalig geladen, bleibt lokal auf deinem Mac und läuft auf der Neural Engine — nichts wird in die Cloud geschickt.")
+            stepHeader(icon: "arrow.down.circle", title: "Modelle")
+            Text("Voicy lädt die empfohlenen Modelle einmalig herunter. Sie bleiben lokal auf deinem Mac — nichts wird in die Cloud geschickt.")
 
             switch modelState {
             case .idle:
-                OnboardingStatusCard(title: "Whisper „Small“", badge: .pending)
+                OnboardingStatusCard(title: "Transkription: \(whisperDisplayName)", badge: .pending)
             case .downloading(let fraction):
                 VStack(alignment: .leading, spacing: 6) {
                     ProgressView(value: fraction)
@@ -426,14 +574,11 @@ public struct OnboardingView: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
-                OnboardingStatusCard(title: "Whisper „Small“", badge: .pending)
+                OnboardingStatusCard(title: "Transkription: \(whisperDisplayName)", badge: .pending)
             case .installed:
-                OnboardingStatusCard(title: "Whisper „Small“", badge: .installed)
-                Text("Das Modell ist bereit. Du kannst es in den Einstellungen jederzeit verwalten.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                OnboardingStatusCard(title: "Transkription: \(whisperDisplayName)", badge: .installed)
             case .failed(let message):
-                OnboardingStatusCard(title: "Whisper „Small“", badge: .pending)
+                OnboardingStatusCard(title: "Transkription: \(whisperDisplayName)", badge: .pending)
                 OnboardingNoticeBox(
                     style: .warning,
                     text: "Der Download ist fehlgeschlagen. Prüfe deine Internetverbindung und versuche es dann erneut.",
@@ -444,24 +589,74 @@ public struct OnboardingView: View {
                 }
             }
 
-            if modelState != .installed {
-                consequenceFootnote("Ohne Modell kann Voicy nicht transkribieren. Überspringst du den Schritt, lädt Voicy das Modell beim nächsten Start im Hintergrund nach.")
+            rewriteModelSection
+
+            if !isFulfilled(.model) {
+                consequenceFootnote("Ohne Transkriptionsmodell kann Voicy nicht arbeiten. Überspringst du den Schritt, lädt Voicy das Modell beim nächsten Start im Hintergrund nach.")
             }
         }
         .onAppear { startModelInstallIfNeeded() }
+        .onChange(of: modelState) { _, newState in
+            if newState == .installed { startOllamaPullIfNeeded() }
+        }
+    }
+
+    /// Optional rewrite model: pulled via the local Ollama server. Missing
+    /// Ollama is a notice, not a blocker — the feature stays available in
+    /// the settings later.
+    @ViewBuilder
+    private var rewriteModelSection: some View {
+        if coordinator.settings.rewriteEnabled, !coordinator.settings.ollamaModel.isEmpty {
+            let tag = coordinator.settings.ollamaModel
+            if !status.ollamaReachable {
+                OnboardingNoticeBox(
+                    style: .info,
+                    text: "Für Rewrite braucht Voicy die kostenlose App „Ollama“ (ollama.com) — sie wurde nicht gefunden. Du kannst das Rewrite-Modell später jederzeit in den Einstellungen laden."
+                )
+            } else if status.ollamaModels.contains(tag) {
+                OnboardingStatusCard(title: "Rewrite: \(tag)", badge: .installed)
+            } else if status.ollamaPullModel == tag {
+                VStack(alignment: .leading, spacing: 6) {
+                    if let fraction = status.ollamaPullProgress {
+                        ProgressView(value: fraction)
+                            .frame(maxWidth: .infinity)
+                        Text("Lade Rewrite-Modell … \(Int((fraction * 100).rounded())) %")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+                OnboardingStatusCard(title: "Rewrite: \(tag)", badge: .pending)
+            } else {
+                OnboardingStatusCard(title: "Rewrite: \(tag)", badge: .pending)
+            }
+        }
+    }
+
+    private func startOllamaPullIfNeeded() {
+        guard coordinator.settings.rewriteEnabled else { return }
+        let tag = coordinator.settings.ollamaModel
+        guard !tag.isEmpty,
+              status.ollamaReachable,
+              !status.ollamaModels.contains(tag),
+              status.ollamaPullModel == nil else { return }
+        coordinator.downloadOllamaModel(tag)
     }
 
     /// Auto-start on entering the step: quick disk check first, then download.
     /// Re-entering the step reuses a running download task instead of starting
     /// a second one. Skipping the step does NOT cancel a running download.
     private func startModelInstallIfNeeded() {
-        if modelState == .installed { return }
-        if ModelStore.shared.isModelInstalled(variant: coordinator.settings.whisperVariant) {
-            modelState = .installed
-            return
+        if modelState != .installed {
+            if ModelStore.shared.isModelInstalled(variant: coordinator.settings.whisperVariant) {
+                modelState = .installed
+            } else if modelDownloadTask == nil {
+                startModelDownload()
+            }
         }
-        guard modelDownloadTask == nil else { return }
-        startModelDownload()
+        if modelState == .installed { startOllamaPullIfNeeded() }
     }
 
     private func startModelDownload() {

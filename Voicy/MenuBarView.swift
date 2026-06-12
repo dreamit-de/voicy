@@ -107,18 +107,27 @@ struct MenuBarView: View {
                 // own set-off container.
                 VStack(alignment: .leading, spacing: 6) {
                     shortcutHeader(keys: ["⌥", "⌃"], label: "Zusätzlich Control — wähle den Stil:")
-                    styleCard(
-                        .friendlyRewrite,
-                        icon: "sparkles",
-                        title: "Friendly",
-                        description: "Höflich formuliert."
-                    )
-                    styleCard(
-                        .customRewrite,
-                        icon: "wand.and.stars",
-                        title: "Custom: \(customStyleName)",
-                        description: "Eigene Vorgabe."
-                    )
+                    if coordinator.settings.rewriteEnabled {
+                        styleCard(
+                            .friendlyRewrite,
+                            icon: "sparkles",
+                            title: "Friendly",
+                            description: "Höflich formuliert."
+                        )
+                        styleCard(
+                            .customRewrite,
+                            icon: "wand.and.stars",
+                            title: "Custom: \(customStyleName)",
+                            description: "Eigene Vorgabe."
+                        )
+                    } else {
+                        Text("Rewrite ist deaktiviert — ⌥⌃ fügt den Text unverändert ein. Aktivieren: Einstellungen → Rewrite → Modell wählen.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 4)
+                    }
                 }
                 .padding(10)
                 .background(.quaternary.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
@@ -368,7 +377,9 @@ struct MenuBarView: View {
 
     /// Reachable alone is not enough for green: an in-flight model download
     /// or a failed rewrite turns the dot orange until rewriting works again.
+    /// With rewrite disabled the dot is neutral gray — that is not an error.
     private var ollamaDotColor: Color {
+        if !coordinator.settings.rewriteEnabled { return .gray.opacity(0.5) }
         if !status.ollamaReachable { return .gray.opacity(0.5) }
         if status.ollamaPullModel != nil { return .orange }
         return status.rewriteError == nil ? .green : .orange
