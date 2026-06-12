@@ -22,7 +22,7 @@ struct MenuBarView: View {
                 mainContent
             }
         }
-        .frame(width: 340)
+        .frame(width: 352)
         .task(autoOpenSetupIfNeeded)
     }
 
@@ -46,8 +46,14 @@ struct MenuBarView: View {
     // MARK: - Header (title + status pill + cog toggle)
 
     private var header: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 3) {
+        HStack(alignment: .center, spacing: 10) {
+            // Transparent logo motif (no icon squircle) — the full app icon
+            // looks muddy at this size; source: docs/assets/voicy-logo-transparent.png
+            Image("MenuLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 36, height: 36)
+            VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text("Voicy").font(.title3.bold())
                     Text("by dreamIT")
@@ -67,8 +73,8 @@ struct MenuBarView: View {
             .buttonStyle(.plain)
             .help(showingSettings ? "Zurück" : "Einstellungen")
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     private var statusPill: some View {
@@ -90,7 +96,7 @@ struct MenuBarView: View {
             permissionsBanner
             whisperBanner
             rewriteBanner
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 modeCard(
                     .normal,
                     icon: "mic",
@@ -110,8 +116,8 @@ struct MenuBarView: View {
                     description: "Eigene Vorgabe."
                 )
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             Divider()
             footer
         }
@@ -127,7 +133,7 @@ struct MenuBarView: View {
                     Image(systemName: "arrow.down.circle.fill")
                         .foregroundStyle(.blue)
                     Text("Update verfügbar: v\(version)")
-                        .font(.caption.bold())
+                        .font(.callout.weight(.semibold))
                 }
                 // Ellipsis on purpose: this opens Sparkle's standard dialog
                 // (where the user confirms the install) rather than
@@ -138,7 +144,7 @@ struct MenuBarView: View {
                     updater.checkForUpdates()
                 }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(.regular)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -156,17 +162,17 @@ struct MenuBarView: View {
                     Image(systemName: "xmark.octagon.fill")
                         .foregroundStyle(.red)
                     Text("Whisper konnte nicht geladen werden")
-                        .font(.caption.bold())
+                        .font(.callout.weight(.semibold))
                 }
                 Text(message)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(3)
                 Button("Erneut versuchen") {
                     coordinator.retryWhisperPreparation()
                 }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(.regular)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -186,17 +192,17 @@ struct MenuBarView: View {
                     Image(systemName: "wand.and.stars")
                         .foregroundStyle(.orange)
                     Text("Rewrite funktioniert nicht — Original-Text wird eingefügt")
-                        .font(.caption.bold())
+                        .font(.callout.weight(.semibold))
                 }
                 Text(message)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(3)
                 Button(status.rewriteTestRunning ? "Teste…" : "Verbindung testen") {
                     coordinator.testRewriteSetup()
                 }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(.regular)
                 .disabled(status.rewriteTestRunning)
             }
             .padding(12)
@@ -213,13 +219,13 @@ struct MenuBarView: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                     Text("Berechtigungen unvollständig")
-                        .font(.caption.bold())
+                        .font(.callout.weight(.semibold))
                 }
                 Button("Setup abschließen") {
                     openWindow(id: "onboarding")
                 }
                 .buttonStyle(.borderedProminent)
-                .controlSize(.small)
+                .controlSize(.regular)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -244,7 +250,7 @@ struct MenuBarView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
                 Text(description)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
@@ -252,7 +258,7 @@ struct MenuBarView: View {
 
             modeTrailing(mode, isActiveStyle: isActiveStyle)
         }
-        .padding(10)
+        .padding(12)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
@@ -314,8 +320,8 @@ struct MenuBarView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
     }
 
     private var appVersion: String {
@@ -405,7 +411,11 @@ struct MenuBarView: View {
         case .idle:
             switch status.whisper {
             case .ready: return "Bereit"
-            case .loading: return "Whisper lädt…"
+            case .loading:
+                if let progress = status.whisperProgress {
+                    return "Whisper-Modell wird geladen… \(Int(progress * 100)) %"
+                }
+                return "Whisper lädt…"
             case .failed: return "Whisper nicht verfügbar"
             }
         }
