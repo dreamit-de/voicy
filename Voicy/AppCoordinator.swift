@@ -63,6 +63,40 @@ public final class AppCoordinator: ObservableObject {
         retryWhisperPreparation()
     }
 
+    /// Downloads a curated Ollama model and selects it once installed.
+    /// While running, the menu's Ollama dot shows orange and settings show
+    /// live progress.
+    public func downloadOllamaModel(_ tag: String) {
+        guard statusModel.ollamaPullModel == nil else { return }
+        statusModel.ollamaPullModel = tag
+        statusModel.ollamaPullProgress = nil
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await self.rewriter.pull(model: tag, progress: { fraction in
+                    Task { @MainActor [weak self] in
+                        self?.statusModel.ollamaPullProgress = fraction
+                    }
+                })
+                await MainActor.run {
+                    self.statusModel.ollamaPullModel = nil
+                    self.statusModel.ollamaPullProgress = nil
+                    if !self.statusModel.ollamaModels.contains(tag) {
+                        self.statusModel.ollamaModels.append(tag)
+                    }
+                    self.setOllamaModel(tag)
+                }
+            } catch {
+                self.log.error("Ollama pull failed: \(error.localizedDescription, privacy: .public)")
+                await MainActor.run {
+                    self.statusModel.ollamaPullModel = nil
+                    self.statusModel.ollamaPullProgress = nil
+                    self.statusModel.rewriteError = error.localizedDescription
+                }
+            }
+        }
+    }
+
     public func setOllamaModel(_ model: String) {
         statusModel.selectedOllamaModel = model
         // A stale failure from the previous model should not stick to the new one.

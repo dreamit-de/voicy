@@ -9,6 +9,9 @@ public protocol RewriteService: AnyObject, Sendable {
     /// answers `/api/tags` — a listed model can still fail to load (e.g. an
     /// outdated GGUF format after an Ollama update). Throws on failure.
     func ping(model: String) async throws
+    /// Downloads `model` from the Ollama registry. `progress` is called with
+    /// values in [0, 1] aggregated over all layers.
+    func pull(model: String, progress: (@Sendable (Double) -> Void)?) async throws
 }
 
 /// Talks to a locally running Ollama server (default `127.0.0.1:11434`).
@@ -94,6 +97,47 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
         _ = try JSONDecoder().decode(GenerateResponse.self, from: data)
     }
 
+    public func pull(model: String, progress: (@Sendable (Double) -> Void)?) async throws {
+        var request = URLRequest(url: baseURL.appendingPathComponent("api/pull"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Idle timeout between chunks; the overall download may take much longer.
+        request.timeoutInterval = 120
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["model": model, "stream": true])
+
+        let (bytes, response) = try await session.bytes(for: request)
+        try validate(response)
+
+        // Streamed JSON lines: {"status":"pulling <digest>","digest":…,
+        // "total":N,"completed":M}. Aggregate across layers; the model blob
+        // dominates, so the sum tracks perceived progress well.
+        var layers: [String: (completed: Int64, total: Int64)] = [:]
+        for try await line in bytes.lines {
+            guard let data = line.data(using: .utf8),
+                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
+            if let message = obj["error"] as? String {
+                throw OllamaError.pullFailed(message)
+            }
+            if let digest = obj["digest"] as? String,
+               let total = (obj["total"] as? NSNumber)?.int64Value, total > 0 {
+                let completed = (obj["completed"] as? NSNumber)?.int64Value ?? 0
+                layers[digest] = (completed, total)
+                let sums = layers.values.reduce(into: (c: Int64(0), t: Int64(0))) {
+                    $0.c += $1.completed; $0.t += $1.total
+                }
+                progress?(Double(sums.c) / Double(sums.t))
+            }
+        }
+
+        // The stream ends after "success"; trust but verify — a vanished
+        // connection mid-pull also ends the stream without an error line.
+        let models = try await availableModels()
+        guard models.contains(where: { $0 == model || $0.hasPrefix("\(model):") }) else {
+            throw OllamaError.pullFailed("Download wurde unterbrochen — Modell ist nicht installiert.")
+        }
+        log.info("Pulled model \(model, privacy: .public)")
+    }
+
     // MARK: - Helpers
 
     private func validate(_ response: URLResponse) throws {
@@ -153,12 +197,14 @@ public enum OllamaError: LocalizedError, Sendable {
     case httpStatus(Int)
     case modelNotSelected
     case emptySystemPrompt
+    case pullFailed(String)
 
     public var errorDescription: String? {
         switch self {
         case .httpStatus(let code): return "Ollama responded with HTTP \(code)."
         case .modelNotSelected: return "No Ollama model selected. Open Settings → Rewrite to choose one."
         case .emptySystemPrompt: return "The selected style has no system prompt."
+        case .pullFailed(let message): return "Modell-Download fehlgeschlagen: \(message)"
         }
     }
 }

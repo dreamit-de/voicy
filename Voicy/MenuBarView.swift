@@ -366,10 +366,11 @@ struct MenuBarView: View {
         }
     }
 
-    /// Reachable alone is not enough for green: a failed rewrite (e.g. the
-    /// model loads no longer) turns the dot orange until rewriting works again.
+    /// Reachable alone is not enough for green: an in-flight model download
+    /// or a failed rewrite turns the dot orange until rewriting works again.
     private var ollamaDotColor: Color {
         if !status.ollamaReachable { return .gray.opacity(0.5) }
+        if status.ollamaPullModel != nil { return .orange }
         return status.rewriteError == nil ? .green : .orange
     }
 

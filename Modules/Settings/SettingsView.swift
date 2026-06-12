@@ -127,32 +127,76 @@ public struct SettingsView: View {
 
     private var rewriteSection: some View {
         section(title: "Rewrite") {
-            if status.ollamaReachable, !status.ollamaModels.isEmpty {
+            if status.ollamaReachable {
                 Picker("Ollama-Modell", selection: Binding(
-                    get: { status.selectedOllamaModel },
-                    set: { coordinator.setOllamaModel($0) }
+                    get: { status.ollamaPullModel ?? status.selectedOllamaModel },
+                    set: { selectOrDownloadOllamaModel($0) }
                 )) {
-                    ForEach(status.ollamaModels, id: \.self) { model in
+                    // Curated near-realtime models; missing ones download on selection.
+                    ForEach(OllamaModelCatalog.options) { option in
+                        let installed = status.ollamaModels.contains(option.tag)
+                        Text("\(option.displayName) · \(option.downloadSize)\(installed ? "" : " · Download")")
+                            .tag(option.tag)
+                    }
+                    // Models that are installed but not in the curated list
+                    // (e.g. pulled manually) stay selectable.
+                    ForEach(status.ollamaModels.filter { OllamaModelCatalog.option(for: $0) == nil }, id: \.self) { model in
                         Text(model).tag(model)
                     }
-                    // Persisted selection may no longer be installed — keep it
-                    // visible instead of showing an empty picker.
                     if !status.selectedOllamaModel.isEmpty,
-                       !status.ollamaModels.contains(status.selectedOllamaModel) {
+                       !status.ollamaModels.contains(status.selectedOllamaModel),
+                       OllamaModelCatalog.option(for: status.selectedOllamaModel) == nil {
                         Text("\(status.selectedOllamaModel) (nicht installiert)")
                             .tag(status.selectedOllamaModel)
                     }
                 }
+                .disabled(status.ollamaPullModel != nil)
+                if let option = OllamaModelCatalog.option(for: status.ollamaPullModel ?? status.selectedOllamaModel) {
+                    Text(option.expectation)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if !status.selectedOllamaModel.isEmpty {
+                    Text("Eigenes Modell. Faustregel: kleine Instruct-Modelle antworten in 1–2 s, Reasoning-Modelle (z. B. gpt-oss) brauchen 10–30 s pro Rewrite.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                ollamaPullStatusRow
             } else {
                 LabeledContent("Ollama-Modell") {
                     Text("Ollama nicht erreichbar (127.0.0.1:11434)")
                         .foregroundStyle(.secondary)
                 }
             }
-            Text("Die Rewrite-Dauer hängt vom Ollama-Modell ab: kleine Instruct-Modelle (z. B. qwen3:4b) antworten in 1–2 s, große Reasoning-Modelle wie gpt-oss:20b brauchen mehrere Sekunden — nach längerer Pause zusätzlich Ladezeit.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// Curated models that are not installed yet are downloaded on selection;
+    /// everything already installed is selected directly.
+    private func selectOrDownloadOllamaModel(_ tag: String) {
+        if status.ollamaModels.contains(tag) {
+            coordinator.setOllamaModel(tag)
+        } else if OllamaModelCatalog.option(for: tag) != nil {
+            coordinator.downloadOllamaModel(tag)
+        } else {
+            coordinator.setOllamaModel(tag)
+        }
+    }
+
+    @ViewBuilder
+    private var ollamaPullStatusRow: some View {
+        if let model = status.ollamaPullModel {
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                if let progress = status.ollamaPullProgress {
+                    Text("\(model) wird geladen… \(Int(progress * 100)) %")
+                } else {
+                    Text("\(model) wird geladen…")
+                }
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
         }
     }
 

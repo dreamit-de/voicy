@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Curated Ollama model catalog in Settings → Rewrite: three vetted near-realtime models (Qwen3 4B Instruct, Llama 3.2 3B, Gemma 3 4B) with size and expectation notes. Selecting an uninstalled one downloads it through the Ollama API with live progress; the menu's Ollama dot shows orange while downloading and green when ready. Manually installed models remain selectable with a generic latency rule of thumb.
 - Ollama model is selectable in Settings → Rewrite (was display-only). Rewrites keep the model loaded via `keep_alive: 60m`, eliminating multi-second cold starts after pauses. With a small instruct model (e.g. `qwen3:4b-instruct`, ~1 s warm) rewriting feels near-realtime; reasoning models like `gpt-oss:20b` take 10–30 s per rewrite.
 - Friendly prompt pins politeness markers to the input language — small models no longer append English "Thanks!" to German rewrites.
 - Whisper model picker in Settings → Transkription: curated choice of Tiny/Base/Small/Large-v3-Turbo with honest size, speed, and quality expectations per model; switching downloads the model with live progress (also shown in the menu status) and reloads the engine through the usual retry/error path. Settings also state expected rewrite latency depending on the Ollama model.

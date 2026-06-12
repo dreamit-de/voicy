@@ -40,6 +40,9 @@ public final class StatusModel: ObservableObject {
     /// failure, cleared on success, a passed connection test, or model change.
     @Published public var rewriteError: String? = nil
     @Published public var rewriteTestRunning: Bool = false
+    /// Ollama model currently being downloaded (nil = no download running).
+    @Published public var ollamaPullModel: String? = nil
+    @Published public var ollamaPullProgress: Double? = nil
     @Published public var lastError: String? = nil
 
     public init() {}
