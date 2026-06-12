@@ -3,22 +3,21 @@
   <channel>
     <title>Voicy</title>
     <item>
-      <title>Version 0.2.3</title>
-      <pubDate>Thu, 11 Jun 2026 19:55:30 +0000</pubDate>
-      <sparkle:version>13</sparkle:version>
-      <sparkle:shortVersionString>0.2.3</sparkle:shortVersionString>
+      <title>Version 0.2.4</title>
+      <pubDate>Fri, 12 Jun 2026 16:24:38 +0000</pubDate>
+      <sparkle:version>14</sparkle:version>
+      <sparkle:shortVersionString>0.2.4</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <description><![CDATA[
-        <h2>Voicy 0.2.3</h2>
-        <p><h2>Voicy 0.2.3</h2><p>Der Setup-Assistent merkt sich
-  seinen Fortschritt: Nach dem von macOS erzwungenen Neustart bei der Eingabeüberwachung geht es direkt beim richtigen Schritt weiter statt wieder von vorn.</p></p>
-        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.3-internal">Alle Details in den Release Notes auf GitHub</a></p>
+        <h2>Voicy 0.2.4</h2>
+        <p><h2>Voicy 0.2.4</h2><p><b>Neues Menü:</b> Modi nach Kurzbefehl gruppiert (⌥ diktieren, ⌥⌃ mit Stil), wählbare Stile klar erkennbar, neues Logo im Header und schärfere Schrift. <b>Neu in den Einstellungen:</b> Whisper-Modell wählbar (Tiny bis Large v3 Turbo) mit ehrlichen Tempo-/Qualitätsangaben und Download-Fortschritt. Außerdem: Schlägt das Umformulieren fehl, zeigt das Menü jetzt eine Fehlermeldung mit Verbindungstest statt stillschweigend den Originaltext einzufügen.</p></p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.4-internal">Alle Details in den Release Notes auf GitHub</a></p>
       ]]></description>
       <enclosure
-        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.3-internal/Voicy-0.2.3-internal.dmg"
-        length="3834420"
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.4-internal/Voicy-0.2.4-internal.dmg"
+        length="3907924"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="TTs+2+OBQjXhKlD1j5cKMkPyY1/4tLyzImrFLAq80ogHGK2v0apqy2atXQpErswr5tZHqZPOvLW96EVtt3cuCQ==" />
+        sparkle:edSignature="GVBtXf2Fr1kw9eaNym+x1nli30ESkwsy1Nu4qTovKXXwrMXGIBkYf3WORtCiogk+1/56N7NZ3Zx8ytF3odjWCw==" />
     </item>
   </channel>
 </rss>
