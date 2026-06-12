@@ -5,6 +5,10 @@ public protocol RewriteService: AnyObject, Sendable {
     func availableModels() async throws -> [String]
     func isReachable() async -> Bool
     func rewrite(_ text: String, using style: RewriteStyle, model: String) async throws -> String
+    /// Verifies that `model` can actually generate, not just that the server
+    /// answers `/api/tags` — a listed model can still fail to load (e.g. an
+    /// outdated GGUF format after an Ollama update). Throws on failure.
+    func ping(model: String) async throws
 }
 
 /// Talks to a locally running Ollama server (default `127.0.0.1:11434`).
@@ -64,6 +68,32 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
         return decoded.response.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    public func ping(model: String) async throws {
+        guard !model.isEmpty else { throw OllamaError.modelNotSelected }
+
+        var request = URLRequest(url: baseURL.appendingPathComponent("api/generate"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Generous: a cold model first loads into memory (10s+ for large models).
+        request.timeoutInterval = 120
+
+        let body = GenerateRequest(
+            model: model,
+            prompt: "Antworte nur mit OK.",
+            system: "Du bist ein Echo-Test.",
+            stream: false,
+            options: .init(temperature: 0.0, numPredict: 8)
+        )
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await session.data(for: request)
+        try validate(response)
+        // Success = the model loaded and produced a generate response at all;
+        // the content is irrelevant (reasoning models may spend the token
+        // budget on thinking).
+        _ = try JSONDecoder().decode(GenerateResponse.self, from: data)
+    }
+
     // MARK: - Helpers
 
     private func validate(_ response: URLResponse) throws {
@@ -88,7 +118,16 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
     }
 
     private struct GenerateRequest: Encodable {
-        struct Options: Encodable { let temperature: Double }
+        struct Options: Encodable {
+            let temperature: Double
+            var numPredict: Int? = nil
+
+            enum CodingKeys: String, CodingKey {
+                case temperature
+                case numPredict = "num_predict"
+            }
+        }
+
         let model: String
         let prompt: String
         let system: String

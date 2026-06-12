@@ -32,6 +32,11 @@ public final class StatusModel: ObservableObject {
     @Published public var ollamaReachable: Bool = false
     @Published public var ollamaModels: [String] = []
     @Published public var selectedOllamaModel: String = ""
+    /// Last rewrite/ping failure. Reachability alone is not honest — a model
+    /// can be listed by `/api/tags` and still fail to generate. Set on rewrite
+    /// failure, cleared on success, a passed connection test, or model change.
+    @Published public var rewriteError: String? = nil
+    @Published public var rewriteTestRunning: Bool = false
     @Published public var lastError: String? = nil
 
     public init() {}

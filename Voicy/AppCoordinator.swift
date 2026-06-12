@@ -55,6 +55,8 @@ public final class AppCoordinator: ObservableObject {
 
     public func setOllamaModel(_ model: String) {
         statusModel.selectedOllamaModel = model
+        // A stale failure from the previous model should not stick to the new one.
+        statusModel.rewriteError = nil
         settings.ollamaModel = model
         settings.save()
     }
@@ -140,13 +142,42 @@ public final class AppCoordinator: ObservableObject {
         let style = styleStore.activeStyle
         let model = settings.ollamaModel
         do {
-            return try await rewriter.rewrite(text, using: style, model: model)
+            let rewritten = try await rewriter.rewrite(text, using: style, model: model)
+            statusModel.rewriteError = nil
+            return rewritten
         } catch {
+            log.error("Rewrite failed: \(error.localizedDescription, privacy: .public)")
+            // Notifications are easy to miss (or not authorized) — persist the
+            // failure so the menu shows a banner until rewriting works again.
+            statusModel.rewriteError = error.localizedDescription
             await notify(
                 "Rewrite nicht möglich",
                 body: "\(error.localizedDescription) — Original-Transkript wird eingefügt."
             )
             return text
+        }
+    }
+
+    /// Deep Ollama health check: runs a minimal generate with the selected
+    /// model. Catches failures `/api/tags` cannot see, e.g. a model whose
+    /// on-disk format the current Ollama version can no longer load.
+    public func testRewriteSetup() {
+        guard !statusModel.rewriteTestRunning else { return }
+        statusModel.rewriteTestRunning = true
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await self.rewriter.ping(model: self.settings.ollamaModel)
+                await MainActor.run {
+                    self.statusModel.rewriteError = nil
+                    self.statusModel.rewriteTestRunning = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.statusModel.rewriteError = error.localizedDescription
+                    self.statusModel.rewriteTestRunning = false
+                }
+            }
         }
     }
 

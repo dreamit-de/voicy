@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Visible rewrite failure handling: when a rewrite fails (Voicy silently inserts the unmodified transcript as fallback), the menu now shows an orange banner with the error and a "Verbindung testen" button. The connection test runs a real minimal generate against the selected Ollama model — catching models that are listed by `/api/tags` but can no longer load (e.g. an outdated GGUF format after an Ollama update). The Ollama status dot turns orange in that state instead of pretending everything is fine.
+
 ### Fixed
 - Setup assistant resumes at the first unfulfilled step when reopened. Granting Input Monitoring makes macOS force-quit and reopen the app mid-assistant, so a successful setup could never reach the final step — after the relaunch it now lands one click away from finishing instead of restarting at "Willkommen".
 - Internal builds are signed with a stable CI certificate instead of ad-hoc, so TCC permission grants (Microphone, Accessibility, Input Monitoring) survive updates and the setup no longer has to be repeated after every update.

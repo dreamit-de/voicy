@@ -89,6 +89,7 @@ struct MenuBarView: View {
             updateBanner
             permissionsBanner
             whisperBanner
+            rewriteBanner
             VStack(alignment: .leading, spacing: 8) {
                 modeCard(
                     .normal,
@@ -170,6 +171,37 @@ struct MenuBarView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.red.opacity(0.1))
+        }
+    }
+
+    /// Shown after a rewrite (or connection test) failed. Dictation still
+    /// works — Voicy falls back to inserting the unmodified transcript — but
+    /// that fallback is silent, so make the broken rewrite path visible until
+    /// a rewrite succeeds or the connection test passes.
+    @ViewBuilder
+    private var rewriteBanner: some View {
+        if let message = status.rewriteError {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "wand.and.stars")
+                        .foregroundStyle(.orange)
+                    Text("Rewrite funktioniert nicht — Original-Text wird eingefügt")
+                        .font(.caption.bold())
+                }
+                Text(message)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                Button(status.rewriteTestRunning ? "Teste…" : "Verbindung testen") {
+                    coordinator.testRewriteSetup()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(status.rewriteTestRunning)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.orange.opacity(0.1))
         }
     }
 
@@ -274,7 +306,7 @@ struct MenuBarView: View {
             HStack(spacing: 14) {
                 statusDot(label: "Setup", color: permissions.allGranted ? .green : .gray.opacity(0.5))
                 statusDot(label: "Whisper", color: whisperDotColor)
-                statusDot(label: "Ollama", color: status.ollamaReachable ? .green : .gray.opacity(0.5))
+                statusDot(label: "Ollama", color: ollamaDotColor)
                 Spacer()
                 Button("Beenden") { NSApplication.shared.terminate(nil) }
                     .buttonStyle(.plain)
@@ -296,6 +328,13 @@ struct MenuBarView: View {
         case .loading: return .gray.opacity(0.5)
         case .failed: return .red
         }
+    }
+
+    /// Reachable alone is not enough for green: a failed rewrite (e.g. the
+    /// model loads no longer) turns the dot orange until rewriting works again.
+    private var ollamaDotColor: Color {
+        if !status.ollamaReachable { return .gray.opacity(0.5) }
+        return status.rewriteError == nil ? .green : .orange
     }
 
     @ViewBuilder
