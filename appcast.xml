@@ -3,21 +3,21 @@
   <channel>
     <title>Voicy</title>
     <item>
-      <title>Version 0.2.5</title>
-      <pubDate>Fri, 12 Jun 2026 18:48:02 +0000</pubDate>
-      <sparkle:version>15</sparkle:version>
-      <sparkle:shortVersionString>0.2.5</sparkle:shortVersionString>
+      <title>Version 0.2.6</title>
+      <pubDate>Sat, 13 Jun 2026 13:09:11 +0000</pubDate>
+      <sparkle:version>16</sparkle:version>
+      <sparkle:shortVersionString>0.2.6</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <description><![CDATA[
-        <h2>Voicy 0.2.5</h2>
-        <p><h2>Voicy 0.2.5</h2><p><b>Rewrite in Echtzeit:</b> In den Einstellungen gibt es jetzt eine kuratierte Modell-Auswahl (Qwen3 4B, Llama 3.2 3B, Gemma 3 4B) mit Tempo-Einschätzung — Auswahl lädt das Modell automatisch herunter, der Ollama-Status zeigt den Fortschritt. Kleine Modelle formulieren in ~1 Sekunde um. Außerdem bleibt das Modell zwischen Diktaten geladen (keine Kaltstart-Wartezeit mehr) und der Friendly-Stil mischt keine englischen Floskeln mehr in deutsche Texte.</p></p>
-        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.5-internal">Alle Details in den Release Notes auf GitHub</a></p>
+        <h2>Voicy 0.2.6</h2>
+        <p><h2>Voicy 0.2.6</h2><p><b>Geführtes Setup:</b> Der Assistent fragt jetzt nach deiner Sprache und empfiehlt die passenden Modelle — für Transkription „Large v3 Turbo“, optional „Qwen3 4B Instruct“ fürs Umformulieren. Beide werden direkt geladen. <b>Rewrite ist jetzt optional</b> und lässt sich in den Einstellungen ein- und ausschalten; dort gibt es auch eine kuratierte Modell-Auswahl mit Tempo-Einschätzung und Ein-Klick-Download. Fehlt Ollama, führt dich Voicy Schritt für Schritt hin — kein Sackgassen mehr. Außerdem: größeres Setup-Fenster ohne Scrollen.</p></p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.6-internal">Alle Details in den Release Notes auf GitHub</a></p>
       ]]></description>
       <enclosure
-        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.5-internal/Voicy-0.2.5-internal.dmg"
-        length="3927113"
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.6-internal/Voicy-0.2.6-internal.dmg"
+        length="3965017"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="d3BWq07fG5I+1+C/63C/DBRHxR9EK9a6VbNeI7MT/RVTQeGhgQAVNKGS0eBV3rJW3PdInKTf9alrZTk+j38zBQ==" />
+        sparkle:edSignature="TXXz8Z+JLFcPGPcvB4wZe84fWTlTPMBC2Wxyql02h03CnYwygK8yvEeH6it8KlyKOHQWLXsfPPYn4Xjnm29dCw==" />
     </item>
   </channel>
 </rss>
