@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- Setup assistant asks for the primary dictation language (German and English first-class, more selectable) and recommends models accordingly: Large v3 Turbo for transcription plus — optionally — Qwen3 4B Instruct for rewrite. Both download in the model step with progress; a missing Ollama is a notice, not a blocker.
+- Setup assistant asks for the primary dictation language via a single language selector (German default; English, Français, Español, Italiano, auto-detect) and recommends models accordingly: Large v3 Turbo for transcription plus — optionally — Qwen3 4B Instruct for rewrite. Both download in the model step with progress; a missing Ollama is a notice, not a blocker.
 - Missing-Ollama guidance: the setup notice links straight to ollama.com/download, Settings show the same link while Ollama is unreachable, and once Ollama appears (even later) the menu offers a one-click "Modell laden" banner with download progress — the assistant also auto-pulls if Ollama shows up while it is open.
 - Setup window enlarged to 680×560 so no step needs scrolling.
 - Rewrite is opt-in: disabled via the onboarding toggle or the new "Kein Rewrite" option in Settings → Rewrite. When off, ⌥⌃ inserts the plain transcript, no model is auto-selected in the background, and the Ollama status dot is neutral gray.

@@ -41,6 +41,24 @@ public struct OnboardingView: View {
     static let recommendedWhisperVariant = "openai_whisper-large-v3-v20240930_626MB"
     static let recommendedOllamaModel = "qwen3:4b-instruct"
 
+    /// Selectable dictation languages. German is the default; de/en are
+    /// first-class (get the Large-v3-Turbo recommendation), the rest fall
+    /// back to the multilingual Small model.
+    struct LanguageChoice: Identifiable, Equatable {
+        let code: String        // BCP-47, or "auto" for auto-detect
+        let name: String
+        var id: String { code }
+    }
+
+    static let languageChoices: [LanguageChoice] = [
+        .init(code: "de", name: "Deutsch"),
+        .init(code: "en", name: "English"),
+        .init(code: "fr", name: "Français"),
+        .init(code: "es", name: "Español"),
+        .init(code: "it", name: "Italiano"),
+        .init(code: "auto", name: "Automatisch erkennen"),
+    ]
+
     // MARK: - Steps
 
     enum Step: Int, CaseIterable {
@@ -312,23 +330,20 @@ public struct OnboardingView: View {
     // MARK: - Step 1: Language & recommendation
 
     private var languageStep: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             stepHeader(icon: "globe", title: "Sprache")
             Text("In welcher Sprache diktierst du hauptsächlich? Voicy wählt danach die passenden Modelle für dich aus.")
 
-            HStack(spacing: 10) {
-                languageCard("Deutsch", code: "de")
-                languageCard("English", code: "en")
-            }
-            Picker("Weitere Sprachen", selection: Binding(
-                get: { ["de", "en"].contains(languageChoice) ? "" : languageChoice },
-                set: { if !$0.isEmpty { selectLanguage($0) } }
+            Picker("Sprache", selection: Binding(
+                get: { languageChoice },
+                set: { selectLanguage($0) }
             )) {
-                Text("—").tag("")
-                Text("Français").tag("fr")
-                Text("Español").tag("es")
-                Text("Automatisch erkennen").tag("auto")
+                ForEach(Self.languageChoices) { choice in
+                    Text(choice.name).tag(choice.code)
+                }
             }
+            .pickerStyle(.menu)
+            .fixedSize()
 
             OnboardingNoticeBox(
                 style: .info,
@@ -350,27 +365,6 @@ public struct OnboardingView: View {
             .toggleStyle(.switch)
         }
         .onAppear(perform: initLanguageStepIfNeeded)
-    }
-
-    private func languageCard(_ title: String, code: String) -> some View {
-        let isSelected = languageChoice == code
-        return Button {
-            selectLanguage(code)
-        } label: {
-            Text(title)
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(
-                    isSelected ? AnyShapeStyle(Color.accentColor.opacity(0.15)) : AnyShapeStyle(.regularMaterial),
-                    in: RoundedRectangle(cornerRadius: 8)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 1.5)
-                )
-        }
-        .buttonStyle(.plain)
     }
 
     private var transcriptionRecommendation: String {
@@ -396,8 +390,8 @@ public struct OnboardingView: View {
             rewriteWanted = coordinator.settings.rewriteEnabled
             return
         }
-        let system = Locale.current.language.languageCode?.identifier
-        languageChoice = system == "de" ? "de" : "en"
+        // Fresh install: German is the default.
+        languageChoice = "de"
         applyChoices()
     }
 
