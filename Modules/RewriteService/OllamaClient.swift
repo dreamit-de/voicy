@@ -61,14 +61,48 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
             prompt: text,
             system: style.systemPrompt,
             stream: false,
-            options: .init(temperature: 0.4)
+            // Low temperature keeps the rewrite faithful — at 0.4 small models
+            // occasionally mangle or embellish phrases; 0.3 is markedly steadier.
+            options: .init(temperature: 0.3)
         )
         request.httpBody = try JSONEncoder().encode(body)
 
         let (data, response) = try await session.data(for: request)
         try validate(response)
         let decoded = try JSONDecoder().decode(GenerateResponse.self, from: data)
-        return decoded.response.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleaned = OllamaClient.stripAcknowledgementPreamble(
+            decoded.response.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        return cleaned
+    }
+
+    /// Removes a leading acknowledgement sentence that small models sometimes
+    /// prepend despite the prompt ("Ja, natürlich.", "Sure!", "Hier ist …:").
+    /// Conservative: only strips a known opener that forms its own sentence
+    /// (ends in . ! :) and is followed by more text, so it never eats a real
+    /// rewrite that merely starts with "Klar, …".
+    static func stripAcknowledgementPreamble(_ text: String) -> String {
+        let openers = [
+            "ja, natürlich", "ja natürlich", "natürlich", "klar", "klar doch",
+            "aber gerne", "gerne", "sehr gerne", "sicher", "selbstverständlich",
+            "alles klar", "hier ist", "hier ist es", "hier ist die umformulierung",
+            "hier hast du", "hier kommt", "sure", "of course", "certainly",
+            "absolutely", "no problem", "here is", "here you go", "here's the",
+            "okay", "ok",
+        ]
+        // Find the first sentence terminator (. ! :) — German rewrites rarely
+        // open with a colon, so it's a safe preamble boundary too.
+        guard let boundary = text.firstIndex(where: { $0 == "." || $0 == "!" || $0 == ":" }) else {
+            return text
+        }
+        let head = text[..<boundary]
+            .lowercased()
+            .trimmingCharacters(in: .whitespaces)
+        guard openers.contains(head) else { return text }
+        let rest = text[text.index(after: boundary)...]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // Don't strip if nothing meaningful remains.
+        return rest.isEmpty ? text : rest
     }
 
     public func ping(model: String) async throws {

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Rewrite quality overhaul after measuring German output on-device: **Gemma 3 4B is the new recommended model** (better German phrasing and faithful speech acts than Qwen at the same ~1–2 s latency); Gemma 3 12B added as a best-quality option (~3–5 s). The rewrite temperature dropped to 0.3 for steadier, more faithful output, the system prompt forbids preambles and language mixing more firmly, and a safety net strips leftover acknowledgement preambles ("Ja, natürlich.", "Sure!") from model output.
+
 ### Added
 - Setup assistant asks for the primary dictation language via a single language selector (German default; English, Français, Español, Italiano, auto-detect) and recommends models accordingly: Large v3 Turbo for transcription plus — optionally — Qwen3 4B Instruct for rewrite. Both download in the model step with progress; a missing Ollama is a notice, not a blocker.
 - Missing-Ollama guidance: the setup notice links straight to ollama.com/download, Settings show the same link while Ollama is unreachable, and once Ollama appears (even later) the menu offers a one-click "Modell laden" banner with download progress — the assistant also auto-pulls if Ollama shows up while it is open.

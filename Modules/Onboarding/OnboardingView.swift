@@ -39,7 +39,7 @@ public struct OnboardingView: View {
 
     /// Recommended models for the supported primary languages (de/en).
     static let recommendedWhisperVariant = "openai_whisper-large-v3-v20240930_626MB"
-    static let recommendedOllamaModel = "qwen3:4b-instruct"
+    static let recommendedOllamaModel = OllamaModelCatalog.recommendedTag
 
     /// Selectable dictation languages. German is the default; de/en are
     /// first-class (get the Large-v3-Turbo recommendation), the rest fall
@@ -356,7 +356,7 @@ public struct OnboardingView: View {
             )) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Rewrite aktivieren (empfohlen)")
-                    Text("Formuliert Diktate auf Wunsch um, z. B. höflicher. Modell: Qwen3 4B Instruct (2,5 GB, ~1 s pro Rewrite) — benötigt Ollama. Ohne Rewrite fügt ⌥⌃ den Text unverändert ein; aktivierbar bleibt es jederzeit in den Einstellungen.")
+                    Text("Formuliert Diktate auf Wunsch um, z. B. höflicher. Modell: Gemma 3 4B (3,3 GB, ~1–2 s pro Rewrite) — benötigt Ollama. Ohne Rewrite fügt ⌥⌃ den Text unverändert ein; aktivierbar bleibt es jederzeit in den Einstellungen.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
