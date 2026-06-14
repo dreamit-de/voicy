@@ -310,14 +310,14 @@ public struct OnboardingView: View {
 
     private var welcomeStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Willkommen bei Voicy")
+            Text("Willkommen bei Voice Transcript")
                 .font(.largeTitle.bold())
-            Text("Voicy verwandelt deine Sprache in Text — komplett lokal auf deinem Mac, ohne Cloud und ohne Account.")
-            Text("Dieser Assistent richtet Voicy in fünf kurzen Schritten ein:")
+            Text("Voice Transcript verwandelt deine Sprache in Text — komplett lokal auf deinem Mac, ohne Cloud und ohne Account.")
+            Text("Dieser Assistent richtet Voice Transcript in fünf kurzen Schritten ein:")
             VStack(alignment: .leading, spacing: 8) {
                 Label("Sprache — wir empfehlen dir die passenden Modelle", systemImage: "globe")
-                Label("Mikrofon — damit Voicy dich aufnehmen kann", systemImage: "mic")
-                Label("Bedienungshilfen — damit Voicy Text einfügen kann", systemImage: "accessibility")
+                Label("Mikrofon — damit Voice Transcript dich aufnehmen kann", systemImage: "mic")
+                Label("Bedienungshilfen — damit Voice Transcript Text einfügen kann", systemImage: "accessibility")
                 Label("Eingabeüberwachung — damit der Hotkey überall funktioniert", systemImage: "keyboard")
                 Label("Modelle — werden einmalig geladen und bleiben lokal", systemImage: "arrow.down.circle")
             }
@@ -332,7 +332,7 @@ public struct OnboardingView: View {
     private var languageStep: some View {
         VStack(alignment: .leading, spacing: 16) {
             stepHeader(icon: "globe", title: "Sprache")
-            Text("In welcher Sprache diktierst du hauptsächlich? Voicy wählt danach die passenden Modelle für dich aus.")
+            Text("In welcher Sprache diktierst du hauptsächlich? Voice Transcript wählt danach die passenden Modelle für dich aus.")
 
             Picker("Sprache", selection: Binding(
                 get: { languageChoice },
@@ -374,7 +374,7 @@ public struct OnboardingView: View {
         case "en":
             return "Empfehlung für Englisch: Transkription mit „Large v3 Turbo“ (597 MB) — beste Erkennung, auch bei Namen und Fachbegriffen."
         default:
-            return "Voicy startet mit dem mehrsprachigen Modell „Small“ (463 MB). In den Einstellungen kannst du jederzeit ein anderes Modell wählen."
+            return "Voice Transcript startet mit dem mehrsprachigen Modell „Small“ (463 MB). In den Einstellungen kannst du jederzeit ein anderes Modell wählen."
         }
     }
 
@@ -421,7 +421,7 @@ public struct OnboardingView: View {
     private var microphoneStep: some View {
         VStack(alignment: .leading, spacing: 12) {
             stepHeader(icon: "mic.fill", title: "Mikrofon")
-            Text("Voicy braucht Zugriff auf dein Mikrofon, um deine Sprache aufzunehmen. Aufgenommen wird nur, während du den Hotkey gedrückt hältst — und die Aufnahme verlässt deinen Mac nie.")
+            Text("Voice Transcript braucht Zugriff auf dein Mikrofon, um deine Sprache aufzunehmen. Aufgenommen wird nur, während du den Hotkey gedrückt hältst — und die Aufnahme verlässt deinen Mac nie.")
             // Only promise a system dialog while one can actually still appear.
             if coordinator.permissions.microphone != .granted {
                 Text("macOS zeigt dir gleich einen Dialog. Klicke dort auf „Erlauben“.")
@@ -431,14 +431,14 @@ public struct OnboardingView: View {
             if coordinator.permissions.microphone == .denied {
                 OnboardingNoticeBox(
                     style: .warning,
-                    text: "Du hast den Mikrofonzugriff abgelehnt. macOS zeigt diesen Dialog nur ein einziges Mal — erlaube den Zugriff jetzt manuell: Öffne die Systemeinstellungen, gehe zu „Datenschutz & Sicherheit“ → „Mikrofon“ und aktiviere Voicy. Der Status hier wird automatisch grün.",
+                    text: "Du hast den Mikrofonzugriff abgelehnt. macOS zeigt diesen Dialog nur ein einziges Mal — erlaube den Zugriff jetzt manuell: Öffne die Systemeinstellungen, gehe zu „Datenschutz & Sicherheit“ → „Mikrofon“ und aktiviere Voice Transcript. Der Status hier wird automatisch grün.",
                     buttonTitle: "Systemeinstellungen öffnen"
                 ) {
                     coordinator.permissions.openSystemSettings(for: .microphone)
                 }
             }
             if coordinator.permissions.microphone != .granted {
-                consequenceFootnote("Ohne Mikrofonzugriff kann Voicy nichts aufnehmen.")
+                consequenceFootnote("Ohne Mikrofonzugriff kann Voice Transcript nichts aufnehmen.")
             }
         }
         .onAppear {
@@ -461,10 +461,10 @@ public struct OnboardingView: View {
     private var accessibilityStep: some View {
         VStack(alignment: .leading, spacing: 12) {
             stepHeader(icon: "accessibility", title: "Bedienungshilfen")
-            Text("Voicy fügt den fertigen Text automatisch dort ein, wo dein Cursor gerade steht. Dafür verlangt macOS die Berechtigung „Bedienungshilfen“.")
+            Text("Voice Transcript fügt den fertigen Text automatisch dort ein, wo dein Cursor gerade steht. Dafür verlangt macOS die Berechtigung „Bedienungshilfen“.")
             // Only promise a system dialog while one can actually still appear.
             if coordinator.permissions.accessibility != .granted {
-                Text("macOS zeigt gleich einen Hinweis-Dialog. Klicke dort auf „Systemeinstellungen öffnen“ und aktiviere Voicy in der Liste. Der Status hier wird automatisch grün.")
+                Text("macOS zeigt gleich einen Hinweis-Dialog. Klicke dort auf „Systemeinstellungen öffnen“ und aktiviere Voice Transcript in der Liste. Der Status hier wird automatisch grün.")
                     .foregroundStyle(.secondary)
             }
             // AXIsProcessTrusted() never reports "notDetermined" — the default
@@ -477,16 +477,16 @@ public struct OnboardingView: View {
             if coordinator.permissions.accessibility != .granted {
                 OnboardingNoticeBox(
                     style: .info,
-                    text: "Kein Dialog erschienen? macOS zeigt ihn nur ein einziges Mal. Du kannst Voicy jederzeit direkt aktivieren: Systemeinstellungen → „Datenschutz & Sicherheit“ → „Bedienungshilfen“.",
+                    text: "Kein Dialog erschienen? macOS zeigt ihn nur ein einziges Mal. Du kannst Voice Transcript jederzeit direkt aktivieren: Systemeinstellungen → „Datenschutz & Sicherheit“ → „Bedienungshilfen“.",
                     buttonTitle: "Systemeinstellungen öffnen"
                 ) {
                     coordinator.permissions.openSystemSettings(for: .accessibility)
                 }
-                consequenceFootnote("Ohne Bedienungshilfen kann Voicy keinen Text einfügen.")
+                consequenceFootnote("Ohne Bedienungshilfen kann Voice Transcript keinen Text einfügen.")
             }
         }
         .onAppear {
-            // Auto-trigger the prompt on appearance. Required so the Voicy.app
+            // Auto-trigger the prompt on appearance. Required so the Voice Transcript.app
             // entry actually shows up in System Settings → Privacy →
             // Accessibility (smoke-test finding #6). Idempotent.
             coordinator.permissions.requestAccessibility()
@@ -498,17 +498,17 @@ public struct OnboardingView: View {
     private var inputMonitoringStep: some View {
         VStack(alignment: .leading, spacing: 12) {
             stepHeader(icon: "keyboard", title: "Eingabeüberwachung")
-            Text("Der Voicy-Hotkey ist die rechte ⌥-Taste. Damit Voicy sie in jeder App erkennen kann, verlangt macOS die Berechtigung „Eingabeüberwachung“. Voicy reagiert dabei ausschließlich auf die Modifier-Tasten ⌥ und ⌃ — Tastatureingaben werden nicht aufgezeichnet.")
+            Text("Der Voice Transcript-Hotkey ist die rechte ⌥-Taste. Damit Voice Transcript sie in jeder App erkennen kann, verlangt macOS die Berechtigung „Eingabeüberwachung“. Voice Transcript reagiert dabei ausschließlich auf die Modifier-Tasten ⌥ und ⌃ — Tastatureingaben werden nicht aufgezeichnet.")
             // Only promise a system dialog while one can actually still appear.
             if coordinator.permissions.inputMonitoring != .granted {
-                Text("macOS zeigt gleich einen Dialog. Klicke dort auf „Systemeinstellungen öffnen“ und aktiviere Voicy in der Liste.")
+                Text("macOS zeigt gleich einen Dialog. Klicke dort auf „Systemeinstellungen öffnen“ und aktiviere Voice Transcript in der Liste.")
                     .foregroundStyle(.secondary)
             }
             OnboardingStatusCard(title: "Eingabeüberwachung", badge: inputMonitoringBadge)
             if coordinator.permissions.inputMonitoring != .granted {
                 OnboardingNoticeBox(
                     style: .info,
-                    text: "Kein Dialog erschienen? macOS zeigt ihn nur ein einziges Mal. Aktiviere Voicy direkt: Systemeinstellungen → „Datenschutz & Sicherheit“ → „Eingabeüberwachung“.",
+                    text: "Kein Dialog erschienen? macOS zeigt ihn nur ein einziges Mal. Aktiviere Voice Transcript direkt: Systemeinstellungen → „Datenschutz & Sicherheit“ → „Eingabeüberwachung“.",
                     buttonTitle: "Systemeinstellungen öffnen"
                 ) {
                     coordinator.permissions.openSystemSettings(for: .inputMonitoring)
@@ -520,12 +520,12 @@ public struct OnboardingView: View {
                 // app relaunch when the permission was granted at runtime.
                 OnboardingNoticeBox(
                     style: .restart,
-                    text: "Fast geschafft: Damit der Hotkey aktiv wird, muss Voicy einmal neu gestartet werden. Du wirst im letzten Schritt daran erinnert."
+                    text: "Fast geschafft: Damit der Hotkey aktiv wird, muss Voice Transcript einmal neu gestartet werden. Du wirst im letzten Schritt daran erinnert."
                 )
             }
         }
         .onAppear {
-            // Auto-trigger the prompt on appearance so the Voicy.app entry is
+            // Auto-trigger the prompt on appearance so the Voice Transcript.app entry is
             // registered in System Settings → Privacy → Input Monitoring
             // (smoke-test finding #6). Idempotent.
             coordinator.permissions.requestInputMonitoring()
@@ -557,7 +557,7 @@ public struct OnboardingView: View {
     private var modelStep: some View {
         VStack(alignment: .leading, spacing: 12) {
             stepHeader(icon: "arrow.down.circle", title: "Modelle")
-            Text("Voicy lädt die empfohlenen Modelle einmalig herunter. Sie bleiben lokal auf deinem Mac — nichts wird in die Cloud geschickt.")
+            Text("Voice Transcript lädt die empfohlenen Modelle einmalig herunter. Sie bleiben lokal auf deinem Mac — nichts wird in die Cloud geschickt.")
 
             switch modelState {
             case .idle:
@@ -588,7 +588,7 @@ public struct OnboardingView: View {
             rewriteModelSection
 
             if !isFulfilled(.model) {
-                consequenceFootnote("Ohne Transkriptionsmodell kann Voicy nicht arbeiten. Überspringst du den Schritt, lädt Voicy das Modell beim nächsten Start im Hintergrund nach.")
+                consequenceFootnote("Ohne Transkriptionsmodell kann Voice Transcript nicht arbeiten. Überspringst du den Schritt, lädt Voice Transcript das Modell beim nächsten Start im Hintergrund nach.")
             }
         }
         .onAppear { startModelInstallIfNeeded() }
@@ -612,7 +612,7 @@ public struct OnboardingView: View {
             if !status.ollamaReachable {
                 OnboardingNoticeBox(
                     style: .info,
-                    text: "Für Rewrite braucht Voicy die kostenlose App „Ollama“ — sie wurde nicht gefunden. Sobald Ollama läuft, lädt Voicy das Rewrite-Modell automatisch; das Menü erinnert dich auch später daran.",
+                    text: "Für Rewrite braucht Voice Transcript die kostenlose App „Ollama“ — sie wurde nicht gefunden. Sobald Ollama läuft, lädt Voice Transcript das Rewrite-Modell automatisch; das Menü erinnert dich auch später daran.",
                     buttonTitle: "ollama.com öffnen"
                 ) {
                     if let url = URL(string: "https://ollama.com/download") {
@@ -726,7 +726,7 @@ public struct OnboardingView: View {
             }
 
             if !allRequirementsMet {
-                Text("Offene Punkte erreichst du jederzeit über „Setup abschließen“ im Voicy-Menü in der Menüleiste.")
+                Text("Offene Punkte erreichst du jederzeit über „Setup abschließen“ im Voice Transcript-Menü in der Menüleiste.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -736,8 +736,8 @@ public struct OnboardingView: View {
             if inputMonitoringGrantedDuringSession {
                 OnboardingNoticeBox(
                     style: .restart,
-                    text: "Die Eingabeüberwachung wurde gerade erst erlaubt. Starte Voicy einmal neu, damit der Hotkey funktioniert.",
-                    buttonTitle: "Voicy neu starten"
+                    text: "Die Eingabeüberwachung wurde gerade erst erlaubt. Starte Voice Transcript einmal neu, damit der Hotkey funktioniert.",
+                    buttonTitle: "Voice Transcript neu starten"
                 ) {
                     relaunchApp()
                 }
@@ -768,18 +768,18 @@ public struct OnboardingView: View {
 
     private var hotkeyCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("So benutzt du Voicy").font(.headline)
+            Text("So benutzt du Voice Transcript").font(.headline)
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 OnboardingKeycap(keys: "⌥")
-                Text("Rechte ⌥-Taste gedrückt halten — sprechen — loslassen: Voicy fügt den Text an der Cursor-Position ein.")
+                Text("Rechte ⌥-Taste gedrückt halten — sprechen — loslassen: Voice Transcript fügt den Text an der Cursor-Position ein.")
                     .font(.callout)
             }
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 OnboardingKeycap(keys: "⌥⌃")
-                Text("Rechte ⌥-Taste + ⌃ gedrückt halten: Voicy formuliert das Gesagte im aktiven Rewrite-Stil um.")
+                Text("Rechte ⌥-Taste + ⌃ gedrückt halten: Voice Transcript formuliert das Gesagte im aktiven Rewrite-Stil um.")
                     .font(.callout)
             }
-            Text("Den aktiven Stil und das Ollama-Modell wählst du im Voicy-Menü in der Menüleiste.")
+            Text("Den aktiven Stil und das Ollama-Modell wählst du im Voice Transcript-Menü in der Menüleiste.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

@@ -48,9 +48,17 @@ public final class AppCoordinator: ObservableObject {
     public func start() {
         guard !started else { return }
         started = true
+        hotkeyEngine.updateConfig(settings.hotkeyConfig)
         startHotkeyLoop()
         startOllamaPolling()
         prepareWhisperIfPossible()
+    }
+
+    /// Changes the push-to-talk trigger and applies it to the running engine.
+    public func setHotkeyPrimary(_ modifier: HotkeyModifier) {
+        settings.hotkeyPrimary = modifier.rawValue
+        settings.save()
+        hotkeyEngine.updateConfig(settings.hotkeyConfig)
     }
 
     /// Switches the Whisper model: persists the choice, unloads the current

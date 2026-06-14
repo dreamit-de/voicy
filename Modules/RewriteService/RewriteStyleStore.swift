@@ -111,10 +111,7 @@ public final class RewriteStyleStore: ObservableObject {
     // MARK: - Static helpers
 
     public static func defaultStoreURL() -> URL {
-        let base = FileManager.default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Voicy", isDirectory: true)
-        return base.appendingPathComponent("styles.json")
+        AppSupport.root().appendingPathComponent("styles.json")
     }
 
     public static func loadBundledFriendlyPrompt() -> String {

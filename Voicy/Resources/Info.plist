@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Voicy</string>
+	<string>Voice Transcript</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -23,9 +23,9 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Voicy fügt transkribierten Text in das aktive Eingabefeld ein.</string>
+	<string>Voice Transcript fügt transkribierten Text in das aktive Eingabefeld ein.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Voicy nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht.</string>
+	<string>Voice Transcript nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>

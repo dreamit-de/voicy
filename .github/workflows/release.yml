@@ -77,12 +77,12 @@ jobs:
       - name: Create DMG
         run: |
           create-dmg \
-            --volname "Voicy ${{ inputs.version }}" \
+            --volname "Voice Transcript ${{ inputs.version }}" \
             --window-size 600 400 \
             --icon-size 100 \
             --app-drop-link 450 185 \
-            "build/Voicy-${{ inputs.version }}.dmg" \
-            "build/Voicy/Voicy.app"
+            "build/VoiceTranscript-${{ inputs.version }}.dmg" \
+            "build/Voicy/Voice Transcript.app"
 
       - name: Notarize and staple
         env:
@@ -91,17 +91,17 @@ jobs:
           NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
         run: |
           xcrun notarytool submit \
-            "build/Voicy-${{ inputs.version }}.dmg" \
+            "build/VoiceTranscript-${{ inputs.version }}.dmg" \
             --apple-id "$NOTARY_APPLE_ID" \
             --team-id "$NOTARY_TEAM_ID" \
             --password "$NOTARY_PASSWORD" \
             --wait
-          xcrun stapler staple "build/Voicy-${{ inputs.version }}.dmg"
+          xcrun stapler staple "build/VoiceTranscript-${{ inputs.version }}.dmg"
 
       - name: Verify Gatekeeper acceptance
         run: |
-          xcrun stapler validate "build/Voicy-${{ inputs.version }}.dmg"
-          spctl --assess --type install --verbose "build/Voicy-${{ inputs.version }}.dmg" || true
+          xcrun stapler validate "build/VoiceTranscript-${{ inputs.version }}.dmg"
+          spctl --assess --type install --verbose "build/VoiceTranscript-${{ inputs.version }}.dmg" || true
 
       # TODO(Sparkle): When this notarized release path goes live, replicate the
       # appcast steps from internal-release.yml: download the Sparkle 2.9.3 tools,
@@ -112,7 +112,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ inputs.version }}
-          name: Voicy v${{ inputs.version }}
+          name: Voice Transcript v${{ inputs.version }}
           draft: true
-          files: build/Voicy-${{ inputs.version }}.dmg
+          files: build/VoiceTranscript-${{ inputs.version }}.dmg
           generate_release_notes: true

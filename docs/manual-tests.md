@@ -5,7 +5,7 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
 ## Voraussetzungen
 
 - macOS 14+ auf Apple Silicon
-- Voicy mit Mikrofon, Accessibility und Input Monitoring erlaubt
+- Voice Transcript mit Mikrofon, Accessibility und Input Monitoring erlaubt
 - Ollama läuft mit mindestens einem Modell (z.B. `ollama pull llama3.2:3b`)
 - Whisper-Modell `openai_whisper-small` heruntergeladen
 
@@ -44,7 +44,7 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
    - **Erwartet**: System-Notification "Rewrite nicht möglich"; das rohe Transkript wird stattdessen eingefügt. Normaler `⌥`-Pfad funktioniert weiterhin.
 
 7. **Permissions widerrufen**
-   - In Systemeinstellungen → Datenschutz → Input Monitoring den Voicy-Eintrag deaktivieren.
+   - In Systemeinstellungen → Datenschutz → Input Monitoring den Voice Transcript-Eintrag deaktivieren.
    - **Erwartet**: Menü zeigt rotes Banner "Berechtigungen unvollständig". Hotkeys reagieren nicht. Re-Aktivieren in Settings, ohne App-Neustart, → Hotkeys funktionieren wieder.
 
 8. **Schnelle Folge-Trigger**
@@ -56,13 +56,13 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
    - **Erwartet**: Hotkey reagiert weiter (CGEventTap automatisch reaktiviert).
 
 10. **Notarisiertes DMG auf cleanem Mac**
-    - DMG auf einem zweiten, nicht-entwickler Mac öffnen → Voicy in /Applications ziehen → starten.
+    - DMG auf einem zweiten, nicht-entwickler Mac öffnen → Voice Transcript in /Applications ziehen → starten.
     - **Erwartet**: Gatekeeper akzeptiert ohne "unidentified developer"-Warnung.
 
 11. **Onboarding — Happy Path mit Schritt-Validierung**
-    - Frische Installation simulieren: `defaults delete de.dreamit.voicy` (bzw. App-Container leeren), Voicy in Systemeinstellungen → Datenschutz aus Mikrofon/Eingabehilfe/Eingabeüberwachung entfernen, App starten.
+    - Frische Installation simulieren: `defaults delete de.dreamit.voicy` (bzw. App-Container leeren), Voice Transcript in Systemeinstellungen → Datenschutz aus Mikrofon/Eingabehilfe/Eingabeüberwachung entfernen, App starten.
     - Onboarding Schritt für Schritt durchlaufen und jede Berechtigung gewähren.
-    - **Erwartet**: Jeder Schritt validiert seinen Status live (Haken erscheint erst nach tatsächlich erteilter Berechtigung, ohne App-Neustart); "Weiter" ist erst aktiv, wenn der Schritt erfüllt ist; nach dem letzten Schritt ist Voicy sofort per Hotkey nutzbar.
+    - **Erwartet**: Jeder Schritt validiert seinen Status live (Haken erscheint erst nach tatsächlich erteilter Berechtigung, ohne App-Neustart); "Weiter" ist erst aktiv, wenn der Schritt erfüllt ist; nach dem letzten Schritt ist Voice Transcript sofort per Hotkey nutzbar.
 
 12. **Onboarding — Verweigern-Pfade**
     - Onboarding erneut frisch starten, diesmal: (a) Mikrofon im Systemdialog verweigern, (b) Eingabehilfe-Schritt überspringen/Systemeinstellungen ohne Aktivierung schließen, (c) Eingabeüberwachung verweigern.
@@ -71,7 +71,7 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
 13. **Sparkle-Update-Flow (alte Version → Auto-Update)**
     - Eine ältere internal-DMG (niedrigere Build-Nummer) installieren und starten; sicherstellen, dass `https://dreamit-de.github.io/voicy/appcast.xml` bereits die neuere Version listet.
     - Auf den automatischen Update-Check warten oder "Nach Updates suchen…" im Menü auslösen.
-    - **Erwartet**: Ein sichtbarer Update-Hinweis erscheint (Menübar-Hinweis bzw. Update-Dialog im Vordergrund — kein versteckter Hintergrund-Alert, obwohl Voicy eine LSUIElement-App ist). Nach Klick auf "Installieren" lädt Sparkle das Update, installiert es und startet die neue Version — ohne dass der Nutzer das DMG manuell herunterladen oder die Quarantäne entfernen muss. Versionsnummer im "Über"-Bereich entspricht danach dem neuen Release; die Release Notes im Dialog sind deutsch.
+    - **Erwartet**: Ein sichtbarer Update-Hinweis erscheint (Menübar-Hinweis bzw. Update-Dialog im Vordergrund — kein versteckter Hintergrund-Alert, obwohl Voice Transcript eine LSUIElement-App ist). Nach Klick auf "Installieren" lädt Sparkle das Update, installiert es und startet die neue Version — ohne dass der Nutzer das DMG manuell herunterladen oder die Quarantäne entfernen muss. Versionsnummer im "Über"-Bereich entspricht danach dem neuen Release; die Release Notes im Dialog sind deutsch.
 
 ## Performance-Ziele (M1)
 

@@ -5,7 +5,7 @@ import Sparkle
 
 /// Thin ObservableObject wrapper around Sparkle's `SPUStandardUpdaterController`.
 ///
-/// Voicy is a background app (`LSUIElement`), so scheduled update alerts would
+/// The app runs as a background agent (`LSUIElement`), so scheduled update alerts would
 /// be shown *behind* other windows by Sparkle's default presentation and easily
 /// go unnoticed. This service therefore implements Sparkle's "gentle reminders"
 /// (`SPUStandardUserDriverDelegate`): scheduled checks never pop UI on their

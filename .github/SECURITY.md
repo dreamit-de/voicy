@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest released version of Voicy receives security updates.
+Only the latest released version of Voice Transcript receives security updates.
 
 ## Reporting a vulnerability
 

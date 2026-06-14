@@ -37,13 +37,13 @@ targets:
     info:
       path: Voicy/Resources/Info.plist
       properties:
-        CFBundleName: Voicy
+        CFBundleName: Voice Transcript
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSUIElement: true
         LSMinimumSystemVersion: "14.0"
-        NSMicrophoneUsageDescription: "Voicy nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht."
-        NSAppleEventsUsageDescription: "Voicy fügt transkribierten Text in das aktive Eingabefeld ein."
+        NSMicrophoneUsageDescription: "Voice Transcript nutzt das Mikrofon, um deine Sprache lokal in Text umzuwandeln. Die Audiodaten verlassen dein Gerät nicht."
+        NSAppleEventsUsageDescription: "Voice Transcript fügt transkribierten Text in das aktive Eingabefeld ein."
         SUFeedURL: "https://dreamit-de.github.io/voicy/appcast.xml"
         SUEnableAutomaticChecks: true
         # EdDSA public key for Sparkle update verification — counterpart of
@@ -54,6 +54,14 @@ targets:
         SUPublicEDKey: "a/hF7gPPLDjaScuCBzorGg6O9qxWheOU8NbzK/vU0D8="
     settings:
       base:
+        # User-facing app name. The bundle identifier stays de.dreamit.voicy
+        # on purpose — it is the stable identity TCC permissions and Sparkle
+        # updates key on, so renaming it would reset both for existing users.
+        PRODUCT_NAME: Voice Transcript
+        # Keep the Swift module name decoupled from the spaced product name —
+        # avoids a "Voice_Transcript" module and keeps `@testable import Voicy`
+        # (and all internal identifiers) stable.
+        PRODUCT_MODULE_NAME: Voicy
         PRODUCT_BUNDLE_IDENTIFIER: de.dreamit.voicy
         CODE_SIGN_ENTITLEMENTS: Voicy/Resources/Voicy.entitlements
         CODE_SIGN_STYLE: Automatic
@@ -73,7 +81,7 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: "$(TEST_HOST)"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Voicy.app/Contents/MacOS/Voicy"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Voice Transcript.app/Contents/MacOS/Voice Transcript"
 schemes:
   Voicy:
     build:

@@ -140,7 +140,7 @@ jobs:
       - name: Verify Sparkle public key in built app
         run: |
           set -euo pipefail
-          APP_PATH=$(find build -name "Voicy.app" -maxdepth 10 -type d | head -1)
+          APP_PATH=$(find build -name "Voice Transcript.app" -maxdepth 10 -type d | head -1)
           EMBEDDED="$(plutil -extract SUPublicEDKey raw "$APP_PATH/Contents/Info.plist")"
           KEY_BYTES="$(printf '%s' "$EMBEDDED" | base64 -d 2>/dev/null | wc -c | tr -d ' ' || true)"
           if [ "$KEY_BYTES" != "32" ]; then
@@ -171,9 +171,9 @@ jobs:
       - name: Create DMG
         run: |
           set -euo pipefail
-          DMG_NAME="Voicy-${{ inputs.version }}-internal.dmg"
+          DMG_NAME="VoiceTranscript-${{ inputs.version }}-internal.dmg"
           create-dmg \
-            --volname "Voicy ${{ inputs.version }}" \
+            --volname "Voice Transcript ${{ inputs.version }}" \
             --window-size 600 400 \
             --icon-size 100 \
             --app-drop-link 450 185 \
@@ -244,7 +244,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
             <channel>
-              <title>Voicy</title>
+              <title>Voice Transcript</title>
               <item>
                 <title>Version ${VERSION}</title>
                 <pubDate>${PUB_DATE}</pubDate>
@@ -252,7 +252,7 @@ jobs:
                 <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
                 <description><![CDATA[
-                  <h2>Voicy ${VERSION}</h2>
+                  <h2>Voice Transcript ${VERSION}</h2>
                   ${SUMMARY}
                   <p><a href="${RELEASE_URL}">Alle Details in den Release Notes auf GitHub</a></p>
                 ]]></description>
@@ -271,7 +271,7 @@ jobs:
       - name: Upload DMG as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Voicy-${{ inputs.version }}-internal
+          name: VoiceTranscript-${{ inputs.version }}-internal
           path: build/${{ env.DMG_NAME }}
           retention-days: 30
 
@@ -279,17 +279,17 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ inputs.version }}-internal
-          name: "Voicy v${{ inputs.version }} — Internes Build"
+          name: "Voice Transcript v${{ inputs.version }} — Internes Build"
           prerelease: true
           draft: false
           files: build/${{ env.DMG_NAME }}
           body: |
-            ## Voicy v${{ inputs.version }} — Internes Build für dreamIT-Mitarbeiter
+            ## Voice Transcript v${{ inputs.version }} — Internes Build für dreamIT-Mitarbeiter
 
             > **Nur für interne Nutzung.** Dieses Build ist nicht notarisiert (kein Apple Developer-Zertifikat). Ausschließlich für dreamIT-Mitarbeiter bestimmt.
 
             ### Automatische Updates (Sparkle)
-            Ab v${{ inputs.version }} aktualisiert sich Voicy automatisch über Sparkle — zukünftige Versionen musst du nicht mehr manuell herunterladen.
+            Ab v${{ inputs.version }} aktualisiert sich Voice Transcript automatisch über Sparkle — zukünftige Versionen musst du nicht mehr manuell herunterladen.
             **Wichtig für Nutzer älterer Versionen (≤ 0.1.1):** Bitte EINMALIG dieses DMG manuell installieren (alte Versionen kennen den Update-Feed noch nicht). Danach kommen alle Updates automatisch.
 
             ### Systemvoraussetzungen
@@ -298,24 +298,24 @@ jobs:
 
             ### Installation
 
-            1. `Voicy-${{ inputs.version }}-internal.dmg` herunterladen
-            2. DMG öffnen → Voicy in den **Programme**-Ordner ziehen
+            1. `VoiceTranscript-${{ inputs.version }}-internal.dmg` herunterladen
+            2. DMG öffnen → Voice Transcript in den **Programme**-Ordner ziehen
 
             **Gatekeeper-Hinweis beim ersten Start** — da das Build nicht notarisiert ist, gibt macOS eine Warnung. Zwei Möglichkeiten:
 
             **Option A — Terminal (empfohlen):**
             ```bash
-            xattr -rd com.apple.quarantine /Applications/Voicy.app
+            xattr -rd com.apple.quarantine "/Applications/Voice Transcript.app"
             ```
-            Danach Voicy normal aus dem Programme-Ordner starten.
+            Danach Voice Transcript normal aus dem Programme-Ordner starten.
 
             **Option B — Finder:**
-            Rechtsklick auf `Voicy.app` → **Öffnen** → Im Dialog auf **Öffnen** klicken.
+            Rechtsklick auf `Voice Transcript.app` → **Öffnen** → Im Dialog auf **Öffnen** klicken.
 
             ### Berechtigungen beim ersten Start
-            Voicy benötigt folgende Berechtigungen — macOS fragt bei Bedarf automatisch:
+            Voice Transcript benötigt folgende Berechtigungen — macOS fragt bei Bedarf automatisch:
             - **Mikrofon** → für Sprachaufnahme
-            - **Eingabehilfe** (Accessibility) → für globales Tastaturkürzel: *Systemeinstellungen → Datenschutz & Sicherheit → Eingabehilfe → Voicy aktivieren*
+            - **Eingabehilfe** (Accessibility) → für globales Tastaturkürzel: *Systemeinstellungen → Datenschutz & Sicherheit → Eingabehilfe → Voice Transcript aktivieren*
             - **Eingabeüberwachung** (Input Monitoring) → für globalen Hotkey (ebenfalls in Systemeinstellungen)
 
             ### Benutzung
@@ -349,5 +349,5 @@ jobs:
             echo "appcast.xml unchanged — nothing to publish"
             exit 0
           fi
-          git commit -m "appcast: Voicy ${VERSION} (build ${BUILD_NUMBER})"
+          git commit -m "appcast: Voice Transcript ${VERSION} (build ${BUILD_NUMBER})"
           git push origin gh-pages

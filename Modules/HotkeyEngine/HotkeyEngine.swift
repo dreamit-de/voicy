@@ -4,8 +4,8 @@ import Foundation
 import os
 
 public enum HotkeyMode: Equatable, Sendable {
-    case normal     // Right-Option held alone
-    case rewrite    // Right-Option + Control held
+    case normal     // primary modifier held alone
+    case rewrite    // primary + rewrite modifier held
 }
 
 public enum HotkeyEvent: Equatable, Sendable {
@@ -17,9 +17,12 @@ public protocol HotkeyEngineProtocol: AnyObject, Sendable {
     var events: AsyncStream<HotkeyEvent> { get }
     func start() throws
     func stop()
+    /// Live-update the trigger configuration (e.g. from settings).
+    func updateConfig(_ config: HotkeyConfig)
 }
 
-/// Tracks Right-Option (alone or with Control) held globally via a CGEventTap.
+/// Tracks the configured push-to-talk modifier (alone or with the rewrite
+/// modifier) held globally via a CGEventTap.
 ///
 /// Why a tap and not `NSEvent.addGlobalMonitor`? Global monitors do not see modifier-only
 /// `flagsChanged` events when no other key is pressed; a session event tap does.
@@ -32,11 +35,24 @@ public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "HotkeyEngine")
 
     private var currentMode: HotkeyMode? = nil
+    // Read in the tap callback and written via updateConfig — both happen on
+    // the main run loop, so no synchronization is needed.
+    private var config: HotkeyConfig
 
-    public init() {
+    public init(config: HotkeyConfig = .default) {
+        self.config = config
         var continuation: AsyncStream<HotkeyEvent>.Continuation!
         self.events = AsyncStream { continuation = $0 }
         self.continuation = continuation
+    }
+
+    public func updateConfig(_ config: HotkeyConfig) {
+        self.config = config
+        // A held key under the old config should not stay "pressed" forever.
+        if let mode = currentMode {
+            continuation.yield(.released(mode))
+            currentMode = nil
+        }
     }
 
     deinit {
@@ -106,7 +122,7 @@ public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
         }
         guard type == .flagsChanged else { return }
 
-        let newMode = HotkeyEngine.mode(for: event.flags)
+        let newMode = HotkeyEngine.mode(for: event.flags, config: config)
 
         if newMode == currentMode { return }
 
@@ -119,25 +135,17 @@ public final class HotkeyEngine: HotkeyEngineProtocol, @unchecked Sendable {
         currentMode = newMode
     }
 
-    /// Derives the hotkey mode from modifier flags. Right-Option held alone is
-    /// `.normal`, Right-Option + Control is `.rewrite`, anything else is nil.
-    ///
-    /// CGEventFlags carries device-specific side bits in addition to the public
-    /// masks; the right-alt bit distinguishes Right- from Left-Option.
-    static func mode(for flags: CGEventFlags) -> HotkeyMode? {
-        let rightOptionDown = flags.contains(.maskAlternate)
-            && (flags.rawValue & UInt64(nxDeviceRAltKeyMask)) != 0
-        guard rightOptionDown else { return nil }
-        return flags.contains(.maskControl) ? .rewrite : .normal
+    /// Derives the hotkey mode from modifier flags for a given config. The
+    /// primary modifier held alone is `.normal`, primary + rewrite modifier is
+    /// `.rewrite`, anything else is nil. The primary honors its device side bit
+    /// (so e.g. only the *right* Option counts); the rewrite modifier matches
+    /// either side for forgiveness.
+    static func mode(for flags: CGEventFlags, config: HotkeyConfig) -> HotkeyMode? {
+        guard config.primary.isDown(in: flags) else { return nil }
+        return flags.contains(config.rewriteModifier.mask) ? .rewrite : .normal
     }
 }
 
 public enum HotkeyEngineError: Error, Sendable {
     case tapCreationFailed
 }
-
-/// `NX_DEVICERALTKEYMASK` from `<IOKit/hidsystem/IOLLEvent.h>` — not bridged
-/// into Swift, so we redefine it. NOT to be confused with `NX_CONTROLMASK`
-/// (0x040000): using that value here silently turns the Right-Option check
-/// into a Control check, making the normal mode unreachable.
-private let nxDeviceRAltKeyMask: UInt = 0x40

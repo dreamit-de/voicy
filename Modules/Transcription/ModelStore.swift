@@ -4,7 +4,7 @@ import os
 
 /// Manages on-disk Whisper model storage and downloads.
 ///
-/// Models live in `~/Library/Application Support/Voicy/Models/<variant>/`.
+/// Models live in `~/Library/Application Support/Voice Transcript/Models/<variant>/`.
 ///
 /// Concurrent `ensureModel` calls for the same variant (e.g. the coordinator's
 /// launch-time Whisper preparation and the onboarding model step) share a
@@ -28,9 +28,7 @@ public final class ModelStore: @unchecked Sendable {
     public init() {}
 
     public var modelsRoot: URL {
-        let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Voicy", isDirectory: true)
-            .appendingPathComponent("Models", isDirectory: true)
+        let base = AppSupport.root().appendingPathComponent("Models", isDirectory: true)
         try? fileManager.createDirectory(at: base, withIntermediateDirectories: true)
         return base
     }

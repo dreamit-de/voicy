@@ -55,7 +55,7 @@ struct MenuBarView: View {
                 .frame(width: 36, height: 36)
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text("Voicy").font(.title3.bold())
+                    Text("Voice Transcript").font(.title3.bold())
                     Text("by dreamIT")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -101,13 +101,13 @@ struct MenuBarView: View {
                 // Normal is always available, nothing to choose — render it as
                 // a plain info row, not as a card that begs to be clicked.
                 VStack(alignment: .leading, spacing: 6) {
-                    shortcutHeader(keys: ["⌥"], label: "Rechte Option-Taste halten und sprechen")
+                    shortcutHeader(keys: coordinator.settings.hotkeyConfig.normalSymbols, label: "\(coordinator.settings.hotkeyConfig.primary.displayName) halten und sprechen")
                     normalRow
                 }
                 // The rewrite styles ARE a choice — selectable cards in their
                 // own set-off container.
                 VStack(alignment: .leading, spacing: 6) {
-                    shortcutHeader(keys: ["⌥", "⌃"], label: "Zusätzlich Control — wähle den Stil:")
+                    shortcutHeader(keys: coordinator.settings.hotkeyConfig.rewriteSymbols, label: "Zusätzlich \(coordinator.settings.hotkeyConfig.rewriteModifier.displaySymbol) — wähle den Stil:")
                     if coordinator.settings.rewriteEnabled {
                         styleCard(
                             .friendlyRewrite,
@@ -122,7 +122,7 @@ struct MenuBarView: View {
                             description: "Eigene Vorgabe."
                         )
                     } else {
-                        Text("Rewrite ist deaktiviert — ⌥⌃ fügt den Text unverändert ein. Aktivieren: Einstellungen → Rewrite → Modell wählen.")
+                        Text("Rewrite ist deaktiviert — \(coordinator.settings.hotkeyConfig.rewriteSymbols.joined()) fügt den Text unverändert ein. Aktivieren: Einstellungen → Rewrite → Modell wählen.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -255,7 +255,7 @@ struct MenuBarView: View {
     }
 
     /// Shown after a rewrite (or connection test) failed. Dictation still
-    /// works — Voicy falls back to inserting the unmodified transcript — but
+    /// works — Voice Transcript falls back to inserting the unmodified transcript — but
     /// that fallback is silent, so make the broken rewrite path visible until
     /// a rewrite succeeds or the connection test passes.
     @ViewBuilder
@@ -396,7 +396,7 @@ struct MenuBarView: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Voicy v\(appVersion)")
+                Text("Voice Transcript v\(appVersion)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()

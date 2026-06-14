@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Changed
+- **Renamed the app to "Voice Transcript"** (product name, all user-facing text, DMG, docs). The bundle identifier stays `de.dreamit.voicy` and the Xcode target/scheme/Swift module stay `Voicy` on purpose — that technical identity is what TCC permissions and Sparkle updates key on, so changing it would reset both for existing users. The Application Support folder migrates from `Voicy` to `Voice Transcript` on first launch without re-downloading models.
+
+### Added
+- **Configurable push-to-talk shortcut** (Settings → Kurzbefehl): choose the trigger modifier (right Option = default, right Command/Control/Shift, or Fn). Only hold-friendly modifier keys are offered, each with a known-conflict hint (macOS exposes no API to enumerate registered global hotkeys, so these are curated notes). The rewrite trigger stays "primary + Control" (or "+ Option" when Control is the primary); the menu headers reflect the chosen keys.
 - Rewrite quality overhaul after measuring German output on-device: **Gemma 3 4B is the new recommended model** (better German phrasing and faithful speech acts than Qwen at the same ~1–2 s latency); Gemma 3 12B added as a best-quality option (~3–5 s). The rewrite temperature dropped to 0.3 for steadier, more faithful output, the system prompt forbids preambles and language mixing more firmly, and a safety net strips leftover acknowledgement preambles ("Ja, natürlich.", "Sure!") from model output.
 
 ### Added
@@ -16,7 +20,7 @@
 - Whisper model picker in Settings → Transkription: curated choice of Tiny/Base/Small/Large-v3-Turbo with honest size, speed, and quality expectations per model; switching downloads the model with live progress (also shown in the menu status) and reloads the engine through the usual retry/error path. Settings also state expected rewrite latency depending on the Ollama model.
 - Menu polish: transparent logo in the header (extracted motif, `docs/assets/voicy-logo-transparent.png`), more generous spacing, and crisper typography — banner titles and buttons moved up from 10 pt bold/small controls, which rendered blurry.
 - Menu regrouped by shortcut: a "⌥ halten" headline over the always-available Normal row (now a plain info row, not a clickable-looking card) and a set-off "⌥ ⌃ — wähle den Stil" group where the two rewrite styles are accent-tinted selectable cards.
-- Visible rewrite failure handling: when a rewrite fails (Voicy silently inserts the unmodified transcript as fallback), the menu now shows an orange banner with the error and a "Verbindung testen" button. The connection test runs a real minimal generate against the selected Ollama model — catching models that are listed by `/api/tags` but can no longer load (e.g. an outdated GGUF format after an Ollama update). The Ollama status dot turns orange in that state instead of pretending everything is fine.
+- Visible rewrite failure handling: when a rewrite fails (the app silently inserts the unmodified transcript as fallback), the menu now shows an orange banner with the error and a "Verbindung testen" button. The connection test runs a real minimal generate against the selected Ollama model — catching models that are listed by `/api/tags` but can no longer load (e.g. an outdated GGUF format after an Ollama update). The Ollama status dot turns orange in that state instead of pretending everything is fine.
 
 ### Fixed
 - Setup assistant resumes at the first unfulfilled step when reopened. Granting Input Monitoring makes macOS force-quit and reopen the app mid-assistant, so a successful setup could never reach the final step — after the relaunch it now lands one click away from finishing instead of restarting at "Willkommen".

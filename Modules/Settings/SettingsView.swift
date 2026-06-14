@@ -26,6 +26,8 @@ public struct SettingsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 generalSection
                 Divider()
+                shortcutSection
+                Divider()
                 transcriptionSection
                 Divider()
                 rewriteSection
@@ -40,6 +42,48 @@ public struct SettingsView: View {
     }
 
     // MARK: - Sections
+
+    private var shortcutSection: some View {
+        let config = coordinator.settings.hotkeyConfig
+        return section(title: "Kurzbefehl") {
+            Picker("Taste zum Diktieren", selection: Binding(
+                get: { config.primary },
+                set: { coordinator.setHotkeyPrimary($0) }
+            )) {
+                ForEach(HotkeyModifier.allCases, id: \.self) { mod in
+                    Text(mod.displayName).tag(mod)
+                }
+            }
+            // Resulting combos so the user sees both modes at a glance.
+            HStack(spacing: 12) {
+                comboLabel(title: "Diktieren", keys: config.normalSymbols)
+                comboLabel(title: "Umschreiben", keys: config.rewriteSymbols)
+            }
+            Text(config.primary.conflictHint)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Taste gedrückt halten, sprechen, loslassen. Eine Modifier-Taste, weil sie sich halten lässt, ohne Zeichen auszulösen.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func comboLabel(title: String, keys: [String]) -> some View {
+        HStack(spacing: 6) {
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            HStack(spacing: 3) {
+                ForEach(keys, id: \.self) { key in
+                    Text(key)
+                        .font(.callout.monospaced().weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.tertiary.opacity(0.3), in: RoundedRectangle(cornerRadius: 4))
+                }
+            }
+        }
+    }
 
     private var generalSection: some View {
         section(title: "Allgemein") {
@@ -156,7 +200,7 @@ public struct SettingsView: View {
                 }
                 .disabled(status.ollamaPullModel != nil)
                 if !coordinator.settings.rewriteEnabled {
-                    Text("⌥⌃ fügt den Text unverändert ein. Wähle ein Modell, um Rewrite zu aktivieren.")
+                    Text("\(coordinator.settings.hotkeyConfig.rewriteSymbols.joined()) fügt den Text unverändert ein. Wähle ein Modell, um Rewrite zu aktivieren.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -177,7 +221,7 @@ public struct SettingsView: View {
                     Text("Ollama nicht erreichbar (127.0.0.1:11434)")
                         .foregroundStyle(.secondary)
                 }
-                Text("Für Rewrite braucht Voicy die kostenlose App „Ollama“. Sobald sie läuft, kannst du hier ein Modell wählen.")
+                Text("Für Rewrite braucht Voice Transcript die kostenlose App „Ollama“. Sobald sie läuft, kannst du hier ein Modell wählen.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

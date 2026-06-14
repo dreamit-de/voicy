@@ -7,6 +7,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
     /// Rewrite is opt-in: false means the rewrite hotkey inserts the plain
     /// transcript and no Ollama model is auto-selected.
     public var rewriteEnabled: Bool
+    /// Raw value of the push-to-talk primary `HotkeyModifier`.
+    public var hotkeyPrimary: String
     public var autoLaunchAtLogin: Bool
     public var hasCompletedOnboarding: Bool
 
@@ -15,6 +17,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         whisperVariant: String,
         ollamaModel: String,
         rewriteEnabled: Bool = true,
+        hotkeyPrimary: String = HotkeyModifier.rightOption.rawValue,
         autoLaunchAtLogin: Bool,
         hasCompletedOnboarding: Bool = false
     ) {
@@ -22,8 +25,15 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.whisperVariant = whisperVariant
         self.ollamaModel = ollamaModel
         self.rewriteEnabled = rewriteEnabled
+        self.hotkeyPrimary = hotkeyPrimary
         self.autoLaunchAtLogin = autoLaunchAtLogin
         self.hasCompletedOnboarding = hasCompletedOnboarding
+    }
+
+    /// Typed view of the persisted hotkey configuration. Unknown/legacy raw
+    /// values fall back to the default trigger.
+    public var hotkeyConfig: HotkeyConfig {
+        HotkeyConfig(primary: HotkeyModifier(rawValue: hotkeyPrimary) ?? .rightOption)
     }
 
     public static let `default` = AppSettings(
@@ -39,6 +49,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case whisperVariant
         case ollamaModel
         case rewriteEnabled
+        case hotkeyPrimary
         case autoLaunchAtLogin
         case hasCompletedOnboarding
     }
@@ -61,6 +72,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
         ollamaModel = try container.decode(String.self, forKey: .ollamaModel)
         // Added after rewrite shipped always-on — existing users keep it on.
         rewriteEnabled = try container.decodeIfPresent(Bool.self, forKey: .rewriteEnabled) ?? true
+        // Added with configurable shortcuts — default to the right Option key.
+        hotkeyPrimary = try container.decodeIfPresent(String.self, forKey: .hotkeyPrimary)
+            ?? HotkeyModifier.rightOption.rawValue
         autoLaunchAtLogin = try container.decode(Bool.self, forKey: .autoLaunchAtLogin)
         hasCompletedOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedOnboarding) ?? true
     }
