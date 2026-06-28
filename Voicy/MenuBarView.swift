@@ -110,10 +110,10 @@ struct MenuBarView: View {
                     shortcutHeader(keys: coordinator.settings.hotkeyConfig.rewriteSymbols, label: "Zusätzlich \(coordinator.settings.hotkeyConfig.rewriteModifier.displaySymbol) — wähle den Stil:")
                     if coordinator.settings.rewriteEnabled {
                         styleCard(
-                            .friendlyRewrite,
-                            icon: "sparkles",
-                            title: "Friendly",
-                            description: "Höflich formuliert."
+                            .translateRewrite,
+                            icon: "character.bubble",
+                            title: "German → English",
+                            description: "Übersetzt Deutsch ins Englische."
                         )
                         styleCard(
                             .customRewrite,
@@ -459,23 +459,23 @@ struct MenuBarView: View {
 
     private enum ModeRow {
         case normal
-        case friendlyRewrite
+        case translateRewrite
         case customRewrite
     }
 
     private func isActive(_ mode: ModeRow) -> Bool {
         switch mode {
-        case .normal:           return false
-        case .friendlyRewrite:  return styleStore.activeStyleID == RewriteStyle.friendlyID
-        case .customRewrite:    return styleStore.activeStyleID == RewriteStyle.customSlotID
+        case .normal:            return false
+        case .translateRewrite:  return styleStore.activeStyleID == RewriteStyle.translateID
+        case .customRewrite:     return styleStore.activeStyleID == RewriteStyle.customSlotID
         }
     }
 
     private func select(_ mode: ModeRow) {
         switch mode {
         case .normal: break
-        case .friendlyRewrite: coordinator.setActiveStyle(RewriteStyle.friendlyID)
-        case .customRewrite:   coordinator.setActiveStyle(RewriteStyle.customSlotID)
+        case .translateRewrite: coordinator.setActiveStyle(RewriteStyle.translateID)
+        case .customRewrite:    coordinator.setActiveStyle(RewriteStyle.customSlotID)
         }
     }
 

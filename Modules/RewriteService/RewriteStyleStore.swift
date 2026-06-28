@@ -9,22 +9,22 @@ public final class RewriteStyleStore: ObservableObject {
 
     private let storeURL: URL
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "RewriteStyleStore")
-    private let builtinFriendlyPrompt: String
+    private let builtinTranslatePrompt: String
 
     public init(
         storeURL: URL? = nil,
-        builtinFriendlyPrompt: String = RewriteStyleStore.loadBundledFriendlyPrompt()
+        builtinTranslatePrompt: String = RewriteStyleStore.loadBundledTranslatePrompt()
     ) {
         let url = storeURL ?? RewriteStyleStore.defaultStoreURL()
         self.storeURL = url
-        self.builtinFriendlyPrompt = builtinFriendlyPrompt
-        self.activeStyleID = RewriteStyle.friendlyID
+        self.builtinTranslatePrompt = builtinTranslatePrompt
+        self.activeStyleID = RewriteStyle.translateID
 
         load()
     }
 
     public var activeStyle: RewriteStyle {
-        styles.first(where: { $0.id == activeStyleID }) ?? styles.first ?? RewriteStyle.defaultFriendly(prompt: builtinFriendlyPrompt)
+        styles.first(where: { $0.id == activeStyleID }) ?? styles.first ?? RewriteStyle.defaultTranslate(prompt: builtinTranslatePrompt)
     }
 
     public func setActive(_ id: UUID) {
@@ -65,18 +65,18 @@ public final class RewriteStyleStore: ObservableObject {
         guard let data = try? Data(contentsOf: storeURL),
               let persisted = try? JSONDecoder().decode(Persisted.self, from: data) else {
             self.styles = defaults
-            self.activeStyleID = RewriteStyle.friendlyID
+            self.activeStyleID = RewriteStyle.translateID
             persist()
             return
         }
 
-        // Always keep the built-in Friendly prompt in sync with the bundled file
+        // Always keep the built-in prompt in sync with the bundled file
         // (we never let users overwrite it on disk).
         var merged = persisted.styles
-        if let i = merged.firstIndex(where: { $0.id == RewriteStyle.friendlyID }) {
-            merged[i] = RewriteStyle.defaultFriendly(prompt: builtinFriendlyPrompt)
+        if let i = merged.firstIndex(where: { $0.id == RewriteStyle.translateID }) {
+            merged[i] = RewriteStyle.defaultTranslate(prompt: builtinTranslatePrompt)
         } else {
-            merged.insert(.defaultFriendly(prompt: builtinFriendlyPrompt), at: 0)
+            merged.insert(.defaultTranslate(prompt: builtinTranslatePrompt), at: 0)
         }
         if !merged.contains(where: { $0.id == RewriteStyle.customSlotID }) {
             merged.append(.defaultCustomSlot())
@@ -84,7 +84,7 @@ public final class RewriteStyleStore: ObservableObject {
         self.styles = merged
         self.activeStyleID = merged.contains(where: { $0.id == persisted.activeStyleID })
             ? persisted.activeStyleID
-            : RewriteStyle.friendlyID
+            : RewriteStyle.translateID
     }
 
     private func persist() {
@@ -103,7 +103,7 @@ public final class RewriteStyleStore: ObservableObject {
 
     private func defaultStyles() -> [RewriteStyle] {
         [
-            .defaultFriendly(prompt: builtinFriendlyPrompt),
+            .defaultTranslate(prompt: builtinTranslatePrompt),
             .defaultCustomSlot()
         ]
     }
@@ -114,14 +114,14 @@ public final class RewriteStyleStore: ObservableObject {
         AppSupport.root().appendingPathComponent("styles.json")
     }
 
-    public static func loadBundledFriendlyPrompt() -> String {
-        if let url = Bundle.main.url(forResource: "friendly", withExtension: "md"),
+    public static func loadBundledTranslatePrompt() -> String {
+        if let url = Bundle.main.url(forResource: "translate", withExtension: "md"),
            let data = try? Data(contentsOf: url),
            let text = String(data: data, encoding: .utf8) {
             return text
         }
         // Hardcoded fallback so unit tests and worst-case bundle issues still produce something usable.
-        return "You are a writing assistant. Rewrite the text to be friendlier while keeping its meaning and language. Reply with the rewritten text only."
+        return "You are a translation assistant. If the input is German, translate it into natural English; if it is already English, leave it essentially unchanged. Reply with the result text only."
     }
 }
 

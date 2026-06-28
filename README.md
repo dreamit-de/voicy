@@ -10,13 +10,13 @@ Drücke einen Hotkey, sprich, lass los — der transkribierte Text landet direkt
 
 - **Normal-Modus** (Trigger-Taste halten): Aufnahme → Whisper → Auto-Insert.
 - **Rewrite-Modus** (Trigger-Taste + `⌃` halten): Aufnahme → Whisper → lokales LLM (Ollama) → Auto-Insert. Der aktive Stil ist im Menü umschaltbar:
-  - **Friendly** — kuratierter Prompt, formuliert höflicher und glättet Füllwörter.
+  - **German → English** — kuratierter Prompt, übersetzt deutsches Diktat in flüssiges Englisch (englische Eingabe bleibt nahezu unverändert).
   - **Custom** — eigener System-Prompt (Name + Prompt jederzeit editierbar).
 - **Konfigurierbarer Kurzbefehl** — Push-to-Talk-Taste wählbar (rechte Wahltaste = Standard, rechte Befehls-/Control-/Umschalttaste oder Fn), jeweils mit Konflikt-Hinweis.
 - **Rewrite ist optional** — ohne gewähltes Modell (oder bewusst deaktiviert) fügt der Rewrite-Trigger den unveränderten Transkript-Text ein.
 - **Wählbare Modelle** für beide Stufen, inkl. In-App-Download mit Fortschritt:
   - Transkription: Tiny · Base · Small · Large v3 Turbo (Empfehlung für DE/EN).
-  - Rewrite: Gemma 3 4B (Empfehlung) · Gemma 3 12B · Qwen3 4B Instruct · Llama 3.2 3B.
+  - Rewrite: Qwen3 4B Instruct (Empfehlung, ~2–3 s, beste DE→EN-Übersetzung) · Gemma 3 4B (natürlichstes Deutsch für Custom) · Llama 3.2 3B (am schnellsten) · Gemma 3 12B (höchste Qualität, langsam).
 - **Geführtes Setup** mit Sprachauswahl und passender Modell-Empfehlung.
 - **Vollständig lokal**: Whisper (WhisperKit) auf der Apple Neural Engine, Ollama auf `127.0.0.1:11434`.
 - Funktioniert in jeder App: Browser, Slack, VS Code, Notion, Mail, Terminal.

@@ -6,7 +6,7 @@
 
 <!-- Check what behavior this touches. -->
 - [ ] Normal (Right-Option dictation)
-- [ ] Friendly (built-in rewrite)
+- [ ] German → English (built-in rewrite)
 - [ ] Custom (user-defined rewrite)
 - [ ] Settings / Onboarding
 - [ ] Build / CI / Release pipeline
