@@ -320,7 +320,7 @@ jobs:
 
             ### Benutzung
             - **Rechte ⌥ (Option) gedrückt halten** → Spracheingabe → bei Loslassen: Transkription + Einfügen
-            - **Rechte ⌥ + Control** → Mit aktivem Friendly/Custom-Modus: Umschreibung via Ollama
+            - **Rechte ⌥ + Control** → Mit aktivem German→English/Custom-Modus: Umschreibung via Ollama
             - Whisper-Modell wird beim ersten Start automatisch heruntergeladen (~150 MB)
 
             ### Feedback

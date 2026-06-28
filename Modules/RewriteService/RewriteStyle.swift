@@ -22,15 +22,18 @@ public struct RewriteStyle: Codable, Identifiable, Hashable, Sendable {
 }
 
 public extension RewriteStyle {
-    /// Stable ID for the built-in Friendly style so the active-style preference survives upgrades.
-    static let friendlyID = UUID(uuidString: "F12E0001-0000-0000-0000-000000000001")!
+    /// Stable ID for the built-in style so the active-style preference survives
+    /// upgrades. The UUID value is unchanged from the former "Friendly" style on
+    /// purpose: users who had the built-in active keep it active after the
+    /// upgrade — it just translates now instead of softening tone.
+    static let translateID = UUID(uuidString: "F12E0001-0000-0000-0000-000000000001")!
     /// Stable ID for the single MVP custom slot.
     static let customSlotID = UUID(uuidString: "C05702E0-0000-0000-0000-000000000001")!
 
-    static func defaultFriendly(prompt: String) -> RewriteStyle {
+    static func defaultTranslate(prompt: String) -> RewriteStyle {
         RewriteStyle(
-            id: Self.friendlyID,
-            name: "Friendly",
+            id: Self.translateID,
+            name: "German → English",
             systemPrompt: prompt,
             kind: .builtin
         )

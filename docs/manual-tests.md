@@ -22,10 +22,11 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
    - `⌥` rechts halten, deutschen Satz sprechen, loslassen.
    - **Erwartet**: Text erscheint im Slack-Eingabefeld (validiert Cmd-V-Pfad in Electron-/Web-Apps).
 
-3. **Friendly als aktiver Stil**
-   - Im Menü "Friendly" auswählen.
-   - `⌥` rechts + `⌃` halten, "kannst du das mal machen" sagen, loslassen.
-   - **Erwartet**: Eingefügter Text enthält Höflichkeitsformeln, z.B. "Könntest du das bitte machen?".
+3. **German → English als aktiver Stil**
+   - Im Menü "German → English" auswählen.
+   - `⌥` rechts + `⌃` halten, "kannst du mir die Zahlen bis Freitag schicken" sagen, loslassen.
+   - **Erwartet**: Eingefügter Text ist eine flüssige englische Übersetzung, z.B. "Can you send me the numbers by Friday?".
+   - Gegenprobe: einen englischen Satz sprechen → bleibt englisch, nur leicht geglättet.
 
 4. **Custom als aktiver Stil — Bullet-Liste**
    - Settings → Rewrite → Custom: Name "Bullets", Prompt "Antworte als kompakte Bullet-Liste auf Deutsch. Antworte nur mit der Liste.". Speichern.
@@ -77,4 +78,4 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
 
 - Hotkey-Down → erstes Audio-Sample: < 100 ms.
 - Hotkey-Up → Text eingefügt (5-Sekunden-Aufnahme, small-Modell): < 1.5 s.
-- Friendly-Mode-Overhead: < 2 s zusätzlich (llama3.2:3b).
+- Rewrite-Mode-Overhead (German → English): < 5 s zusätzlich; Default-Modell zielt auf ~1–2 s.

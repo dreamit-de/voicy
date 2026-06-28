@@ -1,0 +1,744 @@
+[
+  {
+    "model": "qwen3:4b-instruct",
+    "max_latency_s": 2.45,
+    "avg_latency_s": 1.86,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Anyway, just to say the meeting is being rescheduled to tomorrow at three o'clock.",
+        "wall_best_s": 1.79,
+        "wall_runs": [
+          2.21,
+          1.79
+        ],
+        "eval_count": 19,
+        "tok_per_s": 11.9
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the numbers from last quarter? I need them by Friday.",
+        "wall_best_s": 1.41,
+        "wall_runs": [
+          1.74,
+          1.41
+        ],
+        "eval_count": 18,
+        "tok_per_s": 14.9
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going pretty well, but we still have a problem with database performance, and that needs to be addressed next week.",
+        "wall_best_s": 2.18,
+        "wall_runs": [
+          3.21,
+          2.18
+        ],
+        "eval_count": 27,
+        "tok_per_s": 13.6
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just want to say the meeting is moved to 3 pm tomorrow.",
+        "wall_best_s": 1.43,
+        "wall_runs": [
+          1.72,
+          1.43
+        ],
+        "eval_count": 17,
+        "tok_per_s": 13.8
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Ich möchte nur kurz sagen, dass das Meeting morgen auf drei Uhr verschoben wird.",
+        "wall_best_s": 1.55,
+        "wall_runs": [
+          2.69,
+          1.55
+        ],
+        "eval_count": 20,
+        "tok_per_s": 14.3
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Kannst du mir bitte die Zahlen aus dem letzten Quartal schicken? Ich brauche sie bis Freitag.",
+        "wall_best_s": 2.2,
+        "wall_runs": [
+          2.44,
+          2.2
+        ],
+        "eval_count": 26,
+        "tok_per_s": 12.8
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft soweit gut, aber wir haben weiterhin ein Problem mit der Datenbankperformance, das wir nächste Woche angehen müssen.",
+        "wall_best_s": 2.45,
+        "wall_runs": [
+          3.04,
+          2.45
+        ],
+        "eval_count": 31,
+        "tok_per_s": 13.6
+      }
+    ]
+  },
+  {
+    "model": "gemma3:4b",
+    "max_latency_s": 3.65,
+    "avg_latency_s": 3.13,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also, I just wanted to say that the meeting is now postponed until three o'clock tomorrow.",
+        "wall_best_s": 3.42,
+        "wall_runs": [
+          3.42,
+          3.82
+        ],
+        "eval_count": 21,
+        "tok_per_s": 22.1
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the figures for last quarter I need them by Friday",
+        "wall_best_s": 3.19,
+        "wall_runs": [
+          3.41,
+          3.19
+        ],
+        "eval_count": 16,
+        "tok_per_s": 26.2
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "the project is going quite well, but we do have a problem with database performance and we need to address that next week",
+        "wall_best_s": 3.65,
+        "wall_runs": [
+          3.65,
+          4.18
+        ],
+        "eval_count": 25,
+        "tok_per_s": 17.2
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just wanted to say that the meeting is moved to three PM tomorrow.",
+        "wall_best_s": 3.12,
+        "wall_runs": [
+          3.4,
+          3.12
+        ],
+        "eval_count": 17,
+        "tok_per_s": 26.6
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wird morgen um 15:00 Uhr verschoben.",
+        "wall_best_s": 2.62,
+        "wall_runs": [
+          2.62,
+          4.54
+        ],
+        "eval_count": 16,
+        "tok_per_s": 10.7
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals, da ich diese bis Freitag benötige.",
+        "wall_best_s": 2.52,
+        "wall_runs": [
+          2.52,
+          2.85
+        ],
+        "eval_count": 20,
+        "tok_per_s": 15.4
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft derzeit gut, jedoch besteht weiterhin ein Problem mit der Datenbankperformance, welches wir nächste Woche adressieren werden.",
+        "wall_best_s": 3.37,
+        "wall_runs": [
+          3.41,
+          3.37
+        ],
+        "eval_count": 25,
+        "tok_per_s": 21.2
+      }
+    ]
+  },
+  {
+    "model": "llama3.2:3b",
+    "max_latency_s": 2.02,
+    "avg_latency_s": 1.24,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also I just wanted to say that the meeting will be postponed tomorrow to three o'clock.",
+        "wall_best_s": 1.08,
+        "wall_runs": [
+          2.87,
+          1.08
+        ],
+        "eval_count": 19,
+        "tok_per_s": 21.3
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the numbers from the last quarter up to Friday?",
+        "wall_best_s": 0.93,
+        "wall_runs": [
+          1.21,
+          0.93
+        ],
+        "eval_count": 16,
+        "tok_per_s": 22.5
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going well so far, but we have a bit of an issue with database performance and that needs to be addressed next week.",
+        "wall_best_s": 1.72,
+        "wall_runs": [
+          2.18,
+          1.72
+        ],
+        "eval_count": 29,
+        "tok_per_s": 19.2
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "The meeting has been rescheduled for 3pm tomorrow.",
+        "wall_best_s": 0.81,
+        "wall_runs": [
+          1.24,
+          0.81
+        ],
+        "eval_count": 13,
+        "tok_per_s": 21.7
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting ist morgen um 3 Uhr verschoben worden.",
+        "wall_best_s": 0.66,
+        "wall_runs": [
+          2.08,
+          0.66
+        ],
+        "eval_count": 15,
+        "tok_per_s": 31.9
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Könnte ich Ihnen bitte die Zahlen für das letzte Quartal bis Freitag des jeweiligen Monats zur Verfügung stellen?",
+        "wall_best_s": 1.48,
+        "wall_runs": [
+          1.48,
+          2.14
+        ],
+        "eval_count": 29,
+        "tok_per_s": 15.1
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft soweit ganz gut, aber wir haben noch ein Problem mit der Datenbankleistung, das müssen wir nächste Woche ansprechen.",
+        "wall_best_s": 2.02,
+        "wall_runs": [
+          2.02,
+          2.95
+        ],
+        "eval_count": 34,
+        "tok_per_s": 12.4
+      }
+    ]
+  },
+  {
+    "model": "qwen2.5:3b-instruct",
+    "max_latency_s": 1.84,
+    "avg_latency_s": 1.38,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also I wanted to just say that the meeting is now canceled and will be rescheduled for 3 PM.",
+        "wall_best_s": 1.57,
+        "wall_runs": [
+          1.66,
+          1.57
+        ],
+        "eval_count": 23,
+        "tok_per_s": 16.4
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Could you please send me the numbers from last quarter by Friday?",
+        "wall_best_s": 1.04,
+        "wall_runs": [
+          1.2,
+          1.04
+        ],
+        "eval_count": 14,
+        "tok_per_s": 15.9
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "the project is going well so far, but we still have a problem with database performance and we need to address that next week.",
+        "wall_best_s": 1.7,
+        "wall_runs": [
+          2.13,
+          1.7
+        ],
+        "eval_count": 27,
+        "tok_per_s": 17.6
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just wanted to say that the meeting is moved to 3 PM tomorrow.",
+        "wall_best_s": 1.22,
+        "wall_runs": [
+          1.22,
+          1.26
+        ],
+        "eval_count": 18,
+        "tok_per_s": 16.5
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also ich wollte nur kurz sagen, dass das Meeting morgen versetzt wird auf 15 Uhr.",
+        "wall_best_s": 1.08,
+        "wall_runs": [
+          2.3,
+          1.08
+        ],
+        "eval_count": 22,
+        "tok_per_s": 23.7
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Könntest du mir bitte die Zahlen vom letzten Quartal schicken? Ich brauche sie bis Freitag.",
+        "wall_best_s": 1.2,
+        "wall_runs": [
+          3.7,
+          1.2
+        ],
+        "eval_count": 26,
+        "tok_per_s": 28.6
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft so weit ganz gut, jedoch haben wir noch ein Problem mit der Datenbank-Performance und müssen diese nächste Woche angehen.",
+        "wall_best_s": 1.84,
+        "wall_runs": [
+          2.08,
+          1.84
+        ],
+        "eval_count": 30,
+        "tok_per_s": 18.6
+      }
+    ]
+  },
+  {
+    "model": "qwen2.5:7b-instruct",
+    "max_latency_s": 4.47,
+    "avg_latency_s": 3.39,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also, I just wanted to say that the meeting is postponed to three o'clock tomorrow.",
+        "wall_best_s": 2.88,
+        "wall_runs": [
+          5.03,
+          2.88
+        ],
+        "eval_count": 19,
+        "tok_per_s": 7.1
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "can you please send me the numbers from the last quarter? I need them by Friday.",
+        "wall_best_s": 2.47,
+        "wall_runs": [
+          3.21,
+          2.47
+        ],
+        "eval_count": 19,
+        "tok_per_s": 8.5
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going pretty well so far, but we still have a database performance issue that we need to address next week.",
+        "wall_best_s": 4.0,
+        "wall_runs": [
+          4.22,
+          4.0
+        ],
+        "eval_count": 26,
+        "tok_per_s": 7.0
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just wanted to say that the meeting is moved to three PM tomorrow.",
+        "wall_best_s": 2.54,
+        "wall_runs": [
+          2.73,
+          2.54
+        ],
+        "eval_count": 17,
+        "tok_per_s": 7.4
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wurde verschieben und findet morgen um 15:00 Uhr statt.",
+        "wall_best_s": 3.61,
+        "wall_runs": [
+          4.83,
+          3.61
+        ],
+        "eval_count": 21,
+        "tok_per_s": 6.2
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Könnten Sie mir bitte die Zahlen des letzten Quartals senden? Ich benötige sie bis Freitag.",
+        "wall_best_s": 3.77,
+        "wall_runs": [
+          3.77,
+          3.79
+        ],
+        "eval_count": 25,
+        "tok_per_s": 7.0
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft bisher gut, jedoch besteht noch ein Problem mit der Datenbankperformance, das wir in der nächsten Woche bearbeiten werden.",
+        "wall_best_s": 4.47,
+        "wall_runs": [
+          4.47,
+          5.47
+        ],
+        "eval_count": 29,
+        "tok_per_s": 5.5
+      }
+    ]
+  },
+  {
+    "model": "gemma3n:e4b",
+    "max_latency_s": 5.7,
+    "avg_latency_s": 4.46,
+    "under_5s": false,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "So, I just wanted to quickly say that the meeting is moved to three o'clock tomorrow.",
+        "wall_best_s": 5.58,
+        "wall_runs": [
+          5.8,
+          5.58
+        ],
+        "eval_count": 21,
+        "tok_per_s": 16.0
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Could you please send me the figures for last quarter? I need them by Friday.",
+        "wall_best_s": 5.2,
+        "wall_runs": [
+          5.2,
+          6.06
+        ],
+        "eval_count": 19,
+        "tok_per_s": 18.4
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going pretty well so far, but we still have a problem with the database performance, and we need to address that next week.",
+        "wall_best_s": 5.7,
+        "wall_runs": [
+          5.7,
+          8.48
+        ],
+        "eval_count": 30,
+        "tok_per_s": 7.2
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just wanted to say that the meeting is moved to three pm tomorrow.",
+        "wall_best_s": 4.64,
+        "wall_runs": [
+          5.54,
+          4.64
+        ],
+        "eval_count": 17,
+        "tok_per_s": 21.0
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting ist morgen um drei Uhr verschoben.",
+        "wall_best_s": 2.77,
+        "wall_runs": [
+          5.02,
+          2.77
+        ],
+        "eval_count": 11,
+        "tok_per_s": 22.9
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals bis Freitag.",
+        "wall_best_s": 3.17,
+        "wall_runs": [
+          3.17,
+          3.65
+        ],
+        "eval_count": 14,
+        "tok_per_s": 12.0
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt verläuft bisher gut, jedoch besteht weiterhin ein Problem mit der Datenbankperformance, das wir nächste Woche angehen müssen.",
+        "wall_best_s": 4.16,
+        "wall_runs": [
+          4.16,
+          4.78
+        ],
+        "eval_count": 26,
+        "tok_per_s": 18.4
+      }
+    ]
+  },
+  {
+    "model": "gemma3:12b",
+    "max_latency_s": 13.98,
+    "avg_latency_s": 11.43,
+    "under_5s": false,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "I just wanted to quickly say that the meeting will be postponed until tomorrow at three o’clock.",
+        "wall_best_s": 13.44,
+        "wall_runs": [
+          13.44,
+          14.26
+        ],
+        "eval_count": 21,
+        "tok_per_s": 3.8
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Could you please send me the figures from last quarter? I need them by Friday.",
+        "wall_best_s": 13.43,
+        "wall_runs": [
+          13.7,
+          13.43
+        ],
+        "eval_count": 18,
+        "tok_per_s": 3.3
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going well so far, but we still have a database performance issue that we need to address next week.",
+        "wall_best_s": 13.98,
+        "wall_runs": [
+          14.08,
+          13.98
+        ],
+        "eval_count": 25,
+        "tok_per_s": 3.7
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just wanted to say that the meeting is moved to 3 p.m. tomorrow.",
+        "wall_best_s": 12.34,
+        "wall_runs": [
+          16.07,
+          12.34
+        ],
+        "eval_count": 21,
+        "tok_per_s": 4.4
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting findet morgen um drei Uhr statt.",
+        "wall_best_s": 6.11,
+        "wall_runs": [
+          6.11,
+          7.19
+        ],
+        "eval_count": 10,
+        "tok_per_s": 5.9
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals bis Freitag.",
+        "wall_best_s": 7.39,
+        "wall_runs": [
+          7.39,
+          7.79
+        ],
+        "eval_count": 14,
+        "tok_per_s": 5.2
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt verläuft überwiegend planmäßig, jedoch besteht weiterhin eine Herausforderung hinsichtlich der Datenbankperformance, die nächste Woche adressiert werden muss.",
+        "wall_best_s": 13.3,
+        "wall_runs": [
+          13.3,
+          15.53
+        ],
+        "eval_count": 29,
+        "tok_per_s": 2.9
+      }
+    ]
+  }
+]
