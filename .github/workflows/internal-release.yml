@@ -42,7 +42,7 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Fail fast: Sparkle compares ONLY sparkle:version (the build number).
       # A build number that does not increase past the one already published
@@ -329,7 +329,7 @@ jobs:
       # Publish the appcast only AFTER the release (and its DMG asset) exists,
       # so the feed never points to a 404 enclosure URL.
       - name: Checkout gh-pages
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: gh-pages
