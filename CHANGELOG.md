@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Per-function rewrite model** (Settings → „Modell pro Funktion"): each rewrite style can run on its own Ollama model — e.g. a translation model for "German → English" and a different one for "Custom". The default per style is "Standard", which follows the globally selected model, so existing setups are unchanged; picking an uninstalled model downloads it on selection. The transcription model ("Normal") stays the single Whisper model in Settings → Transkription.
+
 ### Changed
 - **Built-in rewrite style is now "German → English" instead of "Friendly".** Holding the rewrite trigger with the built-in style active translates German dictation into fluent English (English input passes through with light cleanup) — more useful day-to-day than tone-softening. The style keeps its stable identifier, so anyone who had the built-in active stays on it after the upgrade; the editable Custom slot is unchanged. The default rewrite model and Ollama request options were re-tuned so a translation completes in well under 5 s (see `scripts/bench-rewrite.py` and `scripts/bench-transcription/` for the on-device measurements behind the choice).
 - **Renamed the app to "Voice Transcript"** (product name, all user-facing text, DMG, docs). The bundle identifier stays `de.dreamit.voicy` and the Xcode target/scheme/Swift module stay `Voicy` on purpose — that technical identity is what TCC permissions and Sparkle updates key on, so changing it would reset both for existing users. The Application Support folder migrates from `Voicy` to `Voice Transcript` on first launch without re-downloading models.

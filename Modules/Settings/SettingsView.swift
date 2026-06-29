@@ -8,6 +8,9 @@ public struct SettingsView: View {
     /// observe the status model directly so model-load progress and the
     /// Ollama state update live while settings are open.
     @ObservedObject private var status: StatusModel
+    /// Per-style model overrides live on the style store; observe it directly so
+    /// the per-function pickers refresh when a model is pinned or downloaded.
+    @ObservedObject private var styleStore: RewriteStyleStore
 
     @State private var languageSelection: String = "auto"
     @State private var customName: String = "Custom"
@@ -19,6 +22,7 @@ public struct SettingsView: View {
         self.coordinator = coordinator
         self.updater = updater
         self.status = coordinator.statusModel
+        self.styleStore = coordinator.styleStore
     }
 
     public var body: some View {
@@ -31,6 +35,10 @@ public struct SettingsView: View {
                 transcriptionSection
                 Divider()
                 rewriteSection
+                if status.ollamaReachable && coordinator.settings.rewriteEnabled {
+                    Divider()
+                    perStyleModelSection
+                }
                 Divider()
                 customStyleSection
                 Divider()
@@ -172,7 +180,7 @@ public struct SettingsView: View {
     private var rewriteSection: some View {
         section(title: "Rewrite") {
             if status.ollamaReachable {
-                Picker("Ollama-Modell", selection: Binding(
+                Picker("Standard-Modell", selection: Binding(
                     get: {
                         guard coordinator.settings.rewriteEnabled else { return Self.rewriteOffTag }
                         return status.ollamaPullModel ?? status.selectedOllamaModel
@@ -266,6 +274,64 @@ public struct SettingsView: View {
             }
             .font(.footnote)
             .foregroundStyle(.secondary)
+        }
+    }
+
+    /// Optional per-function model override: pin German → English and Custom to
+    /// their own model, or leave them on "Standard" (the global default above).
+    private var perStyleModelSection: some View {
+        section(title: "Modell pro Funktion") {
+            Text("Optional: gib einzelnen Stilen ein eigenes Modell. „Standard“ folgt dem oben gewählten Modell.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            if let translate = styleStore.styles.first(where: { $0.id == RewriteStyle.translateID }) {
+                styleModelPicker(title: "German → English", style: translate)
+            }
+            if let custom = styleStore.styles.first(where: { $0.id == RewriteStyle.customSlotID }) {
+                styleModelPicker(title: "Custom: \(custom.name)", style: custom)
+            }
+            ollamaPullStatusRow
+        }
+    }
+
+    @ViewBuilder
+    private func styleModelPicker(title: String, style: RewriteStyle) -> some View {
+        let globalName = OllamaModelCatalog.option(for: status.selectedOllamaModel)?.displayName
+            ?? (status.selectedOllamaModel.isEmpty ? "kein Modell" : status.selectedOllamaModel)
+        Picker(title, selection: Binding(
+            get: { style.model },
+            set: { selectStyleModel(style.id, $0) }
+        )) {
+            Text("Standard (\(globalName))").tag("")
+            ForEach(OllamaModelCatalog.options) { option in
+                let installed = status.ollamaModels.contains(option.tag)
+                Text("\(option.displayName)\(installed ? "" : " · Download")").tag(option.tag)
+            }
+            ForEach(status.ollamaModels.filter { OllamaModelCatalog.option(for: $0) == nil }, id: \.self) { model in
+                Text(model).tag(model)
+            }
+            // A pinned override that is neither curated nor currently installed.
+            if !style.model.isEmpty,
+               !status.ollamaModels.contains(style.model),
+               OllamaModelCatalog.option(for: style.model) == nil {
+                Text("\(style.model) (nicht installiert)").tag(style.model)
+            }
+        }
+        .disabled(status.ollamaPullModel != nil)
+    }
+
+    /// Mirrors `selectOrDownloadOllamaModel` but pins the choice to one style
+    /// instead of the global default. Empty tag clears the override.
+    private func selectStyleModel(_ id: UUID, _ tag: String) {
+        if tag.isEmpty {
+            coordinator.setStyleModel(id, "")
+        } else if status.ollamaModels.contains(tag) {
+            coordinator.setStyleModel(id, tag)
+        } else if OllamaModelCatalog.option(for: tag) != nil {
+            coordinator.downloadStyleModel(id, tag: tag)
+        } else {
+            coordinator.setStyleModel(id, tag)
         }
     }
 

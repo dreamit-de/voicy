@@ -71,10 +71,34 @@ public final class AppCoordinator: ObservableObject {
         retryWhisperPreparation()
     }
 
-    /// Downloads a curated Ollama model and selects it once installed.
-    /// While running, the menu's Ollama dot shows orange and settings show
-    /// live progress.
+    /// Downloads a curated Ollama model and selects it as the global default
+    /// once installed. While running, the menu's Ollama dot shows orange and
+    /// settings show live progress.
     public func downloadOllamaModel(_ tag: String) {
+        performOllamaPull(tag) { [weak self] installed in
+            self?.setOllamaModel(installed)
+        }
+    }
+
+    /// Downloads an Ollama model and pins it to a single rewrite style (the
+    /// per-function override), without touching the global default model.
+    public func downloadStyleModel(_ styleID: UUID, tag: String) {
+        performOllamaPull(tag) { [weak self] installed in
+            self?.styleStore.setModel(installed, for: styleID)
+            self?.statusModel.rewriteError = nil
+        }
+    }
+
+    /// Pins (or clears, with "") a per-style model override. Empty string makes
+    /// the style fall back to the global default model again.
+    public func setStyleModel(_ styleID: UUID, _ model: String) {
+        styleStore.setModel(model, for: styleID)
+        statusModel.rewriteError = nil
+    }
+
+    /// Shared pull machinery for both the global picker and per-style overrides.
+    /// `onInstalled` runs on the main actor after the model is confirmed on disk.
+    private func performOllamaPull(_ tag: String, onInstalled: @escaping @MainActor (String) -> Void) {
         guard statusModel.ollamaPullModel == nil else { return }
         statusModel.ollamaPullModel = tag
         statusModel.ollamaPullProgress = nil
@@ -92,7 +116,7 @@ public final class AppCoordinator: ObservableObject {
                     if !self.statusModel.ollamaModels.contains(tag) {
                         self.statusModel.ollamaModels.append(tag)
                     }
-                    self.setOllamaModel(tag)
+                    onInstalled(tag)
                 }
             } catch {
                 self.log.error("Ollama pull failed: \(error.localizedDescription, privacy: .public)")
@@ -192,22 +216,31 @@ public final class AppCoordinator: ObservableObject {
         switch mode {
         case .normal:
             outputText = text
-        case .rewrite where !settings.rewriteEnabled || settings.ollamaModel.isEmpty:
-            // Rewrite is opt-in; without a chosen model the hotkey degrades
-            // gracefully to plain dictation.
-            outputText = text
         case .rewrite:
-            statusModel.state = .rewriting
-            outputText = await rewrite(text)
+            let model = effectiveRewriteModel()
+            if !settings.rewriteEnabled || model.isEmpty {
+                // Rewrite is opt-in; without a resolvable model the hotkey
+                // degrades gracefully to plain dictation.
+                outputText = text
+            } else {
+                statusModel.state = .rewriting
+                outputText = await rewrite(text, model: model)
+            }
         }
 
         await inserter.insert(outputText)
         statusModel.state = .idle
     }
 
-    private func rewrite(_ text: String) async -> String {
+    /// The Ollama model the active style will actually use: its own pinned
+    /// model when set, otherwise the global default (`settings.ollamaModel`).
+    public func effectiveRewriteModel() -> String {
         let style = styleStore.activeStyle
-        let model = settings.ollamaModel
+        return style.model.isEmpty ? settings.ollamaModel : style.model
+    }
+
+    private func rewrite(_ text: String, model: String) async -> String {
+        let style = styleStore.activeStyle
         do {
             let rewritten = try await rewriter.rewrite(text, using: style, model: model)
             statusModel.rewriteError = nil
@@ -233,8 +266,9 @@ public final class AppCoordinator: ObservableObject {
         statusModel.rewriteTestRunning = true
         Task { [weak self] in
             guard let self else { return }
+            let model = self.effectiveRewriteModel()
             do {
-                try await self.rewriter.ping(model: self.settings.ollamaModel)
+                try await self.rewriter.ping(model: model)
                 await MainActor.run {
                     self.statusModel.rewriteError = nil
                     self.statusModel.rewriteTestRunning = false
