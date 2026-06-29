@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.9]
+
 ### Added
 - **Per-function rewrite model** (Settings → „Modell pro Funktion"): each rewrite style can run on its own Ollama model — e.g. a translation model for "German → English" and a different one for "Custom". The default per style is "Standard", which follows the globally selected model, so existing setups are unchanged; picking an uninstalled model downloads it on selection. The transcription model ("Normal") stays the single Whisper model in Settings → Transkription.
 
@@ -11,7 +13,7 @@
 
 ### Added
 - **Configurable push-to-talk shortcut** (Settings → Kurzbefehl): choose the trigger modifier (right Option = default, right Command/Control/Shift, or Fn). Only hold-friendly modifier keys are offered, each with a known-conflict hint (macOS exposes no API to enumerate registered global hotkeys, so these are curated notes). The rewrite trigger stays "primary + Control" (or "+ Option" when Control is the primary); the menu headers reflect the chosen keys.
-- Rewrite quality overhaul after measuring German output on-device: **Gemma 3 4B is the new recommended model** (better German phrasing and faithful speech acts than Qwen at the same ~1–2 s latency); Gemma 3 12B added as a best-quality option (~3–5 s). The rewrite temperature dropped to 0.3 for steadier, more faithful output, the system prompt forbids preambles and language mixing more firmly, and a safety net strips leftover acknowledgement preambles ("Ja, natürlich.", "Sure!") from model output.
+- Rewrite quality overhaul after measuring German output on-device: **Gemma 3 4B** became the recommended rewrite model at the time (better German phrasing and faithful speech acts than Qwen at the same ~1–2 s latency) — later superseded by **Qwen3 4B Instruct** for the German → English default (see the Changed entry above); Gemma 3 12B added as a best-quality option (~3–5 s). The rewrite temperature dropped to 0.3 for steadier, more faithful output, the system prompt forbids preambles and language mixing more firmly, and a safety net strips leftover acknowledgement preambles ("Ja, natürlich.", "Sure!") from model output.
 
 ### Added
 - Setup assistant asks for the primary dictation language via a single language selector (German default; English, Français, Español, Italiano, auto-detect) and recommends models accordingly: Large v3 Turbo for transcription plus — optionally — Qwen3 4B Instruct for rewrite. Both download in the model step with progress; a missing Ollama is a notice, not a blocker.

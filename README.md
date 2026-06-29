@@ -48,7 +48,7 @@ Interne Builds werden als DMG unter [Releases](https://github.com/dreamit-de/voi
 | Architektur | Apple Silicon (M1/M2/M3/M4) |
 | Xcode (für Build) | 16 oder neuer |
 | Tooling (für Build) | [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen` |
-| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com) — Modell z. B. via Setup oder `ollama pull gemma3:4b` |
+| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com) — das Setup lädt das empfohlene Modell automatisch (`qwen3:4b-instruct`); manuell: `ollama pull qwen3:4b-instruct` |
 
 Whisper- und Rewrite-Modelle lädt die App selbst herunter und legt sie unter `~/Library/Application Support/Voice Transcript/Models/` (Whisper) bzw. im Ollama-Cache ab. Nichts davon muss manuell installiert werden.
 
