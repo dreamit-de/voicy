@@ -3,21 +3,21 @@
   <channel>
     <title>Voice Transcript</title>
     <item>
-      <title>Version 0.2.8</title>
-      <pubDate>Mon, 29 Jun 2026 08:33:24 +0000</pubDate>
-      <sparkle:version>18</sparkle:version>
-      <sparkle:shortVersionString>0.2.8</sparkle:shortVersionString>
+      <title>Version 0.2.9</title>
+      <pubDate>Mon, 29 Jun 2026 09:08:09 +0000</pubDate>
+      <sparkle:version>19</sparkle:version>
+      <sparkle:shortVersionString>0.2.9</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <description><![CDATA[
-        <h2>Voice Transcript 0.2.8</h2>
-        <p><b>German → English</b> ersetzt den Stil „Friendly": deutsches Diktat wird ins Englische übersetzt, englische Eingabe bleibt nahezu unverändert. Schnelleres, treffsicheres Standard-Rewrite-Modell (Qwen3 4B Instruct, ~2–3 s). Der Custom-Stil bleibt unverändert.</p>
-        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.8-internal">Alle Details in den Release Notes auf GitHub</a></p>
+        <h2>Voice Transcript 0.2.9</h2>
+        <p><b>Modell pro Funktion</b>: „German → English“ und „Custom“ können jetzt je ein eigenes Ollama-Rewrite-Modell verwenden (Einstellungen → „Modell pro Funktion“). „Standard“ folgt weiterhin dem global gewählten Modell; ein nicht installiertes Modell wird bei Auswahl automatisch heruntergeladen. Die Transkription nutzt unverändert das einzelne Whisper-Modell.</p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.9-internal">Alle Details in den Release Notes auf GitHub</a></p>
       ]]></description>
       <enclosure
-        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.8-internal/VoiceTranscript-0.2.8-internal.dmg"
-        length="3980957"
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.9-internal/VoiceTranscript-0.2.9-internal.dmg"
+        length="3995018"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="bgXWEQPeMDH1JKQa3vt/9s1bigNaZ5ZwvsvZpoNJ4hodVBUFmu3G7T+3U6c9X3hz1jOe5EYfAI/j5M/WHc2ZBw==" />
+        sparkle:edSignature="TMbUki1WoFxJ96H90X9yF+hj0V1JM0yU9glwh/MFXaFMnJTbvTNaETL6PwChLpVMO2TWP/OfeacgYFWmNv0dBg==" />
     </item>
   </channel>
 </rss>
