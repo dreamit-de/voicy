@@ -48,7 +48,20 @@ public final class RewriteStyleStore: ObservableObject {
 
     public func resetCustom() {
         guard let index = styles.firstIndex(where: { $0.id == RewriteStyle.customSlotID }) else { return }
-        styles[index] = .defaultCustomSlot()
+        // Reset name + prompt but keep the chosen model — it is configured
+        // separately from the prompt and resetting it would surprise users.
+        let keptModel = styles[index].model
+        styles[index] = .defaultCustomSlot(model: keptModel)
+        persist()
+    }
+
+    /// Sets the preferred Ollama model for a style. Empty string = inherit the
+    /// global default (`AppSettings.ollamaModel`). Works for any style,
+    /// built-in or custom — the model is a user preference, not bundled content.
+    public func setModel(_ model: String, for id: UUID) {
+        guard let index = styles.firstIndex(where: { $0.id == id }) else { return }
+        guard styles[index].model != model else { return }
+        styles[index].model = model
         persist()
     }
 
@@ -74,7 +87,8 @@ public final class RewriteStyleStore: ObservableObject {
         // (we never let users overwrite it on disk).
         var merged = persisted.styles
         if let i = merged.firstIndex(where: { $0.id == RewriteStyle.translateID }) {
-            merged[i] = RewriteStyle.defaultTranslate(prompt: builtinTranslatePrompt)
+            // Re-sync the bundled prompt but keep the user's per-style model choice.
+            merged[i] = RewriteStyle.defaultTranslate(prompt: builtinTranslatePrompt, model: merged[i].model)
         } else {
             merged.insert(.defaultTranslate(prompt: builtinTranslatePrompt), at: 0)
         }

@@ -321,7 +321,7 @@ jobs:
             ### Benutzung
             - **Rechte ⌥ (Option) gedrückt halten** → Spracheingabe → bei Loslassen: Transkription + Einfügen
             - **Rechte ⌥ + Control** → Mit aktivem German→English/Custom-Modus: Umschreibung via Ollama
-            - Whisper-Modell wird beim ersten Start automatisch heruntergeladen (~150 MB)
+            - Whisper-Modell wird beim ersten Start automatisch heruntergeladen (Standard: Large v3 Turbo, ~600 MB; kleinere Modelle wählbar in den Einstellungen)
 
             ### Feedback
             Bugs und Rückmeldungen bitte als [GitHub Issue](../../issues/new) melden.

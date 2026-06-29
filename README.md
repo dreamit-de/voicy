@@ -17,6 +17,7 @@ Drücke einen Hotkey, sprich, lass los — der transkribierte Text landet direkt
 - **Wählbare Modelle** für beide Stufen, inkl. In-App-Download mit Fortschritt:
   - Transkription: Tiny · Base · Small · Large v3 Turbo (Empfehlung für DE/EN).
   - Rewrite: Qwen3 4B Instruct (Empfehlung, ~2–3 s, beste DE→EN-Übersetzung) · Gemma 3 4B (natürlichstes Deutsch für Custom) · Llama 3.2 3B (am schnellsten) · Gemma 3 12B (höchste Qualität, langsam).
+  - **Modell pro Funktion**: „German → English" und „Custom" können je ein eigenes Rewrite-Modell nutzen (Settings → „Modell pro Funktion"); „Standard" folgt dem global gewählten Modell.
 - **Geführtes Setup** mit Sprachauswahl und passender Modell-Empfehlung.
 - **Vollständig lokal**: Whisper (WhisperKit) auf der Apple Neural Engine, Ollama auf `127.0.0.1:11434`.
 - Funktioniert in jeder App: Browser, Slack, VS Code, Notion, Mail, Terminal.
@@ -47,7 +48,7 @@ Interne Builds werden als DMG unter [Releases](https://github.com/dreamit-de/voi
 | Architektur | Apple Silicon (M1/M2/M3/M4) |
 | Xcode (für Build) | 16 oder neuer |
 | Tooling (für Build) | [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen` |
-| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com) — Modell z. B. via Setup oder `ollama pull gemma3:4b` |
+| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com) — das Setup lädt das empfohlene Modell automatisch (`qwen3:4b-instruct`); manuell: `ollama pull qwen3:4b-instruct` |
 
 Whisper- und Rewrite-Modelle lädt die App selbst herunter und legt sie unter `~/Library/Application Support/Voice Transcript/Models/` (Whisper) bzw. im Ollama-Cache ab. Nichts davon muss manuell installiert werden.
 
