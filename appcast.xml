@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Voicy</title>
+    <title>Voice Transcript</title>
     <item>
-      <title>Version 0.2.7</title>
-      <pubDate>Sat, 13 Jun 2026 19:24:50 +0000</pubDate>
-      <sparkle:version>17</sparkle:version>
-      <sparkle:shortVersionString>0.2.7</sparkle:shortVersionString>
+      <title>Version 0.2.8</title>
+      <pubDate>Mon, 29 Jun 2026 08:33:24 +0000</pubDate>
+      <sparkle:version>18</sparkle:version>
+      <sparkle:shortVersionString>0.2.8</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <description><![CDATA[
-        <h2>Voicy 0.2.7</h2>
-        <p><h2>Voicy 0.2.7</h2><p><b>Besseres Umschreiben auf Deutsch:</b> Neue Empfehlung ist „Gemma 3 4B“ — natürlicheres, sinntreueres Deutsch bei gleichem Tempo (~1–2 s). Zusätzlich wählbar: „Gemma 3 12B“ für maximale Qualität. Die Umformulierung ist jetzt stabiler und erfindet keine Floskeln oder Vorreden mehr. Tipp: Nach dem Update in Einstellungen → Rewrite „Gemma 3 4B“ wählen — wird per Klick geladen.</p></p>
-        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.7-internal">Alle Details in den Release Notes auf GitHub</a></p>
+        <h2>Voice Transcript 0.2.8</h2>
+        <p><b>German → English</b> ersetzt den Stil „Friendly": deutsches Diktat wird ins Englische übersetzt, englische Eingabe bleibt nahezu unverändert. Schnelleres, treffsicheres Standard-Rewrite-Modell (Qwen3 4B Instruct, ~2–3 s). Der Custom-Stil bleibt unverändert.</p>
+        <p><a href="https://github.com/dreamit-de/voicy/releases/tag/v0.2.8-internal">Alle Details in den Release Notes auf GitHub</a></p>
       ]]></description>
       <enclosure
-        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.7-internal/Voicy-0.2.7-internal.dmg"
-        length="3966181"
+        url="https://github.com/dreamit-de/voicy/releases/download/v0.2.8-internal/VoiceTranscript-0.2.8-internal.dmg"
+        length="3980957"
         type="application/x-apple-diskimage"
-        sparkle:edSignature="JrvZDuRO4/CKus1QvjK+O/1QyPD9wevJJGHIXAef9yGr/8Pfx8r8ZWfBnuNu4zpz05AvbsvXsZtsQiDgEZOkDw==" />
+        sparkle:edSignature="bgXWEQPeMDH1JKQa3vt/9s1bigNaZ5ZwvsvZpoNJ4hodVBUFmu3G7T+3U6c9X3hz1jOe5EYfAI/j5M/WHc2ZBw==" />
     </item>
   </channel>
 </rss>
