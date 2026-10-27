@@ -2,13 +2,19 @@ import Foundation
 
 public struct AppSettings: Codable, Equatable, Sendable {
     public var language: String?            // BCP-47 like "de" or "en"; nil = auto-detect
-    public var whisperVariant: String       // e.g. "openai_whisper-small"
-    public var ollamaModel: String          // e.g. "qwen3:4b-instruct"
+    public var whisperVariant: String       // e.g. "openai_whisper-large-v3-v20240930_626MB"
+    public var ollamaModel: String          // e.g. "gemma4:e2b"
     /// Rewrite is opt-in: false means the rewrite hotkey inserts the plain
     /// transcript and no Ollama model is auto-selected.
     public var rewriteEnabled: Bool
     /// Raw value of the push-to-talk primary `HotkeyModifier`.
     public var hotkeyPrimary: String
+    /// Persistent CoreAudio UID of the chosen microphone; nil = follow the
+    /// macOS default input ("Systemstandard").
+    public var inputDeviceUID: String?
+    /// Display name of the chosen microphone, remembered so the UI can name
+    /// it while it is disconnected.
+    public var inputDeviceName: String?
     public var autoLaunchAtLogin: Bool
     public var hasCompletedOnboarding: Bool
 
@@ -18,6 +24,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         ollamaModel: String,
         rewriteEnabled: Bool = true,
         hotkeyPrimary: String = HotkeyModifier.rightOption.rawValue,
+        inputDeviceUID: String? = nil,
+        inputDeviceName: String? = nil,
         autoLaunchAtLogin: Bool,
         hasCompletedOnboarding: Bool = false
     ) {
@@ -26,6 +34,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.ollamaModel = ollamaModel
         self.rewriteEnabled = rewriteEnabled
         self.hotkeyPrimary = hotkeyPrimary
+        self.inputDeviceUID = inputDeviceUID
+        self.inputDeviceName = inputDeviceName
         self.autoLaunchAtLogin = autoLaunchAtLogin
         self.hasCompletedOnboarding = hasCompletedOnboarding
     }
@@ -50,6 +60,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
         case ollamaModel
         case rewriteEnabled
         case hotkeyPrimary
+        case inputDeviceUID
+        case inputDeviceName
         case autoLaunchAtLogin
         case hasCompletedOnboarding
     }
@@ -75,6 +87,9 @@ public struct AppSettings: Codable, Equatable, Sendable {
         // Added with configurable shortcuts — default to the right Option key.
         hotkeyPrimary = try container.decodeIfPresent(String.self, forKey: .hotkeyPrimary)
             ?? HotkeyModifier.rightOption.rawValue
+        // Added with microphone selection — absent means "Systemstandard".
+        inputDeviceUID = try container.decodeIfPresent(String.self, forKey: .inputDeviceUID)
+        inputDeviceName = try container.decodeIfPresent(String.self, forKey: .inputDeviceName)
         autoLaunchAtLogin = try container.decode(Bool.self, forKey: .autoLaunchAtLogin)
         hasCompletedOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedOnboarding) ?? true
     }

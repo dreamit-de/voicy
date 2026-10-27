@@ -4,7 +4,7 @@ import XCTest
 final class AppSettingsTests: XCTestCase {
     func test_default_hasSensibleValues() {
         let s = AppSettings.default
-        XCTAssertEqual(s.whisperVariant, "openai_whisper-small")
+        XCTAssertEqual(s.whisperVariant, WhisperEngine.defaultModel)
         XCTAssertNil(s.language)
         XCTAssertFalse(s.autoLaunchAtLogin)
         XCTAssertFalse(s.hasCompletedOnboarding)
@@ -43,6 +43,9 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertTrue(decoded.hasCompletedOnboarding)
         // Rewrite shipped always-on — payloads without the flag keep it on.
         XCTAssertTrue(decoded.rewriteEnabled)
+        // Microphone selection did not exist — follow the system default.
+        XCTAssertNil(decoded.inputDeviceUID)
+        XCTAssertNil(decoded.inputDeviceName)
     }
 
     func test_rewriteDisabled_roundtrips() throws {
@@ -54,6 +57,18 @@ final class AppSettingsTests: XCTestCase {
         let decoded = try JSONDecoder().decode(AppSettings.self, from: data)
         XCTAssertFalse(decoded.rewriteEnabled)
         XCTAssertEqual(decoded.ollamaModel, "")
+    }
+
+    func test_inputDevice_roundtrips() throws {
+        var s = AppSettings.default
+        XCTAssertNil(s.inputDeviceUID, "default must follow the macOS default input")
+        s.inputDeviceUID = "AppleUSBAudioEngine:Rode:NT-USB"
+        s.inputDeviceName = "NT-USB"
+
+        let data = try JSONEncoder().encode(s)
+        let decoded = try JSONDecoder().decode(AppSettings.self, from: data)
+        XCTAssertEqual(decoded.inputDeviceUID, "AppleUSBAudioEngine:Rode:NT-USB")
+        XCTAssertEqual(decoded.inputDeviceName, "NT-USB")
     }
 
     func test_encoding_includesOnboardingFlag() throws {

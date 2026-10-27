@@ -195,7 +195,8 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
         let models: [Model]
     }
 
-    private struct GenerateRequest: Encodable {
+    /// Internal (not private) so tests can check the encoded wire format.
+    struct GenerateRequest: Encodable {
         struct Options: Encodable {
             let temperature: Double
             var numPredict: Int? = nil
@@ -215,9 +216,14 @@ public final class OllamaClient: RewriteService, @unchecked Sendable {
         /// default unload would add several seconds of cold start to the
         /// first rewrite after every pause.
         var keepAlive: String = "60m"
+        /// Hybrid-thinking models (gemma4, qwen3.5, granite4.2, …) would
+        /// otherwise reason for seconds before answering. Ollama ignores the
+        /// flag for models without a thinking mode (verified with every
+        /// catalog model on Ollama 0.40.9, 2026-10-27).
+        var think: Bool = false
 
         enum CodingKeys: String, CodingKey {
-            case model, prompt, system, stream, options
+            case model, prompt, system, stream, options, think
             case keepAlive = "keep_alive"
         }
     }
@@ -238,7 +244,13 @@ public enum OllamaError: LocalizedError, Sendable {
         case .httpStatus(let code): return "Ollama responded with HTTP \(code)."
         case .modelNotSelected: return "No Ollama model selected. Open Settings → Rewrite to choose one."
         case .emptySystemPrompt: return "The selected style has no system prompt."
-        case .pullFailed(let message): return "Modell-Download fehlgeschlagen: \(message)"
+        case .pullFailed(let message):
+            // Ollama rejects models its runtime cannot load yet ("… requires a
+            // newer version of Ollama") — e.g. gemma4 before Ollama 0.20.0.
+            if message.localizedCaseInsensitiveContains("newer version") {
+                return "Modell-Download fehlgeschlagen: Dieses Modell braucht eine neuere Ollama-Version — bitte Ollama aktualisieren (ollama.com/download)."
+            }
+            return "Modell-Download fehlgeschlagen: \(message)"
         }
     }
 }

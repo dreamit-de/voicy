@@ -74,6 +74,13 @@ Wir können WhisperKit, CGEventTap-Eingaben und Pasteboard-Insertion nicht in CI
     - Auf den automatischen Update-Check warten oder "Nach Updates suchen…" im Menü auslösen.
     - **Erwartet**: Ein sichtbarer Update-Hinweis erscheint (Menübar-Hinweis bzw. Update-Dialog im Vordergrund — kein versteckter Hintergrund-Alert, obwohl Voice Transcript eine LSUIElement-App ist). Nach Klick auf "Installieren" lädt Sparkle das Update, installiert es und startet die neue Version — ohne dass der Nutzer das DMG manuell herunterladen oder die Quarantäne entfernen muss. Versionsnummer im "Über"-Bereich entspricht danach dem neuen Release; die Release Notes im Dialog sind deutsch.
 
+14. **Mikrofon-Auswahl und Fallback**
+    - Zweites Eingabegerät anschließen (USB-Mikrofon oder AirPods). Menü öffnen: Die Zeile „Mikrofon: …" nennt das aktuelle Gerät; das neue Gerät erscheint ohne App-Neustart in der Liste (Menü und Einstellungen → Mikrofon).
+    - (a) „Systemstandard" gewählt: In Systemeinstellungen → Ton → Eingabe das Gerät wechseln, dann diktieren. **Erwartet**: Die Aufnahme kommt vom neuen Standardgerät; im Log (`log stream --predicate 'subsystem == "de.dreamit.voicy"'`) steht bei „AudioRecorder started" dessen Name und UID.
+    - (b) Im Menü das eingebaute Mikrofon fest wählen, danach AirPods verbinden (macOS macht sie zum Standard) und diktieren. **Erwartet**: Es wird weiter über das eingebaute Mikrofon aufgenommen (Log nennt es, AirPods bleiben in hoher Wiedergabequalität).
+    - (c) Das USB-Mikrofon fest wählen und abziehen. **Erwartet**: Die Menüzeile wird orange („… nicht verbunden — nutze …"), die Einstellungen zeigen den Hinweis, das Diktat funktioniert über den Systemstandard (Log: `fallback=true`). Wieder anschließen: Die Zeile wird normal, die nächste Aufnahme nutzt wieder das USB-Mikrofon.
+    - (d) Während einer laufenden Aufnahme das Gerät abziehen. **Erwartet**: Kein Absturz; die bis dahin aufgenommene Audiospur wird transkribiert; die nächste Aufnahme funktioniert normal.
+
 ## Performance-Ziele (M1)
 
 - Hotkey-Down → erstes Audio-Sample: < 100 ms.

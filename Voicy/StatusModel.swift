@@ -44,6 +44,10 @@ public final class StatusModel: ObservableObject {
     @Published public var ollamaPullModel: String? = nil
     @Published public var ollamaPullProgress: Double? = nil
     @Published public var lastError: String? = nil
+    /// Connected capture devices and the macOS default input, kept live by
+    /// `AudioDeviceMonitor` (connect/disconnect, default-input switches).
+    @Published public var inputDevices: [AudioInputDevice] = []
+    @Published public var systemDefaultInputUID: String? = nil
 
     public init() {}
 

@@ -19,11 +19,17 @@ settings:
     ONLY_ACTIVE_ARCH: NO
 packages:
   WhisperKit:
-    url: https://github.com/argmaxinc/WhisperKit
-    from: "0.9.0"
+    # Repo was renamed WhisperKit -> argmax-oss-swift; the product is still
+    # "WhisperKit". 1.x drops swift-transformers/swift-crypto/yyjson from the
+    # graph (closes GHSA-8q93-f6xh-4f6f, GHSA-jwv7-rv4f-rff2, GHSA-f4vc-345x-4mvm).
+    url: https://github.com/argmaxinc/argmax-oss-swift
+    from: "1.1.1"
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
-    from: "2.6.0"
+    # >= 2.9.6 required (GHSA-3x7w-j75x-ppq5, GHSA-4v99-qgq9-6pxp,
+    # GHSA-gmj2-gq3j-vqmj). Keep in sync with the sign_update tools version in
+    # .github/workflows/internal-release.yml.
+    from: "2.10.1"
 targets:
   Voicy:
     type: application

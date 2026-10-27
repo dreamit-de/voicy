@@ -13,7 +13,9 @@ public struct WhisperModelOption: Identifiable, Equatable, Sendable {
 }
 
 /// Curated subset of WhisperKit's CoreML models. Sizes are the actual
-/// download volumes from huggingface.co (checked 2026-06-12).
+/// download volumes from huggingface.co (checked 2026-06-12). The onboarding
+/// default (Large v3 Turbo, `_626MB`) was re-validated on 2026-10-27: no
+/// other large-v3 build transcribed more accurately (see scripts/bench-results/).
 public enum WhisperModelCatalog {
     public static let options: [WhisperModelOption] = [
         WhisperModelOption(
@@ -30,15 +32,15 @@ public enum WhisperModelCatalog {
         ),
         WhisperModelOption(
             variant: "openai_whisper-small",
-            displayName: "Small (Standard)",
+            displayName: "Small",
             downloadSize: "463 MB",
             expectation: "Guter Kompromiss: ein Satz ist in etwa einer Sekunde transkribiert, Deutsch wird zuverlässig erkannt."
         ),
         WhisperModelOption(
             variant: "openai_whisper-large-v3-v20240930_626MB",
-            displayName: "Large v3 Turbo",
+            displayName: "Large v3 Turbo (Standard)",
             downloadSize: "597 MB",
-            expectation: "Beste Erkennung, auch bei Dialekt, Namen und Fachsprache. Transkription dauert etwas länger als Small (~2–3 s pro Satz) und braucht mehr Arbeitsspeicher."
+            expectation: "Beste Erkennung, auch bei Dialekt, Namen und Fachsprache. Transkription dauert etwas länger als Small (~1 s pro Satz auf M4) und braucht mehr Arbeitsspeicher."
         ),
     ]
 

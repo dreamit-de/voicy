@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+- **Microphone selection** (Settings → Mikrofon, plus quick switching in the menu): record from "Systemstandard" (follows the macOS default input, the default) or pin a specific device, stored by its persistent CoreAudio UID. The menu always names the microphone the next recording will use. If the pinned device is disconnected, recording falls back to the system default and the menu and settings say so in orange instead of switching silently. The device list updates live when devices connect or disconnect or the macOS default input changes.
+
+### Changed
+- **New default rewrite model: Gemma 4 E2B (`gemma4:e2b`)** instead of Qwen3 4B Instruct, after re-running the model benchmarks on 2026-10-27 (Apple M4, Ollama 0.40.9, see `scripts/bench-results/`). It was the only candidate without faithfulness faults on all German → English cases, gave the same output on every repeat run and was the fastest (≤ 0.76 s). The catch is a larger download (7.5 GB vs. 2.5 GB). This only changes what the setup assistant picks for new setups; existing users keep their saved model. Qwen3 4B Instruct keeps the best German output, so the setup assistant now also pulls it as a second model (2.5 GB, after the default, continuing in the background after setup) and pins it to the Custom style under „Modell pro Funktion" — unless the user already chose a model for Custom. The Settings catalog copy now reflects the new measurements.
+- Rewrite requests send `think: false`, so hybrid-thinking models (Gemma 4, Qwen 3.5, Granite 4.2, …) answer directly instead of reasoning for seconds first. Models without a thinking mode ignore the flag.
+- The transcription default stays Large v3 Turbo (`openai_whisper-large-v3-v20240930_626MB`): on the extended benchmark no other large-v3 build was more accurate. The built-in fallback (`WhisperEngine.defaultModel`, used when no variant is configured) moves from Small (7 % German WER) to the same Large v3 Turbo build, and the Settings label „(Standard)" moves with it. Saved settings keep their variant.
+
+### Fixed
+- **Recording from the wrong microphone.** The recorder kept one long-lived audio engine that stayed on the input device it saw first and did not reliably follow later default-device changes (e.g. AirPods or an iPhone Continuity mic connecting). Every recording now builds a fresh engine, binds it explicitly to the resolved device and builds the resampler from that device's actual format; the device used is logged at recording start (name and UID only). After a failed recording start, the next hotkey press tries again instead of being ignored until the app restarts.
+
+### Security
+- **WhisperKit 0.18.0 → 1.1.1** (repo renamed to `argmaxinc/argmax-oss-swift`, product still `WhisperKit`). The old `from: 0.9.0` constraint capped WhisperKit below 1.0, which kept swift-transformers in the graph and with it vulnerable transitive pins: swift-crypto 4.5.0 (GHSA-8q93-f6xh-4f6f critical, GHSA-jwv7-rv4f-rff2 high) and yyjson 0.12.0 (GHSA-f4vc-345x-4mvm, which parses tokenizer JSON downloaded from Hugging Face). 1.x vendors the tokenizer code, so the app graph is now just argmax-oss-swift, swift-argument-parser and Sparkle. No app code changes were needed; existing models and tokenizers on disk are reused without re-downloading. The bench harness in `scripts/bench-transcription/` follows the same version.
+- **Sparkle floor raised from 2.6.0 to 2.10.1** (resolved: 2.9.3 → 2.10.1), so builds can no longer resolve versions affected by GHSA-3x7w-j75x-ppq5, GHSA-4v99-qgq9-6pxp, GHSA-gmj2-gq3j-vqmj or the older signing-check advisories. The `sign_update` tools in the internal release workflow move to 2.10.1 too, and the tarball is now verified against a pinned SHA-256 before it runs next to the signing key. The update key is unchanged.
+
 ## [0.2.9]
 
 ### Added

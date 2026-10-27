@@ -30,6 +30,9 @@ public struct OnboardingView: View {
     @State private var inputMonitoringGrantedAtLaunch: Bool?
     @State private var modelState: ModelDownloadState = .idle
     @State private var modelDownloadTask: Task<Void, Never>?
+    /// The Custom-style pull is attempted once per setup run, so a failed
+    /// download does not re-trigger itself via `onChange(of: ollamaPullModel)`.
+    @State private var customPullAttempted = false
 
     public init(coordinator: AppCoordinator) {
         self.coordinator = coordinator
@@ -38,8 +41,9 @@ public struct OnboardingView: View {
     }
 
     /// Recommended models for the supported primary languages (de/en).
-    static let recommendedWhisperVariant = "openai_whisper-large-v3-v20240930_626MB"
+    static let recommendedWhisperVariant = WhisperEngine.defaultModel
     static let recommendedOllamaModel = OllamaModelCatalog.recommendedTag
+    static let recommendedCustomModel = OllamaModelCatalog.recommendedCustomTag
 
     /// Selectable dictation languages. German is the default; de/en are
     /// first-class (get the Large-v3-Turbo recommendation), the rest fall
@@ -253,8 +257,9 @@ public struct OnboardingView: View {
             guard coordinator.settings.rewriteEnabled,
                   !coordinator.settings.ollamaModel.isEmpty,
                   status.ollamaReachable else { return true }
-            return status.ollamaPullModel == nil
-                && status.ollamaModels.contains(coordinator.settings.ollamaModel)
+            // Only the default model blocks; the second (Custom) model keeps
+            // downloading in the background after setup.
+            return status.ollamaModels.contains(coordinator.settings.ollamaModel)
         }
     }
 
@@ -356,7 +361,7 @@ public struct OnboardingView: View {
             )) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Rewrite aktivieren (empfohlen)")
-                    Text("Der eingebaute Stil übersetzt deutsches Diktat ins Englische (englische Eingabe bleibt nahezu unverändert). Modell: Qwen3 4B Instruct (2,5 GB, ~2–3 s pro Rewrite) — benötigt Ollama. Ohne Rewrite fügt ⌥⌃ den Text unverändert ein; aktivierbar bleibt es jederzeit in den Einstellungen.")
+                    Text("Der eingebaute Stil übersetzt deutsches Diktat ins Englische (englische Eingabe bleibt nahezu unverändert). Modell: Gemma 4 E2B (7,5 GB, ~1 s pro Rewrite); für deutsche Custom-Rewrites zusätzlich Qwen3 4B Instruct (2,5 GB) — benötigt Ollama 0.20 oder neuer. Ohne Rewrite fügt ⌥⌃ den Text unverändert ein; aktivierbar bleibt es jederzeit in den Einstellungen.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -600,6 +605,16 @@ public struct OnboardingView: View {
         .onChange(of: status.ollamaReachable) { _, reachable in
             if reachable, modelState == .installed { startOllamaPullIfNeeded() }
         }
+        // One pull at a time: when the default model finishes, queue the
+        // Custom model.
+        // Only once the default is installed — a failed default pull must not
+        // restart itself in a loop.
+        .onChange(of: status.ollamaPullModel) { _, pulling in
+            if pulling == nil, modelState == .installed,
+               status.ollamaModels.contains(coordinator.settings.ollamaModel) {
+                startOllamaPullIfNeeded()
+            }
+        }
     }
 
     /// Optional rewrite model: pulled via the local Ollama server. Missing
@@ -612,7 +627,7 @@ public struct OnboardingView: View {
             if !status.ollamaReachable {
                 OnboardingNoticeBox(
                     style: .info,
-                    text: "Für Rewrite braucht Voice Transcript die kostenlose App „Ollama“ — sie wurde nicht gefunden. Sobald Ollama läuft, lädt Voice Transcript das Rewrite-Modell automatisch; das Menü erinnert dich auch später daran.",
+                    text: "Für Rewrite braucht Voice Transcript die kostenlose App „Ollama“ (Version 0.20 oder neuer) — sie wurde nicht gefunden. Sobald Ollama läuft, lädt Voice Transcript das Rewrite-Modell automatisch; das Menü erinnert dich auch später daran.",
                     buttonTitle: "ollama.com öffnen"
                 ) {
                     if let url = URL(string: "https://ollama.com/download") {
@@ -638,17 +653,52 @@ public struct OnboardingView: View {
             } else {
                 OnboardingStatusCard(title: "Rewrite: \(tag)", badge: .pending)
             }
+            let customTag = Self.recommendedCustomModel
+            let customModel = coordinator.styleStore.styles
+                .first(where: { $0.id == RewriteStyle.customSlotID })?.model ?? ""
+            if status.ollamaReachable, customTag != tag,
+               customModel.isEmpty || customModel == customTag {
+                let customReady = status.ollamaModels.contains(customTag)
+                OnboardingStatusCard(
+                    title: "Custom-Stil: \(customTag)",
+                    badge: customReady ? .installed : .pending
+                )
+                if status.ollamaPullModel == customTag, let fraction = status.ollamaPullProgress {
+                    ProgressView(value: fraction)
+                        .frame(maxWidth: .infinity)
+                    Text("Lade Custom-Modell … \(Int((fraction * 100).rounded())) % — läuft nach dem Setup weiter.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 
+    /// Pulls the default rewrite model first, then the Custom-style model
+    /// (Ollama handles one pull at a time; `onChange(of: ollamaPullModel)`
+    /// re-enters here once the first finishes).
     private func startOllamaPullIfNeeded() {
         guard coordinator.settings.rewriteEnabled else { return }
         let tag = coordinator.settings.ollamaModel
         guard !tag.isEmpty,
               status.ollamaReachable,
-              !status.ollamaModels.contains(tag),
               status.ollamaPullModel == nil else { return }
-        coordinator.downloadOllamaModel(tag)
+        if !status.ollamaModels.contains(tag) {
+            coordinator.downloadOllamaModel(tag)
+            return
+        }
+        // Pin the Custom style only if the user has not chosen a model for it.
+        guard !customPullAttempted,
+              let custom = coordinator.styleStore.styles.first(where: { $0.id == RewriteStyle.customSlotID }),
+              custom.model.isEmpty else { return }
+        let customTag = Self.recommendedCustomModel
+        guard customTag != tag else { return }
+        customPullAttempted = true
+        if status.ollamaModels.contains(customTag) {
+            coordinator.setStyleModel(RewriteStyle.customSlotID, customTag)
+        } else {
+            coordinator.downloadStyleModel(RewriteStyle.customSlotID, tag: customTag)
+        }
     }
 
     /// Auto-start on entering the step: quick disk check first, then download.

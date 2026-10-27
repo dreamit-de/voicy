@@ -1,8 +1,8 @@
 [
   {
-    "model": "qwen3:4b-instruct",
-    "max_latency_s": 2.45,
-    "avg_latency_s": 1.86,
+    "model": "qwen3.5:4b",
+    "max_latency_s": 2.12,
+    "avg_latency_s": 1.17,
     "under_5s": true,
     "results": [
       {
@@ -10,14 +10,14 @@
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Anyway, just to say the meeting is being rescheduled to tomorrow at three o'clock.",
-        "wall_best_s": 1.79,
+        "output": "Also, I just wanted to briefly say that the meeting is postponed to 3 o'clock today.",
+        "wall_best_s": 0.86,
         "wall_runs": [
-          2.21,
-          1.79
+          1.34,
+          0.86
         ],
-        "eval_count": 19,
-        "tok_per_s": 11.9
+        "eval_count": 20,
+        "tok_per_s": 26.7
       },
       {
         "mode": "translate",
@@ -25,90 +25,146 @@
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
         "output": "Can you please send me the numbers from last quarter? I need them by Friday.",
-        "wall_best_s": 1.41,
+        "wall_best_s": 0.74,
         "wall_runs": [
-          1.74,
-          1.41
+          1.27,
+          0.74
         ],
-        "eval_count": 18,
-        "tok_per_s": 14.9
+        "eval_count": 17,
+        "tok_per_s": 25.0
       },
       {
         "mode": "translate",
         "case": "de3",
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "The project is going pretty well, but we still have a problem with database performance, and that needs to be addressed next week.",
-        "wall_best_s": 2.18,
+        "output": "The project is going well, but we have an issue with database performance that we need to address next week.",
+        "wall_best_s": 0.94,
         "wall_runs": [
-          3.21,
-          2.18
+          1.09,
+          0.94
         ],
-        "eval_count": 27,
-        "tok_per_s": 13.6
+        "eval_count": 22,
+        "tok_per_s": 25.9
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I opened the pull request for the Kubernetes deployment yesterday. Frau Schneider says we need an additional 250 euros in budget. Can you review it by Thursday?",
+        "wall_best_s": 1.32,
+        "wall_runs": [
+          1.59,
+          1.32
+        ],
+        "eval_count": 33,
+        "tok_per_s": 26.2
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hi Thomas, quick update on the sprint: the backend team is done with the login API, but the frontend is still stuck on caching. We should clarify in tomorrow's daily whether to push the release back a week. What do you think?",
+        "wall_best_s": 2.07,
+        "wall_runs": [
+          2.26,
+          2.07
+        ],
+        "eval_count": 49,
+        "tok_per_s": 24.6
       },
       {
         "mode": "translate",
         "case": "en1",
         "lang": "en",
         "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just want to say the meeting is moved to 3 pm tomorrow.",
-        "wall_best_s": 1.43,
+        "output": "I just wanted to say the meeting has been moved to 3 PM tomorrow.",
+        "wall_best_s": 0.72,
         "wall_runs": [
-          1.72,
-          1.43
+          0.87,
+          0.72
         ],
-        "eval_count": 17,
-        "tok_per_s": 13.8
+        "eval_count": 16,
+        "tok_per_s": 25.0
       },
       {
         "mode": "clean",
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Ich möchte nur kurz sagen, dass das Meeting morgen auf drei Uhr verschoben wird.",
-        "wall_best_s": 1.55,
+        "output": "Das Meeting wird für morgen um 15:00 Uhr verschoben.",
+        "wall_best_s": 0.72,
         "wall_runs": [
-          2.69,
-          1.55
+          1.13,
+          0.72
         ],
-        "eval_count": 20,
-        "tok_per_s": 14.3
+        "eval_count": 16,
+        "tok_per_s": 25.0
       },
       {
         "mode": "clean",
         "case": "de2",
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Kannst du mir bitte die Zahlen aus dem letzten Quartal schicken? Ich brauche sie bis Freitag.",
-        "wall_best_s": 2.2,
+        "output": "Könnten Sie mir bitte die Zahlen des letzten Quartals bis Freitag zusenden?",
+        "wall_best_s": 0.77,
         "wall_runs": [
-          2.44,
-          2.2
+          1.2,
+          0.77
         ],
-        "eval_count": 26,
-        "tok_per_s": 12.8
+        "eval_count": 17,
+        "tok_per_s": 24.6
       },
       {
         "mode": "clean",
         "case": "de3",
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt läuft soweit gut, aber wir haben weiterhin ein Problem mit der Datenbankperformance, das wir nächste Woche angehen müssen.",
-        "wall_best_s": 2.45,
+        "output": "Das Projekt verläuft bisher erfolgreich; jedoch muss die Datenbankperformance in der nächsten Woche bearbeitet werden.",
+        "wall_best_s": 0.95,
         "wall_runs": [
-          3.04,
-          2.45
+          0.99,
+          0.95
         ],
-        "eval_count": 31,
-        "tok_per_s": 13.6
+        "eval_count": 22,
+        "tok_per_s": 25.3
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern einen Pull Request für das Kubernetes-Deployment erstellt. Frau Schneider hat darauf hingewiesen, dass wir zusätzlich 250 Euro Budget benötigen. Könnten Sie diese Anfrage bis Donnerstag prüfen?",
+        "wall_best_s": 1.66,
+        "wall_runs": [
+          1.85,
+          1.66
+        ],
+        "eval_count": 41,
+        "tok_per_s": 26.1
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo Thomas, kurzupdate zum Sprint: Das Backend-Team hat die Login-API abgeschlossen, das Frontend hängt jedoch am Caching. Wir sollten im morgigen Daily klären, ob wir das Release um eine Woche verschieben müssen. Was meinst du?",
+        "wall_best_s": 2.12,
+        "wall_runs": [
+          2.39,
+          2.12
+        ],
+        "eval_count": 53,
+        "tok_per_s": 26.1
       }
     ]
   },
   {
-    "model": "gemma3:4b",
-    "max_latency_s": 3.65,
-    "avg_latency_s": 3.13,
+    "model": "ministral-3:3b",
+    "max_latency_s": 1.58,
+    "avg_latency_s": 0.76,
     "under_5s": true,
     "results": [
       {
@@ -116,70 +172,584 @@
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Also, I just wanted to say that the meeting is now postponed until three o'clock tomorrow.",
-        "wall_best_s": 3.42,
+        "output": "The meeting is being rescheduled to **3 PM tomorrow**.",
+        "wall_best_s": 0.36,
         "wall_runs": [
-          3.42,
-          3.82
+          1.11,
+          0.36
         ],
-        "eval_count": 21,
-        "tok_per_s": 22.1
+        "eval_count": 13,
+        "tok_per_s": 40.6
       },
       {
         "mode": "translate",
         "case": "de2",
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Can you please send me the figures for last quarter I need them by Friday",
-        "wall_best_s": 3.19,
+        "output": "Could you please send me the numbers from last quarter? I need them by Friday.",
+        "wall_best_s": 0.51,
         "wall_runs": [
-          3.41,
-          3.19
+          0.63,
+          0.51
         ],
-        "eval_count": 16,
-        "tok_per_s": 26.2
+        "eval_count": 18,
+        "tok_per_s": 38.3
       },
       {
         "mode": "translate",
         "case": "de3",
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "the project is going quite well, but we do have a problem with database performance and we need to address that next week",
-        "wall_best_s": 3.65,
+        "output": "The project is running well so far, but we still have an issue with database performance that we need to address next week.",
+        "wall_best_s": 0.7,
         "wall_runs": [
-          3.65,
-          4.18
+          0.77,
+          0.7
         ],
-        "eval_count": 25,
-        "tok_per_s": 17.2
+        "eval_count": 26,
+        "tok_per_s": 38.8
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I opened a pull request for the Kubernetes deployment yesterday. Frau Schneider says we need an additional €250 in budget—could you review it by Thursday?",
+        "wall_best_s": 0.86,
+        "wall_runs": [
+          1.04,
+          0.86
+        ],
+        "eval_count": 33,
+        "tok_per_s": 39.8
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hi Thomas, here’s a quick update on the sprint: the backend team has finished the login API, but the frontend is still stuck due to caching. We’ll discuss whether to delay the release by a week tomorrow—what do you think?",
+        "wall_best_s": 1.31,
+        "wall_runs": [
+          1.31,
+          1.34
+        ],
+        "eval_count": 50,
+        "tok_per_s": 38.2
       },
       {
         "mode": "translate",
         "case": "en1",
         "lang": "en",
         "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just wanted to say that the meeting is moved to three PM tomorrow.",
-        "wall_best_s": 3.12,
+        "output": "The meeting has been rescheduled to three o’clock tomorrow.",
+        "wall_best_s": 0.35,
         "wall_runs": [
-          3.4,
-          3.12
+          0.42,
+          0.35
         ],
-        "eval_count": 17,
-        "tok_per_s": 26.6
+        "eval_count": 13,
+        "tok_per_s": 40.6
       },
       {
         "mode": "clean",
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Das Meeting wird morgen um 15:00 Uhr verschoben.",
-        "wall_best_s": 2.62,
+        "output": "Das Meeting wird morgen um drei Uhr stattfinden.",
+        "wall_best_s": 0.3,
         "wall_runs": [
-          2.62,
-          4.54
+          0.65,
+          0.3
         ],
-        "eval_count": 16,
-        "tok_per_s": 10.7
+        "eval_count": 11,
+        "tok_per_s": 42.3
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Können Sie mir bitte die Zahlen des letzten Quartals zukommen? Bitte benötige ich sie bis Freitag.",
+        "wall_best_s": 0.65,
+        "wall_runs": [
+          0.65,
+          0.72
+        ],
+        "eval_count": 26,
+        "tok_per_s": 37.7
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft bisher gut, doch die Datenbankperformance stellt aktuell ein Hindernis dar, das wir in der kommenden Woche angehen müssen.",
+        "wall_best_s": 0.7,
+        "wall_runs": [
+          0.7,
+          0.82
+        ],
+        "eval_count": 32,
+        "tok_per_s": 40.5
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Der Pull Request für das Kubernetes Deployment wurde gestern erstellt.\nFrau Schneider fordert zusätzliche Mittel von 250 € auf.\nKannst du den Review bis Donnerstag abschließen?",
+        "wall_best_s": 1.08,
+        "wall_runs": [
+          1.22,
+          1.08
+        ],
+        "eval_count": 42,
+        "tok_per_s": 40.0
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Guten Tag Thomas,\n\nwir haben kurz besprochen: Das Backend-Team hat die Login-API abgeschlossen. Im Frontend bleibt noch das Caching-Problem. Morgen im Daily wird geklärt, ob wir den Release um eine Woche verschieben. Wie siehst du das?",
+        "wall_best_s": 1.58,
+        "wall_runs": [
+          1.64,
+          1.58
+        ],
+        "eval_count": 60,
+        "tok_per_s": 39.0
+      }
+    ]
+  },
+  {
+    "model": "gemma4:e2b",
+    "max_latency_s": 0.76,
+    "avg_latency_s": 0.39,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "I just wanted to quickly say that the meeting will be postponed to three o'clock tomorrow.",
+        "wall_best_s": 0.29,
+        "wall_runs": [
+          0.79,
+          0.29
+        ],
+        "eval_count": 19,
+        "tok_per_s": 67.9
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the numbers from the last quarter, I need them by Friday.",
+        "wall_best_s": 0.31,
+        "wall_runs": [
+          0.32,
+          0.31
+        ],
+        "eval_count": 18,
+        "tok_per_s": 60.0
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going quite well, but we still have a problem with the database performance, and we have to address that next week.",
+        "wall_best_s": 0.44,
+        "wall_runs": [
+          0.5,
+          0.44
+        ],
+        "eval_count": 27,
+        "tok_per_s": 62.8
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I opened the pull request for the Kubernetes deployment yesterday, and Ms. Schneider says we need two hundred fifty euros more budget. Can you review that by Thursday?",
+        "wall_best_s": 0.47,
+        "wall_runs": [
+          0.57,
+          0.47
+        ],
+        "eval_count": 32,
+        "tok_per_s": 69.6
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hello Thomas, update on the sprint. The backend team is finished with the login API, but the frontend is still stuck on caching. We should clarify tomorrow in the daily whether we should postpone the release by a week. What do you think?",
+        "wall_best_s": 0.67,
+        "wall_runs": [
+          0.76,
+          0.67
+        ],
+        "eval_count": 49,
+        "tok_per_s": 74.2
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "The meeting is moved to three pm tomorrow.",
+        "wall_best_s": 0.16,
+        "wall_runs": [
+          0.21,
+          0.16
+        ],
+        "eval_count": 9,
+        "tok_per_s": 56.2
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wird morgen auf drei Uhr verschoben.",
+        "wall_best_s": 0.16,
+        "wall_runs": [
+          0.4,
+          0.16
+        ],
+        "eval_count": 10,
+        "tok_per_s": 66.7
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals bis Freitag.",
+        "wall_best_s": 0.2,
+        "wall_runs": [
+          0.25,
+          0.2
+        ],
+        "eval_count": 13,
+        "tok_per_s": 65.0
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft gut, aber wir haben noch ein Problem mit der Datenbankleistung, das wir nächste Woche angehen müssen.",
+        "wall_best_s": 0.35,
+        "wall_runs": [
+          0.38,
+          0.35
+        ],
+        "eval_count": 24,
+        "tok_per_s": 70.6
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern den Pull Request für das Kubernetes-Deployment erstellt. Frau Schneider benötigt noch zweihundertfünfzig Euro Budget. Kannst du dies bis Donnerstag überprüfen?",
+        "wall_best_s": 0.53,
+        "wall_runs": [
+          0.63,
+          0.53
+        ],
+        "eval_count": 35,
+        "tok_per_s": 67.3
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Thomas, kurzes Update zum Sprint: Das Backend-Team hat die Login-API fertiggestellt, das Frontend hängt noch beim Caching. Wir sollten morgen im Daily klären, ob wir das Release um eine Woche verschieben. Was denkst du?",
+        "wall_best_s": 0.76,
+        "wall_runs": [
+          0.84,
+          0.76
+        ],
+        "eval_count": 51,
+        "tok_per_s": 68.0
+      }
+    ]
+  },
+  {
+    "model": "granite4.2:3b",
+    "max_latency_s": 1.53,
+    "avg_latency_s": 0.73,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also I just wanted to say that the meeting will be moved to three o'clock tomorrow.",
+        "wall_best_s": 0.49,
+        "wall_runs": [
+          1.07,
+          0.49
+        ],
+        "eval_count": 20,
+        "tok_per_s": 43.5
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the numbers from the last quarter? I need them by Friday.",
+        "wall_best_s": 0.47,
+        "wall_runs": [
+          0.54,
+          0.47
+        ],
+        "eval_count": 19,
+        "tok_per_s": 44.2
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is running very well overall, but we still have one issue with database performance that we need to address next week.",
+        "wall_best_s": 0.63,
+        "wall_runs": [
+          0.77,
+          0.63
+        ],
+        "eval_count": 26,
+        "tok_per_s": 43.3
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I opened the pull request for the Kubernetes deployment yesterday, and Frau Schneider says we need an additional 250 euros. Can you review it by Thursday?",
+        "wall_best_s": 0.76,
+        "wall_runs": [
+          0.9,
+          0.76
+        ],
+        "eval_count": 31,
+        "tok_per_s": 43.1
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hi Thomas, here's a short update on the sprint: the backend team is finished with the login API, but the frontend is still stuck on caching. Should we move the release by one week? What do you think?",
+        "wall_best_s": 1.11,
+        "wall_runs": [
+          1.49,
+          1.11
+        ],
+        "eval_count": 46,
+        "tok_per_s": 42.6
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "Sure, the meeting is moved to 3 PM tomorrow.",
+        "wall_best_s": 0.37,
+        "wall_runs": [
+          0.44,
+          0.37
+        ],
+        "eval_count": 15,
+        "tok_per_s": 45.5
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wird morgen auf 3 Uhr verschoben.",
+        "wall_best_s": 0.34,
+        "wall_runs": [
+          0.75,
+          0.34
+        ],
+        "eval_count": 14,
+        "tok_per_s": 45.2
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Könntest du bitte die Zahlen vom letzten Quartal bis Freitag schicken?",
+        "wall_best_s": 0.49,
+        "wall_runs": [
+          0.57,
+          0.49
+        ],
+        "eval_count": 20,
+        "tok_per_s": 43.5
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft gut, aber es gibt ein Problem mit der Datenbank-Performance, das wir nächste Woche angehen sollten.",
+        "wall_best_s": 0.68,
+        "wall_runs": [
+          0.83,
+          0.68
+        ],
+        "eval_count": 28,
+        "tok_per_s": 43.1
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern den Pull Request für das Kubernetes-Deployment aufgegeben. Frau Schneider meint, wir benötigen noch 250 Euro mehr Budget. Könntest du den Review bis Donnerstag abschließen?",
+        "wall_best_s": 1.19,
+        "wall_runs": [
+          1.33,
+          1.19
+        ],
+        "eval_count": 48,
+        "tok_per_s": 41.7
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo Thomas,\n\nSprint-Update: Das Backend-Team ist mit der Login-API fertig. Das Frontend hängt noch am Caching. Wir sollten morgen im Daily besprechen, ob wir den Release um eine Woche verschieben.\n\nWas meinst du?",
+        "wall_best_s": 1.53,
+        "wall_runs": [
+          1.68,
+          1.53
+        ],
+        "eval_count": 63,
+        "tok_per_s": 42.0
+      }
+    ]
+  },
+  {
+    "model": "translategemma:4b",
+    "max_latency_s": 1.6,
+    "avg_latency_s": 0.87,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also, I just wanted to say that the meeting is postponed to 3 pm tomorrow.",
+        "wall_best_s": 0.6,
+        "wall_runs": [
+          1.25,
+          0.6
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the figures for the last quarter? I need them by Friday.",
+        "wall_best_s": 0.59,
+        "wall_runs": [
+          1.11,
+          0.59
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "the project is going well so far, but we still have a problem with database performance, which we need to address next week",
+        "wall_best_s": 0.8,
+        "wall_runs": [
+          1.47,
+          0.8
+        ],
+        "eval_count": 26,
+        "tok_per_s": 36.1
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Um, I submitted the pull request for the Kubernetes deployment yesterday, and Frau Schneider says we still need an additional 250 euros in budget. Can you please review it by Thursday?",
+        "wall_best_s": 1.22,
+        "wall_runs": [
+          1.73,
+          1.22
+        ],
+        "eval_count": 39,
+        "tok_per_s": 34.5
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hi Thomas, here's a quick update: the backend team has finished the login API, but the frontend is still working on caching. We should discuss whether to postpone the release by a week tomorrow during the daily stand-up. What do you think?",
+        "wall_best_s": 1.6,
+        "wall_runs": [
+          2.21,
+          1.6
+        ],
+        "eval_count": 53,
+        "tok_per_s": 35.1
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So, I just wanted to say that the meeting has been moved to 3 pm tomorrow.",
+        "wall_best_s": 0.63,
+        "wall_runs": [
+          1.19,
+          0.63
+        ],
+        "eval_count": 20,
+        "tok_per_s": 36.4
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wird auf morgen, 15:00 Uhr, verschoben.",
+        "wall_best_s": 0.6,
+        "wall_runs": [
+          0.91,
+          0.6
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
       },
       {
         "mode": "clean",
@@ -187,13 +757,337 @@
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
         "output": "Bitte senden Sie mir die Zahlen des letzten Quartals, da ich diese bis Freitag benötige.",
-        "wall_best_s": 2.52,
+        "wall_best_s": 0.66,
         "wall_runs": [
-          2.52,
-          2.85
+          1.05,
+          0.66
+        ],
+        "eval_count": 21,
+        "tok_per_s": 36.2
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft grundsätzlich gut. Wir müssen jedoch die Datenbankperformance nächste Woche verbessern.",
+        "wall_best_s": 0.54,
+        "wall_runs": [
+          0.98,
+          0.54
+        ],
+        "eval_count": 17,
+        "tok_per_s": 37.0
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern einen Pull Request für den Kubernetes-Deployment erstellt. Frau Schneider benötigt zusätzliche 250 Euro Budget. Bitte bis Donnerstag prüfen.",
+        "wall_best_s": 0.94,
+        "wall_runs": [
+          1.33,
+          0.94
+        ],
+        "eval_count": 31,
+        "tok_per_s": 36.0
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo Thomas,\n\nkurzes Update zum Sprint: Backend-Team hat die Login-API fertiggestellt. Frontend arbeitet noch an Caching. Sollten wir das Release um eine Woche verschieben? Was hältst du davon?",
+        "wall_best_s": 1.37,
+        "wall_runs": [
+          2.0,
+          1.37
+        ],
+        "eval_count": 46,
+        "tok_per_s": 35.7
+      }
+    ]
+  },
+  {
+    "model": "qwen3:4b-instruct",
+    "max_latency_s": 1.74,
+    "avg_latency_s": 0.93,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Anyway, just to say the meeting is being postponed to tomorrow at three o'clock.",
+        "wall_best_s": 0.54,
+        "wall_runs": [
+          1.14,
+          0.54
+        ],
+        "eval_count": 18,
+        "tok_per_s": 36.0
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the numbers from the last quarter? I need them by Friday.",
+        "wall_best_s": 0.56,
+        "wall_runs": [
+          0.64,
+          0.56
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "The project is going pretty well, but we still have a problem with database performance, and that needs to be addressed next week.",
+        "wall_best_s": 0.8,
+        "wall_runs": [
+          0.97,
+          0.8
+        ],
+        "eval_count": 27,
+        "tok_per_s": 36.0
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I opened the pull request for the Kubernetes deployment yesterday, and Frau Schneider says we need an additional 250 euros in budget. Can you review that by Thursday?",
+        "wall_best_s": 1.03,
+        "wall_runs": [
+          1.2,
+          1.03
+        ],
+        "eval_count": 35,
+        "tok_per_s": 35.4
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hello Thomas, quick update on the sprint. The backend team is done with the login API, but the frontend is still stuck on caching. Should we move the release by a week tomorrow in the daily standup? What do you think?",
+        "wall_best_s": 1.51,
+        "wall_runs": [
+          1.59,
+          1.51
+        ],
+        "eval_count": 49,
+        "tok_per_s": 33.6
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So I just want to say the meeting is moved to 3 pm tomorrow.",
+        "wall_best_s": 0.51,
+        "wall_runs": [
+          0.62,
+          0.51
+        ],
+        "eval_count": 17,
+        "tok_per_s": 37.0
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Ich möchte nur kurz sagen, dass das Meeting morgen auf drei Uhr verschoben wird.",
+        "wall_best_s": 0.59,
+        "wall_runs": [
+          1.12,
+          0.59
         ],
         "eval_count": 20,
-        "tok_per_s": 15.4
+        "tok_per_s": 36.4
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Kannst du mir bitte die Zahlen aus dem letzten Quartal schicken? Ich brauche sie bis Freitag.",
+        "wall_best_s": 0.76,
+        "wall_runs": [
+          0.86,
+          0.76
+        ],
+        "eval_count": 26,
+        "tok_per_s": 36.1
+      },
+      {
+        "mode": "clean",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "Das Projekt läuft soweit gut, aber wir haben noch ein Problem mit der Datenbankperformance, das wir nächste Woche angehen müssen.",
+        "wall_best_s": 0.93,
+        "wall_runs": [
+          1.08,
+          0.93
+        ],
+        "eval_count": 30,
+        "tok_per_s": 33.7
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern den Pull Request zum Kubernetes-Deployment aufgemacht. Frau Schneider meint, wir benötigen noch 250 Euro mehr Budget. Kannst du das bis Donnerstag reviewen?",
+        "wall_best_s": 1.31,
+        "wall_runs": [
+          1.52,
+          1.31
+        ],
+        "eval_count": 44,
+        "tok_per_s": 34.6
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo Thomas, kurzes Update zum Sprint: Das Backend-Team ist mit der Login-API fertig, das Frontend hängt jedoch noch am Caching. Wir sollten morgen im Daily klären, ob wir das Release um eine Woche verschieben. Was meinst du?",
+        "wall_best_s": 1.74,
+        "wall_runs": [
+          1.92,
+          1.74
+        ],
+        "eval_count": 59,
+        "tok_per_s": 34.9
+      }
+    ]
+  },
+  {
+    "model": "gemma3:4b",
+    "max_latency_s": 1.62,
+    "avg_latency_s": 0.88,
+    "under_5s": true,
+    "results": [
+      {
+        "mode": "translate",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Also, I just wanted to say that the meeting is now postponed to three o'clock tomorrow.",
+        "wall_best_s": 0.66,
+        "wall_runs": [
+          1.17,
+          0.66
+        ],
+        "eval_count": 21,
+        "tok_per_s": 36.2
+      },
+      {
+        "mode": "translate",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Can you please send me the figures from the last quarter, I need them by Friday.",
+        "wall_best_s": 0.61,
+        "wall_runs": [
+          1.15,
+          0.61
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
+      },
+      {
+        "mode": "translate",
+        "case": "de3",
+        "lang": "de",
+        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
+        "output": "the project is going quite well, but we do have a problem with database performance and we need to address that next week",
+        "wall_best_s": 0.78,
+        "wall_runs": [
+          1.36,
+          0.78
+        ],
+        "eval_count": 25,
+        "tok_per_s": 36.2
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I submitted the pull request for the Kubernetes deployment yesterday, and Frau Schneider thinks we still need an additional €250 budget. Could you review it by Thursday?",
+        "wall_best_s": 1.04,
+        "wall_runs": [
+          1.61,
+          1.04
+        ],
+        "eval_count": 34,
+        "tok_per_s": 35.8
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hello Thomas, here's a quick update on the sprint. The backend team has finished the login API, but the frontend is still stuck with caching. We should discuss tomorrow in the daily whether we should postpone the release by a week. What do you think?",
+        "wall_best_s": 1.62,
+        "wall_runs": [
+          2.31,
+          1.62
+        ],
+        "eval_count": 54,
+        "tok_per_s": 35.3
+      },
+      {
+        "mode": "translate",
+        "case": "en1",
+        "lang": "en",
+        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
+        "output": "So, I just wanted to say that the meeting is moved to three PM tomorrow.",
+        "wall_best_s": 0.58,
+        "wall_runs": [
+          1.19,
+          0.58
+        ],
+        "eval_count": 18,
+        "tok_per_s": 36.7
+      },
+      {
+        "mode": "clean",
+        "case": "de1",
+        "lang": "de",
+        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
+        "output": "Das Meeting wird morgen auf 15:00 Uhr verschoben.",
+        "wall_best_s": 0.52,
+        "wall_runs": [
+          0.84,
+          0.52
+        ],
+        "eval_count": 16,
+        "tok_per_s": 37.2
+      },
+      {
+        "mode": "clean",
+        "case": "de2",
+        "lang": "de",
+        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
+        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals, ich benötige sie bis Freitag.",
+        "wall_best_s": 0.6,
+        "wall_runs": [
+          1.0,
+          0.6
+        ],
+        "eval_count": 19,
+        "tok_per_s": 36.5
       },
       {
         "mode": "clean",
@@ -201,20 +1095,48 @@
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
         "output": "Das Projekt läuft derzeit gut, jedoch besteht weiterhin ein Problem mit der Datenbankperformance, welches wir nächste Woche adressieren werden.",
-        "wall_best_s": 3.37,
+        "wall_best_s": 0.78,
         "wall_runs": [
-          3.41,
-          3.37
+          1.17,
+          0.78
         ],
         "eval_count": 25,
-        "tok_per_s": 21.2
+        "tok_per_s": 35.7
+      },
+      {
+        "mode": "clean",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern einen Pull Request für das Kubernetes Deployment erstellt. Frau Schneider benötigt zusätzlich 250 Euro Budget. Bitte bis Donnerstag prüfen.",
+        "wall_best_s": 0.89,
+        "wall_runs": [
+          1.29,
+          0.89
+        ],
+        "eval_count": 29,
+        "tok_per_s": 36.2
+      },
+      {
+        "mode": "clean",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo Thomas,\n\nBackend hat die Login-API fertiggestellt. Frontend arbeitet noch an der Caching-Implementierung. Wir sollten morgen im Daily besprechen, ob eine Verschiebung des Releases um eine Woche möglich ist. Was denkst du dazu?",
+        "wall_best_s": 1.58,
+        "wall_runs": [
+          1.96,
+          1.58
+        ],
+        "eval_count": 52,
+        "tok_per_s": 34.9
       }
     ]
   },
   {
     "model": "llama3.2:3b",
-    "max_latency_s": 2.02,
-    "avg_latency_s": 1.24,
+    "max_latency_s": 1.6,
+    "avg_latency_s": 0.77,
     "under_5s": true,
     "results": [
       {
@@ -222,522 +1144,154 @@
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Also I just wanted to say that the meeting will be postponed tomorrow to three o'clock.",
-        "wall_best_s": 1.08,
+        "output": "Also I just wanted to say that the meeting will be postponed to three o'clock tomorrow.",
+        "wall_best_s": 0.45,
         "wall_runs": [
-          2.87,
-          1.08
+          0.87,
+          0.45
         ],
         "eval_count": 19,
-        "tok_per_s": 21.3
+        "tok_per_s": 46.3
       },
       {
         "mode": "translate",
         "case": "de2",
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Can you please send me the numbers from the last quarter up to Friday?",
-        "wall_best_s": 0.93,
+        "output": "Can you please send me the numbers from the last quarter by Friday?",
+        "wall_best_s": 0.35,
         "wall_runs": [
-          1.21,
-          0.93
-        ],
-        "eval_count": 16,
-        "tok_per_s": 22.5
-      },
-      {
-        "mode": "translate",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "The project is going well so far, but we have a bit of an issue with database performance and that needs to be addressed next week.",
-        "wall_best_s": 1.72,
-        "wall_runs": [
-          2.18,
-          1.72
-        ],
-        "eval_count": 29,
-        "tok_per_s": 19.2
-      },
-      {
-        "mode": "translate",
-        "case": "en1",
-        "lang": "en",
-        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "The meeting has been rescheduled for 3pm tomorrow.",
-        "wall_best_s": 0.81,
-        "wall_runs": [
-          1.24,
-          0.81
-        ],
-        "eval_count": 13,
-        "tok_per_s": 21.7
-      },
-      {
-        "mode": "clean",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Das Meeting ist morgen um 3 Uhr verschoben worden.",
-        "wall_best_s": 0.66,
-        "wall_runs": [
-          2.08,
-          0.66
+          0.37,
+          0.35
         ],
         "eval_count": 15,
-        "tok_per_s": 31.9
-      },
-      {
-        "mode": "clean",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Könnte ich Ihnen bitte die Zahlen für das letzte Quartal bis Freitag des jeweiligen Monats zur Verfügung stellen?",
-        "wall_best_s": 1.48,
-        "wall_runs": [
-          1.48,
-          2.14
-        ],
-        "eval_count": 29,
-        "tok_per_s": 15.1
-      },
-      {
-        "mode": "clean",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt läuft soweit ganz gut, aber wir haben noch ein Problem mit der Datenbankleistung, das müssen wir nächste Woche ansprechen.",
-        "wall_best_s": 2.02,
-        "wall_runs": [
-          2.02,
-          2.95
-        ],
-        "eval_count": 34,
-        "tok_per_s": 12.4
-      }
-    ]
-  },
-  {
-    "model": "qwen2.5:3b-instruct",
-    "max_latency_s": 1.84,
-    "avg_latency_s": 1.38,
-    "under_5s": true,
-    "results": [
-      {
-        "mode": "translate",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Also I wanted to just say that the meeting is now canceled and will be rescheduled for 3 PM.",
-        "wall_best_s": 1.57,
-        "wall_runs": [
-          1.66,
-          1.57
-        ],
-        "eval_count": 23,
-        "tok_per_s": 16.4
-      },
-      {
-        "mode": "translate",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Could you please send me the numbers from last quarter by Friday?",
-        "wall_best_s": 1.04,
-        "wall_runs": [
-          1.2,
-          1.04
-        ],
-        "eval_count": 14,
-        "tok_per_s": 15.9
+        "tok_per_s": 46.9
       },
       {
         "mode": "translate",
         "case": "de3",
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "the project is going well so far, but we still have a problem with database performance and we need to address that next week.",
-        "wall_best_s": 1.7,
+        "output": "The project is running quite well so far, but we have a problem with the database performance and we need to tackle that next week.",
+        "wall_best_s": 0.66,
         "wall_runs": [
-          2.13,
-          1.7
+          0.77,
+          0.66
         ],
-        "eval_count": 27,
-        "tok_per_s": 17.6
+        "eval_count": 28,
+        "tok_per_s": 45.2
+      },
+      {
+        "mode": "translate",
+        "case": "de4",
+        "lang": "de",
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "I created a pull request for the Kubernetes deployment yesterday and Frau Schneider says we need an additional 255 euros in the budget. Can you review this by Thursday?",
+        "wall_best_s": 0.78,
+        "wall_runs": [
+          0.89,
+          0.78
+        ],
+        "eval_count": 33,
+        "tok_per_s": 44.6
+      },
+      {
+        "mode": "translate",
+        "case": "de5",
+        "lang": "de",
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hello Thomas, here's a brief update on the sprint: The backend team has finished the login API, but the frontend is still stuck on caching issues. We should discuss this tomorrow in the daily to decide whether to delay the release by a week. What are your thoughts?",
+        "wall_best_s": 1.34,
+        "wall_runs": [
+          1.57,
+          1.34
+        ],
+        "eval_count": 56,
+        "tok_per_s": 43.1
       },
       {
         "mode": "translate",
         "case": "en1",
         "lang": "en",
         "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just wanted to say that the meeting is moved to 3 PM tomorrow.",
-        "wall_best_s": 1.22,
+        "output": "The meeting has been rescheduled to take place at 3 pm tomorrow.",
+        "wall_best_s": 0.39,
         "wall_runs": [
-          1.22,
-          1.26
+          0.47,
+          0.39
         ],
-        "eval_count": 18,
-        "tok_per_s": 16.5
+        "eval_count": 16,
+        "tok_per_s": 44.4
       },
       {
         "mode": "clean",
         "case": "de1",
         "lang": "de",
         "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Also ich wollte nur kurz sagen, dass das Meeting morgen versetzt wird auf 15 Uhr.",
-        "wall_best_s": 1.08,
+        "output": "Das Meeting wird morgen auf drei Uhr verschoben.",
+        "wall_best_s": 0.32,
         "wall_runs": [
-          2.3,
-          1.08
+          0.8,
+          0.32
         ],
-        "eval_count": 22,
-        "tok_per_s": 23.7
+        "eval_count": 13,
+        "tok_per_s": 46.4
       },
       {
         "mode": "clean",
         "case": "de2",
         "lang": "de",
         "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Könntest du mir bitte die Zahlen vom letzten Quartal schicken? Ich brauche sie bis Freitag.",
-        "wall_best_s": 1.2,
+        "output": "Kannst du mir bitte die Zahlen vom letzten Quartal schicken, bis Freitag?",
+        "wall_best_s": 0.5,
         "wall_runs": [
-          3.7,
-          1.2
-        ],
-        "eval_count": 26,
-        "tok_per_s": 28.6
-      },
-      {
-        "mode": "clean",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt läuft so weit ganz gut, jedoch haben wir noch ein Problem mit der Datenbank-Performance und müssen diese nächste Woche angehen.",
-        "wall_best_s": 1.84,
-        "wall_runs": [
-          2.08,
-          1.84
-        ],
-        "eval_count": 30,
-        "tok_per_s": 18.6
-      }
-    ]
-  },
-  {
-    "model": "qwen2.5:7b-instruct",
-    "max_latency_s": 4.47,
-    "avg_latency_s": 3.39,
-    "under_5s": true,
-    "results": [
-      {
-        "mode": "translate",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Also, I just wanted to say that the meeting is postponed to three o'clock tomorrow.",
-        "wall_best_s": 2.88,
-        "wall_runs": [
-          5.03,
-          2.88
-        ],
-        "eval_count": 19,
-        "tok_per_s": 7.1
-      },
-      {
-        "mode": "translate",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "can you please send me the numbers from the last quarter? I need them by Friday.",
-        "wall_best_s": 2.47,
-        "wall_runs": [
-          3.21,
-          2.47
-        ],
-        "eval_count": 19,
-        "tok_per_s": 8.5
-      },
-      {
-        "mode": "translate",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "The project is going pretty well so far, but we still have a database performance issue that we need to address next week.",
-        "wall_best_s": 4.0,
-        "wall_runs": [
-          4.22,
-          4.0
-        ],
-        "eval_count": 26,
-        "tok_per_s": 7.0
-      },
-      {
-        "mode": "translate",
-        "case": "en1",
-        "lang": "en",
-        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just wanted to say that the meeting is moved to three PM tomorrow.",
-        "wall_best_s": 2.54,
-        "wall_runs": [
-          2.73,
-          2.54
-        ],
-        "eval_count": 17,
-        "tok_per_s": 7.4
-      },
-      {
-        "mode": "clean",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Das Meeting wurde verschieben und findet morgen um 15:00 Uhr statt.",
-        "wall_best_s": 3.61,
-        "wall_runs": [
-          4.83,
-          3.61
+          0.58,
+          0.5
         ],
         "eval_count": 21,
-        "tok_per_s": 6.2
-      },
-      {
-        "mode": "clean",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Könnten Sie mir bitte die Zahlen des letzten Quartals senden? Ich benötige sie bis Freitag.",
-        "wall_best_s": 3.77,
-        "wall_runs": [
-          3.77,
-          3.79
-        ],
-        "eval_count": 25,
-        "tok_per_s": 7.0
+        "tok_per_s": 44.7
       },
       {
         "mode": "clean",
         "case": "de3",
         "lang": "de",
         "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt läuft bisher gut, jedoch besteht noch ein Problem mit der Datenbankperformance, das wir in der nächsten Woche bearbeiten werden.",
-        "wall_best_s": 4.47,
+        "output": "Das Projekt läuft soweit ganz gut, aber wir haben noch ein Problem mit der Datenbankleistung, das müssen wir nächste Woche angehen.",
+        "wall_best_s": 0.8,
         "wall_runs": [
-          4.47,
-          5.47
+          0.93,
+          0.8
         ],
-        "eval_count": 29,
-        "tok_per_s": 5.5
-      }
-    ]
-  },
-  {
-    "model": "gemma3n:e4b",
-    "max_latency_s": 5.7,
-    "avg_latency_s": 4.46,
-    "under_5s": false,
-    "results": [
-      {
-        "mode": "translate",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "So, I just wanted to quickly say that the meeting is moved to three o'clock tomorrow.",
-        "wall_best_s": 5.58,
-        "wall_runs": [
-          5.8,
-          5.58
-        ],
-        "eval_count": 21,
-        "tok_per_s": 16.0
-      },
-      {
-        "mode": "translate",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Could you please send me the figures for last quarter? I need them by Friday.",
-        "wall_best_s": 5.2,
-        "wall_runs": [
-          5.2,
-          6.06
-        ],
-        "eval_count": 19,
-        "tok_per_s": 18.4
-      },
-      {
-        "mode": "translate",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "The project is going pretty well so far, but we still have a problem with the database performance, and we need to address that next week.",
-        "wall_best_s": 5.7,
-        "wall_runs": [
-          5.7,
-          8.48
-        ],
-        "eval_count": 30,
-        "tok_per_s": 7.2
-      },
-      {
-        "mode": "translate",
-        "case": "en1",
-        "lang": "en",
-        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just wanted to say that the meeting is moved to three pm tomorrow.",
-        "wall_best_s": 4.64,
-        "wall_runs": [
-          5.54,
-          4.64
-        ],
-        "eval_count": 17,
-        "tok_per_s": 21.0
+        "eval_count": 33,
+        "tok_per_s": 43.4
       },
       {
         "mode": "clean",
-        "case": "de1",
+        "case": "de4",
         "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Das Meeting ist morgen um drei Uhr verschoben.",
-        "wall_best_s": 2.77,
+        "input": "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen",
+        "output": "Ich habe gestern einen Pull-Request für das Kubernetes-Deployment aufgemacht und Frau Schneider sagt, dass wir noch 255 Euro mehr fürs Budget benötigen. Ich werde mich bis Donnerstag um die Überprüfung kümmern.",
+        "wall_best_s": 1.23,
         "wall_runs": [
-          5.02,
-          2.77
+          1.3,
+          1.23
         ],
-        "eval_count": 11,
-        "tok_per_s": 22.9
+        "eval_count": 51,
+        "tok_per_s": 42.9
       },
       {
         "mode": "clean",
-        "case": "de2",
+        "case": "de5",
         "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals bis Freitag.",
-        "wall_best_s": 3.17,
+        "input": "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du",
+        "output": "Hallo, hier ist der umformulierte Text:\n\nHallo, ich möchte einen kurzen Update zum Sprint teilen. Das Backend-Team hat die Login-API abgeschlossen, während das Frontend noch am Caching hängt. Morgen im Daily sollten wir überlegen, ob wir das Release um eine Woche verschieben sollten. Was denkst du darüber?",
+        "wall_best_s": 1.6,
         "wall_runs": [
-          3.17,
-          3.65
+          1.6,
+          1.87
         ],
-        "eval_count": 14,
-        "tok_per_s": 12.0
-      },
-      {
-        "mode": "clean",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt verläuft bisher gut, jedoch besteht weiterhin ein Problem mit der Datenbankperformance, das wir nächste Woche angehen müssen.",
-        "wall_best_s": 4.16,
-        "wall_runs": [
-          4.16,
-          4.78
-        ],
-        "eval_count": 26,
-        "tok_per_s": 18.4
-      }
-    ]
-  },
-  {
-    "model": "gemma3:12b",
-    "max_latency_s": 13.98,
-    "avg_latency_s": 11.43,
-    "under_5s": false,
-    "results": [
-      {
-        "mode": "translate",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "I just wanted to quickly say that the meeting will be postponed until tomorrow at three o’clock.",
-        "wall_best_s": 13.44,
-        "wall_runs": [
-          13.44,
-          14.26
-        ],
-        "eval_count": 21,
-        "tok_per_s": 3.8
-      },
-      {
-        "mode": "translate",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Could you please send me the figures from last quarter? I need them by Friday.",
-        "wall_best_s": 13.43,
-        "wall_runs": [
-          13.7,
-          13.43
-        ],
-        "eval_count": 18,
-        "tok_per_s": 3.3
-      },
-      {
-        "mode": "translate",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "The project is going well so far, but we still have a database performance issue that we need to address next week.",
-        "wall_best_s": 13.98,
-        "wall_runs": [
-          14.08,
-          13.98
-        ],
-        "eval_count": 25,
-        "tok_per_s": 3.7
-      },
-      {
-        "mode": "translate",
-        "case": "en1",
-        "lang": "en",
-        "input": "um so i just wanted to say that the meeting is moved to three pm tomorrow",
-        "output": "So I just wanted to say that the meeting is moved to 3 p.m. tomorrow.",
-        "wall_best_s": 12.34,
-        "wall_runs": [
-          16.07,
-          12.34
-        ],
-        "eval_count": 21,
-        "tok_per_s": 4.4
-      },
-      {
-        "mode": "clean",
-        "case": "de1",
-        "lang": "de",
-        "input": "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr",
-        "output": "Das Meeting findet morgen um drei Uhr statt.",
-        "wall_best_s": 6.11,
-        "wall_runs": [
-          6.11,
-          7.19
-        ],
-        "eval_count": 10,
-        "tok_per_s": 5.9
-      },
-      {
-        "mode": "clean",
-        "case": "de2",
-        "lang": "de",
-        "input": "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag",
-        "output": "Bitte senden Sie mir die Zahlen des letzten Quartals bis Freitag.",
-        "wall_best_s": 7.39,
-        "wall_runs": [
-          7.39,
-          7.79
-        ],
-        "eval_count": 14,
-        "tok_per_s": 5.2
-      },
-      {
-        "mode": "clean",
-        "case": "de3",
-        "lang": "de",
-        "input": "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen",
-        "output": "Das Projekt verläuft überwiegend planmäßig, jedoch besteht weiterhin eine Herausforderung hinsichtlich der Datenbankperformance, die nächste Woche adressiert werden muss.",
-        "wall_best_s": 13.3,
-        "wall_runs": [
-          13.3,
-          15.53
-        ],
-        "eval_count": 29,
-        "tok_per_s": 2.9
+        "eval_count": 77,
+        "tok_per_s": 41.8
       }
     ]
   }

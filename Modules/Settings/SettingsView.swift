@@ -32,6 +32,8 @@ public struct SettingsView: View {
                 Divider()
                 shortcutSection
                 Divider()
+                microphoneSection
+                Divider()
                 transcriptionSection
                 Divider()
                 rewriteSection
@@ -110,6 +112,49 @@ public struct SettingsView: View {
                 set: { updater.automaticallyChecksForUpdates = $0 }
             ))
             .toggleStyle(.switch)
+        }
+    }
+
+    /// Picker tag for "follow the macOS default input" — not a valid UID.
+    private static let systemMicrophoneTag = "__system__"
+
+    private var microphoneSection: some View {
+        let resolution = coordinator.microphoneResolution
+        let systemDefaultName = status.inputDevices
+            .first { $0.uid == status.systemDefaultInputUID }?.name
+        return section(title: "Mikrofon") {
+            Picker("Eingabequelle", selection: Binding(
+                get: { coordinator.settings.inputDeviceUID ?? Self.systemMicrophoneTag },
+                set: { tag in
+                    // Re-picking the disconnected entry must not reset the choice.
+                    guard tag != coordinator.settings.inputDeviceUID else { return }
+                    coordinator.setInputDevice(status.inputDevices.first { $0.uid == tag })
+                }
+            )) {
+                Text(systemDefaultName.map { "Systemstandard (\($0))" } ?? "Systemstandard")
+                    .tag(Self.systemMicrophoneTag)
+                ForEach(status.inputDevices) { device in
+                    Text(device.name).tag(device.uid)
+                }
+                // Keep a disconnected choice visible instead of an empty picker.
+                if case .fallback(let missingUID, _) = resolution {
+                    Text("\(coordinator.settings.inputDeviceName ?? "Gewähltes Mikrofon") (nicht verbunden)")
+                        .tag(missingUID)
+                }
+            }
+            if case .fallback(_, let used) = resolution {
+                Label(
+                    "Gewähltes Mikrofon nicht verbunden — aufgenommen wird mit \(used?.name ?? "dem Systemstandard").",
+                    systemImage: "exclamationmark.triangle.fill"
+                )
+                .font(.footnote)
+                .foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            Text("„Systemstandard“ folgt der Eingabe in den macOS-Systemeinstellungen. Ein fest gewähltes Mikrofon bleibt aktiv, auch wenn sich AirPods oder ein iPhone verbinden. Bluetooth-Headsets nehmen in geringerer Qualität auf.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
