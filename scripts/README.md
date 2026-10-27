@@ -41,7 +41,7 @@ pip install. Reads/writes Ollama at `127.0.0.1:11434` (override with
 ## 2. Transcription (WhisperKit) — `bench-transcription/`
 
 A standalone Swift package that drives the **same WhisperKit the app pins**
-(`from: 0.9.0`) and loads models from the **same on-disk location the app uses**
+(`argmax-oss-swift`, `from: 1.1.1`) and loads models from the **same on-disk location the app uses**
 (`~/Library/Application Support/Voice Transcript/Models/`), so it never
 re-downloads and the numbers reflect the real transcription path. It synthesises
 German/English speech with macOS `say`, downsamples to 16 kHz mono via ffmpeg,

@@ -186,12 +186,19 @@ jobs:
       # GitHub Release (with the DMG asset), and only AFTER that push the
       # appcast to gh-pages — otherwise the feed would briefly point to a 404.
 
-      - name: Download Sparkle tools (2.9.3)
+      - name: Download Sparkle tools (2.10.1)
+        env:
+          # Keep version in sync with the Sparkle package floor in project.yml.
+          # The checksum pins the tarball: these tools run next to
+          # SPARKLE_PRIVATE_KEY, so an unverified download is a supply-chain gap.
+          SPARKLE_VERSION: "2.10.1"
+          SPARKLE_SHA256: "1a856d2a9edb8e628de88121d7be04cf0e2167f8641650b78fca00b14244cf27"
         run: |
           set -euo pipefail
           SPARKLE_DIR="$(mktemp -d)"
           curl -fsSL --retry 3 -o "$SPARKLE_DIR/Sparkle.tar.xz" \
-            "https://github.com/sparkle-project/Sparkle/releases/download/2.9.3/Sparkle-2.9.3.tar.xz"
+            "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          echo "${SPARKLE_SHA256}  $SPARKLE_DIR/Sparkle.tar.xz" | shasum -a 256 -c -
           tar -xJf "$SPARKLE_DIR/Sparkle.tar.xz" -C "$SPARKLE_DIR"
           test -x "$SPARKLE_DIR/bin/sign_update" || { echo "::error::sign_update not found in Sparkle tarball"; exit 1; }
           echo "SPARKLE_DIR=$SPARKLE_DIR" >> "$GITHUB_ENV"

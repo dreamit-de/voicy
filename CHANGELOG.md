@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Security
+- **WhisperKit 0.18.0 → 1.1.1** (repo renamed to `argmaxinc/argmax-oss-swift`, product still `WhisperKit`). The old `from: 0.9.0` constraint capped WhisperKit below 1.0, which kept swift-transformers in the graph and with it vulnerable transitive pins: swift-crypto 4.5.0 (GHSA-8q93-f6xh-4f6f critical, GHSA-jwv7-rv4f-rff2 high) and yyjson 0.12.0 (GHSA-f4vc-345x-4mvm, which parses tokenizer JSON downloaded from Hugging Face). 1.x vendors the tokenizer code, so the app graph is now just argmax-oss-swift, swift-argument-parser and Sparkle. No app code changes were needed; existing models and tokenizers on disk are reused without re-downloading. The bench harness in `scripts/bench-transcription/` follows the same version.
+- **Sparkle floor raised from 2.6.0 to 2.10.1** (resolved: 2.9.3 → 2.10.1), so builds can no longer resolve versions affected by GHSA-3x7w-j75x-ppq5, GHSA-4v99-qgq9-6pxp, GHSA-gmj2-gq3j-vqmj or the older signing-check advisories. The `sign_update` tools in the internal release workflow move to 2.10.1 too, and the tarball is now verified against a pinned SHA-256 before it runs next to the signing key. The update key is unchanged.
+
 ## [0.2.9]
 
 ### Added
