@@ -98,6 +98,7 @@ struct MenuBarView: View {
             ollamaSetupBanner
             rewriteBanner
             VStack(alignment: .leading, spacing: 14) {
+                microphoneRow
                 // Normal is always available, nothing to choose — render it as
                 // a plain info row, not as a card that begs to be clicked.
                 VStack(alignment: .leading, spacing: 6) {
@@ -304,6 +305,67 @@ struct MenuBarView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.orange.opacity(0.1))
+        }
+    }
+
+    /// Active microphone with quick switching. Turns orange when the chosen
+    /// device is disconnected and the system default stands in for it.
+    private var microphoneRow: some View {
+        let resolution = coordinator.microphoneResolution
+        let chosenUID = coordinator.settings.inputDeviceUID
+        return HStack(spacing: 8) {
+            Image(systemName: resolution.isFallback ? "exclamationmark.triangle.fill" : "mic")
+                .foregroundStyle(resolution.isFallback ? Color.orange : .secondary)
+            Menu {
+                Button {
+                    coordinator.setInputDevice(nil)
+                } label: {
+                    menuItemLabel(systemDefaultTitle, checked: chosenUID == nil)
+                }
+                Divider()
+                ForEach(status.inputDevices) { device in
+                    Button {
+                        coordinator.setInputDevice(device)
+                    } label: {
+                        menuItemLabel(device.name, checked: device.uid == chosenUID)
+                    }
+                }
+            } label: {
+                Text(microphoneTitle(resolution))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize(horizontal: false, vertical: true)
+            .help("Mikrofon wählen — gilt ab der nächsten Aufnahme")
+        }
+        .font(.subheadline)
+        .padding(.horizontal, 2)
+    }
+
+    @ViewBuilder
+    private func menuItemLabel(_ title: String, checked: Bool) -> some View {
+        if checked {
+            Label(title, systemImage: "checkmark")
+        } else {
+            Text(title)
+        }
+    }
+
+    private var systemDefaultTitle: String {
+        let name = status.inputDevices.first { $0.uid == status.systemDefaultInputUID }?.name
+        return name.map { "Systemstandard (\($0))" } ?? "Systemstandard"
+    }
+
+    private func microphoneTitle(_ resolution: MicrophoneResolution) -> String {
+        switch resolution {
+        case .chosen(let device):
+            return "Mikrofon: \(device.name)"
+        case .systemDefault(let device):
+            return "Mikrofon: \(device?.name ?? "keins gefunden") (Systemstandard)"
+        case .fallback(_, let used):
+            let missing = coordinator.settings.inputDeviceName ?? "Gewähltes Mikrofon"
+            return "\(missing) nicht verbunden — nutze \(used?.name ?? "Systemstandard")"
         }
     }
 

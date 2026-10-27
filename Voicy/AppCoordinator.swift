@@ -17,6 +17,7 @@ public final class AppCoordinator: ObservableObject {
 
     @Published public var settings = AppSettings.load()
 
+    private let deviceMonitor = AudioDeviceMonitor()
     private let log = Logger(subsystem: "de.dreamit.voicy", category: "AppCoordinator")
     private var hotkeyTask: Task<Void, Never>?
     private var ollamaPollTask: Task<Void, Never>?
@@ -49,9 +50,52 @@ public final class AppCoordinator: ObservableObject {
         guard !started else { return }
         started = true
         hotkeyEngine.updateConfig(settings.hotkeyConfig)
+        recorder.setInterruptionHandler { [weak self] error in
+            Task { @MainActor [weak self] in
+                await self?.recordingInterrupted(error)
+            }
+        }
         startHotkeyLoop()
+        startDeviceMonitoring()
         startOllamaPolling()
         prepareWhisperIfPossible()
+    }
+
+    // MARK: - Microphone
+
+    /// Selects the capture device (nil = "Systemstandard", follow the macOS
+    /// default input). Takes effect with the next recording — every recording
+    /// binds the device afresh.
+    public func setInputDevice(_ device: AudioInputDevice?) {
+        settings.inputDeviceUID = device?.uid
+        settings.inputDeviceName = device?.name
+        settings.save()
+    }
+
+    /// How the persisted choice resolves against the devices connected right
+    /// now — drives the menu and settings, including the fallback warning.
+    public var microphoneResolution: MicrophoneResolution {
+        MicrophoneSelection.resolve(
+            preferredUID: settings.inputDeviceUID,
+            devices: statusModel.inputDevices,
+            systemDefaultUID: statusModel.systemDefaultInputUID
+        )
+    }
+
+    private func startDeviceMonitoring() {
+        deviceMonitor.start { [weak self] devices, defaultUID in
+            guard let self else { return }
+            self.statusModel.inputDevices = devices
+            self.statusModel.systemDefaultInputUID = defaultUID
+            // Keep the remembered name current (e.g. a renamed device) so the
+            // fallback hint names it correctly while it is disconnected.
+            if let uid = self.settings.inputDeviceUID,
+               let device = devices.first(where: { $0.uid == uid }),
+               device.name != self.settings.inputDeviceName {
+                self.settings.inputDeviceName = device.name
+                self.settings.save()
+            }
+        }
     }
 
     /// Changes the push-to-talk trigger and applies it to the running engine.
@@ -179,14 +223,36 @@ public final class AppCoordinator: ObservableObject {
     }
 
     private func beginRecording(mode: HotkeyMode) async {
-        guard case .idle = statusModel.state else { return }
+        // `.error` only lingers after a failed start (e.g. a microphone that
+        // could not be bound) — let the next press retry instead of ignoring
+        // the hotkey until relaunch.
+        switch statusModel.state {
+        case .idle, .error: break
+        case .recording, .transcribing, .rewriting: return
+        }
         do {
-            try await recorder.start()
+            let resolution = try await recorder.start(inputDeviceUID: settings.inputDeviceUID)
+            if resolution.isFallback {
+                log.notice("Chosen microphone unavailable; recording from system default")
+            }
             statusModel.state = .recording(mode)
         } catch {
             statusModel.state = .error(error.localizedDescription)
             statusModel.lastError = error.localizedDescription
         }
+    }
+
+    /// The recorder stopped on its own mid-recording (microphone disconnected,
+    /// or capture could not be restarted after a device reconfiguration).
+    /// Leave `.recording` right away so the user does not keep talking into
+    /// nothing; the hotkey release then finds no recording and does nothing,
+    /// and the next press retries from `.error`.
+    private func recordingInterrupted(_ error: Error) async {
+        guard case .recording = statusModel.state else { return }
+        log.error("Recording interrupted: \(error.localizedDescription, privacy: .public)")
+        statusModel.state = .error(error.localizedDescription)
+        statusModel.lastError = error.localizedDescription
+        await notify("Aufnahme abgebrochen", body: error.localizedDescription)
     }
 
     private func finishRecording(mode: HotkeyMode) async {

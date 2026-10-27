@@ -13,6 +13,7 @@ Drücke einen Hotkey, sprich, lass los — der transkribierte Text landet direkt
   - **German → English** — kuratierter Prompt, übersetzt deutsches Diktat in flüssiges Englisch (englische Eingabe bleibt nahezu unverändert).
   - **Custom** — eigener System-Prompt (Name + Prompt jederzeit editierbar).
 - **Konfigurierbarer Kurzbefehl** — Push-to-Talk-Taste wählbar (rechte Wahltaste = Standard, rechte Befehls-/Control-/Umschalttaste oder Fn), jeweils mit Konflikt-Hinweis.
+- **Mikrofon-Auswahl** — „Systemstandard" (folgt macOS) oder ein fest gewähltes Mikrofon, in den Einstellungen und direkt im Menü umschaltbar; ist das gewählte Gerät nicht verbunden, wird sichtbar auf den Systemstandard ausgewichen.
 - **Rewrite ist optional** — ohne gewähltes Modell (oder bewusst deaktiviert) fügt der Rewrite-Trigger den unveränderten Transkript-Text ein.
 - **Wählbare Modelle** für beide Stufen, inkl. In-App-Download mit Fortschritt:
   - Transkription: Tiny · Base · Small · Large v3 Turbo (Empfehlung für DE/EN).
@@ -91,7 +92,7 @@ Voicy/                          # Repo-Wurzel (Modulname bleibt „Voicy")
 ├── Voicy/                      # App-Target (@main, MenuBarExtra, Coordinator)
 └── Modules/
     ├── HotkeyEngine/           # CGEventTap, konfigurierbarer Modifier-Trigger
-    ├── AudioCapture/           # AVAudioEngine, 16 kHz mono Float32
+    ├── AudioCapture/           # AVAudioEngine + CoreAudio-Geräteauswahl, 16 kHz mono Float32
     ├── Transcription/          # WhisperKit-Wrapper, Modell-Katalog + Download
     ├── RewriteService/         # Ollama-Client, Modell-Katalog + Stil-Speicher
     ├── TextInsertion/          # Pasteboard-Save → setString → ⌘V → Restore
