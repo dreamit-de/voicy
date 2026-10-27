@@ -59,6 +59,10 @@ CASES = [
     ("de1", "de", "ähm also ich wollte nur kurz sagen dass das meeting halt morgen verschoben wird auf drei uhr"),
     ("de2", "de", "kannst du mir bitte ähm die zahlen vom letzten quartal schicken ich brauch die bis freitag"),
     ("de3", "de", "das projekt läuft soweit ganz gut aber wir haben halt noch ein problem mit der datenbank performance und das müssen wir nächste woche angehen"),
+    # Harder cases (added 2026-10-27): numbers/names/English tech terms inside
+    # German, and a longer multi-sentence dictation with a question.
+    ("de4", "de", "ähm ich hab gestern den pull request fürs kubernetes deployment aufgemacht und frau schneider meint wir brauchen noch zweihundertfünfzig euro mehr budget kannst du das bis donnerstag reviewen"),
+    ("de5", "de", "hallo thomas kurzes update zum sprint also das backend team ist mit der login api fertig aber das frontend hängt halt noch am caching wir sollten morgen im daily klären ob wir das release um eine woche verschieben was meinst du"),
     ("en1", "en", "um so i just wanted to say that the meeting is moved to three pm tomorrow"),
 ]
 
@@ -78,6 +82,10 @@ def generate(model, system, prompt, num_predict=None):
         "system": system,
         "prompt": prompt,
         "stream": False,
+        # Hybrid thinking models (qwen3.5, gemma4, granite4.2, …) have no
+        # separate -instruct tag and would otherwise reason for seconds before
+        # answering. Ollama ignores the flag for non-thinking models.
+        "think": False,
         "keep_alive": "60m",
         "options": {"temperature": 0.3},
     }
@@ -164,7 +172,8 @@ def main():
     (RESULTS_DIR / "rewrite.json").write_text(json.dumps(report, indent=2, ensure_ascii=False))
 
     # Markdown summary table.
-    lines = ["# Rewrite model benchmark", "",
+    measured = os.environ.get("BENCH_DATE") or time.strftime("%Y-%m-%d")
+    lines = ["# Rewrite model benchmark", "", f"measured {measured}", "",
              f"Host: Ollama at {OLLAMA} · best of {args.runs} runs/case · model kept warm",
              "", "## Latency summary", "",
              "| Model | max latency | avg latency | < 5 s |",

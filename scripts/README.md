@@ -55,25 +55,33 @@ cd scripts/bench-transcription
 ./run.sh openai_whisper-base,openai_whisper-large-v3-v20240930_626MB  # pick variants
 ```
 
-Variants must already be installed by the app (run the app's setup/model step
-first), otherwise WhisperKit would try to download into a sandbox-blocked path.
+Variants are read from the app's model folder (run the app's setup/model step
+first). Set `BENCH_DOWNLOAD_BASE=/some/dir` to download the variants the app has
+not installed into that folder instead; the app's model folder is never touched.
+That is how the `_547MB`, `turbo_632MB` and full large-v3 builds in
+`bench-results/transcription.md` were measured.
 
-## Findings (Apple M4, 32 GB, 2026-06-28)
+## Findings (Apple M4, 32 GB, 2026-10-27)
 
 See `bench-results/rewrite.md` and `bench-results/transcription.md` for the full
 tables and transcripts. Headlines:
 
-- **Transcription:** `large-v3-turbo` (`openai_whisper-large-v3-v20240930_626MB`)
-  hit **0 % WER on German** and excellent English at ~1–2 s/sentence — one
-  multilingual model serves both DE and EN, so **no separate per-language model
-  is needed**. `base` is a fast, decent fallback (~9 % DE WER, mostly number
-  formatting). Note: the large model has a long *one-time* cold ANE-compile on
-  first load (cached afterwards); the app prewarms it.
-- **Rewrite (German → English):** **`qwen3:4b-instruct`** was the only small
-  model with zero faithfulness faults (kept "tomorrow", "three o'clock",
-  speech acts; translated filler "also" → "Well") at **~2.9 s warm** — now the
-  default. `gemma3:4b` (~3.5–4.9 s) keeps the most natural *German* for Custom
-  rewrites; `llama3.2:3b` and `qwen2.5:3b-instruct` (~2 s) are fastest but each
-  occasionally clip/omit a detail. Disqualified for the translation default by
-  the 5 s budget: the newest **`gemma3n:e4b` (~5.7 s)**, `gemma3:12b` (~14 s),
-  and all reasoning models (`gpt-oss`, etc.).
+- **Transcription:** keep `openai_whisper-large-v3-v20240930_626MB` (onboarding
+  default). On the 9-sample set (incl. tech terms, numbers, a long sprint update)
+  all four large-v3 builds produced identical transcripts (1 % DE WER, ~1 s per
+  sentence). `turbo_632MB` is ~33 % faster with the same output but supported on
+  M2–M4 only; the full 1.6 GB build is no more accurate and twice as slow.
+  `small` scores 7 % DE WER, so the code fallback `WhisperEngine.defaultModel`
+  now points at the same Large v3 Turbo build.
+  The 14 % English WER is identical for every model and comes from number
+  formatting ("3pm", "10"), not recognition errors.
+- **Rewrite (German → English):** **`gemma4:e2b`** is now the default — the only
+  model with no faithfulness faults on all six translate cases, identical output
+  across repeat runs, and the lowest latency (0.76 s max). Its catch is a 7.5 GB
+  download. With Ollama 0.40.9 every candidate answers in ~1 s, so quality, not
+  the 5 s budget, decides. The previous default `qwen3:4b-instruct` garbles the
+  long multi-sentence case every run but keeps the best *German* (du, register,
+  all content) — the recommendation for Custom rewrites via the per-style model.
+  `llama3.2:3b` turned 250 € into 255 €; `qwen3.5:4b` turned "morgen" into
+  "today". The bench and the app both send `think: false`, so hybrid-thinking
+  models answer directly; pure reasoning models (`gpt-oss`, etc.) stay excluded.

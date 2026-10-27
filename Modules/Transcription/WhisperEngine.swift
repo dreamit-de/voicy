@@ -7,7 +7,10 @@ public protocol TranscriptionService: AnyObject, Sendable {
 }
 
 public actor WhisperEngine: TranscriptionService {
-    public static let defaultModel = "openai_whisper-small"
+    /// Fallback when no variant is configured — the same Large v3 Turbo build
+    /// the setup assistant recommends (1 % German WER vs. 7 % for Small,
+    /// measured 2026-10-27). Saved settings keep their own variant.
+    public static let defaultModel = "openai_whisper-large-v3-v20240930_626MB"
 
     private var modelVariant: String
     private let modelStore: ModelStore

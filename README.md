@@ -17,7 +17,7 @@ Drücke einen Hotkey, sprich, lass los — der transkribierte Text landet direkt
 - **Rewrite ist optional** — ohne gewähltes Modell (oder bewusst deaktiviert) fügt der Rewrite-Trigger den unveränderten Transkript-Text ein.
 - **Wählbare Modelle** für beide Stufen, inkl. In-App-Download mit Fortschritt:
   - Transkription: Tiny · Base · Small · Large v3 Turbo (Empfehlung für DE/EN).
-  - Rewrite: Qwen3 4B Instruct (Empfehlung, ~2–3 s, beste DE→EN-Übersetzung) · Gemma 3 4B (natürlichstes Deutsch für Custom) · Llama 3.2 3B (am schnellsten) · Gemma 3 12B (höchste Qualität, langsam).
+  - Rewrite: Gemma 4 E2B (Empfehlung für German → English, ~1 s, sinntreueste Übersetzung, 7,5 GB) · Qwen3 4B Instruct (bestes Deutsch, Empfehlung für Custom) · Llama 3.2 3B (kleinster Download) · Gemma 3 4B · Gemma 3 12B (groß, langsamer).
   - **Modell pro Funktion**: „German → English" und „Custom" können je ein eigenes Rewrite-Modell nutzen (Settings → „Modell pro Funktion"); „Standard" folgt dem global gewählten Modell.
 - **Geführtes Setup** mit Sprachauswahl und passender Modell-Empfehlung.
 - **Vollständig lokal**: Whisper (WhisperKit) auf der Apple Neural Engine, Ollama auf `127.0.0.1:11434`.
@@ -49,7 +49,7 @@ Interne Builds werden als DMG unter [Releases](https://github.com/dreamit-de/voi
 | Architektur | Apple Silicon (M1/M2/M3/M4) |
 | Xcode (für Build) | 16 oder neuer |
 | Tooling (für Build) | [XcodeGen](https://github.com/yonaskolb/XcodeGen): `brew install xcodegen` |
-| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com) — das Setup lädt das empfohlene Modell automatisch (`qwen3:4b-instruct`); manuell: `ollama pull qwen3:4b-instruct` |
+| Ollama (optional, für Rewrite) | [ollama.com](https://ollama.com), **Version ≥ 0.20.0** (ab da gibt es Gemma 4; getestet mit 0.40.9) — das Setup lädt die empfohlenen Modelle automatisch (`gemma4:e2b` als Standard, `qwen3:4b-instruct` für den Custom-Stil); manuell: `ollama pull gemma4:e2b && ollama pull qwen3:4b-instruct` |
 
 Whisper- und Rewrite-Modelle lädt die App selbst herunter und legt sie unter `~/Library/Application Support/Voice Transcript/Models/` (Whisper) bzw. im Ollama-Cache ab. Nichts davon muss manuell installiert werden.
 

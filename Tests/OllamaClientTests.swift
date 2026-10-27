@@ -30,4 +30,31 @@ final class OllamaClientTests: XCTestCase {
         // Only an acknowledgement and nothing else — keep it rather than empty out.
         XCTAssertEqual(strip("Natürlich."), "Natürlich.")
     }
+
+    func test_generateRequestDisablesThinking() throws {
+        let body = OllamaClient.GenerateRequest(
+            model: "gemma4:e2b", prompt: "Hallo", system: "S", stream: false,
+            options: .init(temperature: 0.3)
+        )
+        let json = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(body)) as? [String: Any]
+        )
+        XCTAssertEqual(json["think"] as? Bool, false)
+        XCTAssertEqual(json["keep_alive"] as? String, "60m")
+    }
+
+    func test_recommendedModelIsInCatalog() {
+        XCTAssertNotNil(OllamaModelCatalog.option(for: OllamaModelCatalog.recommendedTag))
+        XCTAssertEqual(OllamaModelCatalog.options.first?.tag, OllamaModelCatalog.recommendedTag)
+    }
+
+    func test_pullFailedForOutdatedOllamaAsksToUpdate() {
+        let error = OllamaError.pullFailed("pull model manifest: 412: The model you are attempting to pull requires a newer version of Ollama.")
+        XCTAssertTrue(error.localizedDescription.contains("bitte Ollama aktualisieren"))
+    }
+
+    func test_pullFailedKeepsOtherMessages() {
+        let error = OllamaError.pullFailed("file does not exist")
+        XCTAssertEqual(error.localizedDescription, "Modell-Download fehlgeschlagen: file does not exist")
+    }
 }

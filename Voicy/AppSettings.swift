@@ -2,8 +2,8 @@ import Foundation
 
 public struct AppSettings: Codable, Equatable, Sendable {
     public var language: String?            // BCP-47 like "de" or "en"; nil = auto-detect
-    public var whisperVariant: String       // e.g. "openai_whisper-small"
-    public var ollamaModel: String          // e.g. "qwen3:4b-instruct"
+    public var whisperVariant: String       // e.g. "openai_whisper-large-v3-v20240930_626MB"
+    public var ollamaModel: String          // e.g. "gemma4:e2b"
     /// Rewrite is opt-in: false means the rewrite hotkey inserts the plain
     /// transcript and no Ollama model is auto-selected.
     public var rewriteEnabled: Bool

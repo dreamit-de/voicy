@@ -4,7 +4,7 @@ import XCTest
 final class AppSettingsTests: XCTestCase {
     func test_default_hasSensibleValues() {
         let s = AppSettings.default
-        XCTAssertEqual(s.whisperVariant, "openai_whisper-small")
+        XCTAssertEqual(s.whisperVariant, WhisperEngine.defaultModel)
         XCTAssertNil(s.language)
         XCTAssertFalse(s.autoLaunchAtLogin)
         XCTAssertFalse(s.hasCompletedOnboarding)

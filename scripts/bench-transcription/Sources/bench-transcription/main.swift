@@ -64,13 +64,28 @@ var loadTimes: [String: Double] = [:]
 for variant in variants {
     FileHandle.standardError.write("\n=== \(variant) ===\n".data(using: .utf8)!)
     let t0 = Date()
+    var tLoad = t0
     let pipe: WhisperKit
     do {
-        let modelFolder = modelsRoot.appendingPathComponent(variant, isDirectory: true).path
+        var modelFolder = modelsRoot.appendingPathComponent(variant, isDirectory: true).path
+        var tokenizerFolder = tokenizersRoot
+        // Variant not installed by the app: optionally download it into a
+        // separate scratch location (BENCH_DOWNLOAD_BASE) so benchmarking a
+        // candidate never touches the app's own model folder.
+        if !FileManager.default.fileExists(atPath: modelFolder),
+           let base = ProcessInfo.processInfo.environment["BENCH_DOWNLOAD_BASE"], !base.isEmpty {
+            let baseURL = URL(fileURLWithPath: base, isDirectory: true)
+            FileHandle.standardError.write("  not installed in app folder — downloading to \(base)…\n".data(using: .utf8)!)
+            let dl = try await WhisperKit.download(variant: variant, downloadBase: baseURL)
+            modelFolder = dl.path
+            tokenizerFolder = baseURL.appendingPathComponent("Tokenizers", isDirectory: true)
+            FileHandle.standardError.write("  downloaded in \(String(format: "%.1f", Date().timeIntervalSince(t0)))s\n".data(using: .utf8)!)
+        }
+        tLoad = Date()
         pipe = try await WhisperKit(WhisperKitConfig(
             model: variant,
             modelFolder: modelFolder,
-            tokenizerFolder: tokenizersRoot,
+            tokenizerFolder: tokenizerFolder,
             verbose: false,
             logLevel: .error,
             prewarm: true,
@@ -80,7 +95,7 @@ for variant in variants {
         FileHandle.standardError.write("  load failed: \(error)\n".data(using: .utf8)!)
         continue
     }
-    loadTimes[variant] = Date().timeIntervalSince(t0)
+    loadTimes[variant] = Date().timeIntervalSince(tLoad)
     FileHandle.standardError.write("  loaded in \(String(format: "%.1f", loadTimes[variant]!))s\n".data(using: .utf8)!)
 
     for s in samples {
@@ -105,6 +120,7 @@ for variant in variants {
 
 // Markdown report to stdout (run.sh redirects it to bench-results/transcription.md).
 print("# Transcription model benchmark\n")
+if let measured = ProcessInfo.processInfo.environment["BENCH_DATE"] { print("measured \(measured)\n") }
 print("WhisperKit on Apple Neural Engine · `say`-synthesised DE/EN samples · WER vs reference text\n")
 print("## Summary\n")
 print("| Model | load | DE avg | EN avg | DE WER | EN WER |")
